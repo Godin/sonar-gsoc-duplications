@@ -27,7 +27,6 @@ import org.sonar.duplications.api.Lexer;
 import org.sonar.duplications.api.Token;
 import org.sonar.duplications.api.channel.BlackHoleLexerChannel;
 import org.sonar.duplications.api.channel.LexerChannel;
-import org.sonar.duplications.api.channel.NormalizationLexerChannel;
 
 public class JavaLexer extends Lexer {
 
@@ -40,7 +39,7 @@ public class JavaLexer extends Lexer {
     javaLexerChannels.add(new BlackHoleLexerChannel("/\\*[\\s\\S]*?\\*/"));
     javaLexerChannels.add(new LexerChannel("\".*?\""));
     javaLexerChannels.add(new LexerChannel("[a-zA-Z_]++"));
-    javaLexerChannels.add(new NormalizationLexerChannel("[0-9]++", "INTEGER"));
+    javaLexerChannels.add(new LexerChannel("[0-9]++", "INTEGER"));
     javaLexerChannels.add(new LexerChannel("."));
     return javaLexerChannels;
   }

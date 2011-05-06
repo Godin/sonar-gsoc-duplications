@@ -31,16 +31,26 @@ public class LexerChannel extends Channel<List<Token>> {
 
   private final StringBuilder tmpBuilder = new StringBuilder();
   private final Matcher matcher;
+  private String normalizationValue;
 
   public LexerChannel(String regex) {
     matcher = Pattern.compile(regex).matcher("");
   }
 
+  public LexerChannel(String regex, String normalizationValue) {
+    this(regex);
+    this.normalizationValue = normalizationValue;
+  }
+
   @Override
-  public final boolean consume(CodeReader code, List<Token> output) {
+  public boolean consume(CodeReader code, List<Token> output) {
     if (code.popTo(matcher, tmpBuilder) > 0) {
       String tokenValue = tmpBuilder.toString();
-      output.add(new Token(tmpBuilder.toString(), code.getLinePosition(), code.getColumnPosition() - tokenValue.length()));
+      int column = code.getColumnPosition() - tokenValue.length();
+      if (normalizationValue != null) {
+        tokenValue = normalizationValue;
+      }
+      output.add(new Token(tokenValue, code.getLinePosition(), column));
       tmpBuilder.delete(0, tmpBuilder.length());
       return true;
     }
