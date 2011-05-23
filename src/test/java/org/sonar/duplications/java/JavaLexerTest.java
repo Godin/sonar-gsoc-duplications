@@ -6,11 +6,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
+import org.sonar.duplications.api.Lexer;
 import org.sonar.duplications.api.Token;
 
 public class JavaLexerTest {
 
-  JavaLexer lexer = new JavaLexer();
+  Lexer lexer = JavaLexer.build();
 
   @Test
   public void shouldIgnoreInlineComment() {

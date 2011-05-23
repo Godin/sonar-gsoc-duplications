@@ -34,16 +34,18 @@ import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.CodeReaderConfiguration;
 
-public abstract class Lexer {
+public final class Lexer {
 
-  private Charset charset = Charset.defaultCharset();
+  private final Charset charset;
+  private final ChannelDispatcher<List<Token>> channelDispatcher;
 
-  public Lexer() {
-    this(Charset.defaultCharset());
+  public static Builder builder() {
+    return new Builder();
   }
 
-  public Lexer(Charset defaultCharset) {
-    this.charset = defaultCharset;
+  private Lexer(Builder builder) {
+    this.charset = builder.charset;
+    this.channelDispatcher = builder.getChannelDispatcher();
   }
 
   public List<Token> lex(String sourceCode) {
@@ -66,7 +68,7 @@ public abstract class Lexer {
     CodeReader code = new CodeReader(reader, new CodeReaderConfiguration());
     List<Token> tokens = new ArrayList<Token>();
     try {
-      getChannelDispatcher().consume(code, tokens);
+      channelDispatcher.consume(code, tokens);
       return tokens;
     } catch (Exception e) {
       throw new DuplicationsException("Unable to lex source code at line : " + code.getLinePosition() + " and column : "
@@ -74,9 +76,31 @@ public abstract class Lexer {
     }
   }
 
-  protected ChannelDispatcher<List<Token>> getChannelDispatcher() {
-    return new ChannelDispatcher<List<Token>>(new ArrayList<Channel>(getLexerChannels()));
-  }
+  public static final class Builder {
 
-  protected abstract List<Channel<List<Token>>> getLexerChannels();
+    private List<Channel> channels = new ArrayList<Channel>();
+    private Charset charset = Charset.defaultCharset();
+
+    private Builder() {
+    }
+
+    public Lexer build() {
+      return new Lexer(this);
+    }
+
+    public Builder addChannel(Channel<List<Token>> channel) {
+      channels.add(channel);
+      return this;
+    }
+
+    private ChannelDispatcher<List<Token>> getChannelDispatcher() {
+      return new ChannelDispatcher<List<Token>>(channels);
+    }
+
+    public Builder setCharset(Charset charset) {
+      this.charset = charset;
+      return this;
+    }
+
+  }
 }
