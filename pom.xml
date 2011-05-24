@@ -8,7 +8,7 @@
 	<name>SONAR :: GSoC :: Duplications</name>
 
 	<properties>
-		<sonar.version>2.8-SNAPSHOT</sonar.version>
+		<sonar.version>2.8</sonar.version>
 	</properties>
 
 	<dependencies>
