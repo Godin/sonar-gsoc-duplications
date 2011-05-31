@@ -6,8 +6,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
-import org.sonar.duplications.api.Lexer;
-import org.sonar.duplications.api.Token;
+import org.sonar.duplications.api.codeunit.token.Token;
+import org.sonar.duplications.api.lexer.Lexer;
+import org.sonar.duplications.api.lexer.family.JavaLexer;
 
 public class JavaLexerTest {
 

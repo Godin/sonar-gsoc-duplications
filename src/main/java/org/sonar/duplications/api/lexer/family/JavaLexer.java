@@ -17,36 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api;
+package org.sonar.duplications.api.lexer.family;
 
-public class Token {
+import org.sonar.duplications.api.lexer.Lexer;
+import org.sonar.duplications.api.lexer.channel.BlackHoleLexerChannel;
+import org.sonar.duplications.api.lexer.channel.LexerChannel;
 
-  public final int line;
-  public final int column;
-  public final String value;
 
-  public Token(String value, int line, int column) {
-    this.value = value;
-    this.column = column;
-    this.line = line;
+public class JavaLexer {
+
+  private JavaLexer() {
   }
 
-  @Override
-  public boolean equals(Object object) {
-    if (object instanceof Token) {
-      Token anotherToken = (Token) object;
-      return anotherToken.value.equals(value) && anotherToken.line == line && anotherToken.column == column;
-    }
-    return false;
+  public static final Lexer build() {
+    Lexer.Builder builder = Lexer.builder().addChannel(new BlackHoleLexerChannel("\\s"))
+        .addChannel(new BlackHoleLexerChannel("//[^\\n\\r]*+")).addChannel(new BlackHoleLexerChannel("/\\*[\\s\\S]*?\\*/"))
+        .addChannel(new LexerChannel("\".*?\"", "LITERAL")).addChannel(new LexerChannel("[a-zA-Z_]++"))
+        .addChannel(new LexerChannel("[0-9]++", "INTEGER")).addChannel(new LexerChannel("."));
+    return builder.build();
   }
-
-  @Override
-  public int hashCode() {
-    return value.hashCode() + line + column;
-  }
-
-  @Override
-  public String toString() {
-    return "'" + value + "'[" + line + "," + column + "]";
-  }
-}
+ }

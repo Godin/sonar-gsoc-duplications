@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.channel;
+package org.sonar.duplications.api.lexer.channel;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
-import org.sonar.duplications.api.Token;
+import org.sonar.duplications.api.codeunit.token.Token;
 
 public class LexerChannel extends Channel<List<Token>> {
 
@@ -47,10 +47,10 @@ public class LexerChannel extends Channel<List<Token>> {
     if (code.popTo(matcher, tmpBuilder) > 0) {
       String tokenValue = tmpBuilder.toString();
       int column = code.getColumnPosition() - tokenValue.length();
-      if (normalizationValue != null) {
-        tokenValue = normalizationValue;
-      }
-      output.add(new Token(tokenValue, code.getLinePosition(), column));
+      if (normalizationValue != null)
+    	  output.add(new Token(normalizationValue, tokenValue, code.getLinePosition(), column));
+      else
+    	  output.add(new Token(tokenValue, tokenValue, code.getLinePosition(), column));  
       tmpBuilder.delete(0, tmpBuilder.length());
       return true;
     }

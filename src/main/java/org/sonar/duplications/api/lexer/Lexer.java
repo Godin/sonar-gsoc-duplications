@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api;
+package org.sonar.duplications.api.lexer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,9 +33,10 @@ import org.sonar.channel.Channel;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.CodeReaderConfiguration;
+import org.sonar.duplications.api.DuplicationsException;
+import org.sonar.duplications.api.codeunit.token.Token;
 
 public final class Lexer {
-
   private final Charset charset;
   private final ChannelDispatcher<List<Token>> channelDispatcher;
 
@@ -103,4 +104,5 @@ public final class Lexer {
     }
 
   }
+  
 }

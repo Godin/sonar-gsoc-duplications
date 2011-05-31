@@ -17,12 +17,12 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.channel;
+package org.sonar.duplications.api.lexer.channel;
 
 import java.util.List;
 
 import org.sonar.channel.RegexChannel;
-import org.sonar.duplications.api.Token;
+import org.sonar.duplications.api.codeunit.token.Token;
 
 public class BlackHoleLexerChannel extends RegexChannel<List<Token>> {
 
