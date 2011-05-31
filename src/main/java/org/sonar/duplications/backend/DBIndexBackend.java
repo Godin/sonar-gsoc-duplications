@@ -28,27 +28,27 @@ import java.util.SortedSet;
 
 //TODO: only stub now
 public class DBIndexBackend implements HashedStatementIndex {
-    public SortedSet<HashedTuple> getByFilename(String fileName) {
-        return null;
-    }
+  public SortedSet<HashedTuple> getByFilename(String fileName) {
+    return null;
+  }
 
-    public Set<HashedTuple> getBySequenceHash(byte[] sequenceHash) {
-        return null;
-    }
+  public Set<HashedTuple> getBySequenceHash(byte[] sequenceHash) {
+    return null;
+  }
 
-    public void insert(HashedTuple tuple) {
-    }
+  public void insert(HashedTuple tuple) {
+  }
 
-    public void remove(String fileName) {
-    }
+  public void remove(String fileName) {
+  }
 
-    public void remove(HashedTuple tuple) {
-    }
+  public void remove(HashedTuple tuple) {
+  }
 
-    public void removeAll() {
-    }
+  public void removeAll() {
+  }
 
-    public int size() {
-        return 0;
-    }
+  public int size() {
+    return 0;
+  }
 }

@@ -31,81 +31,79 @@ import java.util.SortedSet;
 
 public class MemoryIndexBackend implements HashedStatementIndex {
 
-    private final TreeMultimap<String, HashedTuple> filenameIndex;
-    private final HashMultimap<ByteArrayWrap, HashedTuple> sequenceHashIndex;
+  private final TreeMultimap<String, HashedTuple> filenameIndex;
+  private final HashMultimap<ByteArrayWrap, HashedTuple> sequenceHashIndex;
 
-    private static final class ByteArrayWrap {
+  private static final class ByteArrayWrap {
 
-        private final byte[] data;
-        private final int dataHashCode;
+    private final byte[] data;
+    private final int dataHashCode;
 
-        public static ByteArrayWrap create(byte[] data) {
-            return new ByteArrayWrap(data);
-        }
-
-        private ByteArrayWrap(byte[] data) {
-            if (data == null) {
-                throw new NullPointerException();
-            }
-            this.data = data;
-            this.dataHashCode = Arrays.hashCode(data);
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if (!(other instanceof ByteArrayWrap)) {
-                return false;
-            }
-            return Arrays.equals(data, ((ByteArrayWrap) other).data);
-        }
-
-        @Override
-        public int hashCode() {
-            return this.dataHashCode;
-        }
+    public static ByteArrayWrap create(byte[] data) {
+      return new ByteArrayWrap(data);
     }
 
-
-    public MemoryIndexBackend() {
-        filenameIndex = TreeMultimap.create();
-        sequenceHashIndex = HashMultimap.create();
+    private ByteArrayWrap(byte[] data) {
+      if (data == null) {
+        throw new NullPointerException();
+      }
+      this.data = data;
+      this.dataHashCode = Arrays.hashCode(data);
     }
 
-    public SortedSet<HashedTuple> getByFilename(String fileName) {
-        return filenameIndex.get(fileName);
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof ByteArrayWrap &&
+          Arrays.equals(data, ((ByteArrayWrap) other).data);
     }
 
-    public Set<HashedTuple> getBySequenceHash(byte[] sequenceHash) {
-        return sequenceHashIndex.get(ByteArrayWrap.create(sequenceHash));
+    @Override
+    public int hashCode() {
+      return this.dataHashCode;
     }
+  }
 
-    public void insert(HashedTuple tuple) {
-        filenameIndex.put(tuple.getFileName(), tuple);
-        ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getSequenceHash());
-        sequenceHashIndex.put(wrap, tuple);
-    }
 
-    public void remove(String fileName) {
-        Set<HashedTuple> set = filenameIndex.get(fileName);
-        filenameIndex.removeAll(fileName);
-        for (HashedTuple tuple : set) {
-            ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getSequenceHash());
-            sequenceHashIndex.remove(wrap, tuple);
-        }
-    }
+  public MemoryIndexBackend() {
+    filenameIndex = TreeMultimap.create();
+    sequenceHashIndex = HashMultimap.create();
+  }
 
-    public void remove(HashedTuple tuple) {
-        filenameIndex.remove(tuple.getFileName(), tuple);
-        ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getSequenceHash());
-        sequenceHashIndex.remove(wrap, tuple);
-    }
+  public SortedSet<HashedTuple> getByFilename(String fileName) {
+    return filenameIndex.get(fileName);
+  }
 
-    public void removeAll() {
-        filenameIndex.clear();
-        sequenceHashIndex.clear();
-    }
+  public Set<HashedTuple> getBySequenceHash(byte[] sequenceHash) {
+    return sequenceHashIndex.get(ByteArrayWrap.create(sequenceHash));
+  }
 
-    public int size() {
-        return filenameIndex.size();
+  public void insert(HashedTuple tuple) {
+    filenameIndex.put(tuple.getFileName(), tuple);
+    ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getSequenceHash());
+    sequenceHashIndex.put(wrap, tuple);
+  }
+
+  public void remove(String fileName) {
+    Set<HashedTuple> set = filenameIndex.get(fileName);
+    filenameIndex.removeAll(fileName);
+    for (HashedTuple tuple : set) {
+      ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getSequenceHash());
+      sequenceHashIndex.remove(wrap, tuple);
     }
+  }
+
+  public void remove(HashedTuple tuple) {
+    filenameIndex.remove(tuple.getFileName(), tuple);
+    ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getSequenceHash());
+    sequenceHashIndex.remove(wrap, tuple);
+  }
+
+  public void removeAll() {
+    filenameIndex.clear();
+    sequenceHashIndex.clear();
+  }
+
+  public int size() {
+    return filenameIndex.size();
+  }
 }

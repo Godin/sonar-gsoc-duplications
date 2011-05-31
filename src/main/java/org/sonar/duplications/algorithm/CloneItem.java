@@ -21,87 +21,87 @@
 package org.sonar.duplications.algorithm;
 
 public class CloneItem {
-    private String firstFileName;
-    private String secondFileName;
+  private String firstFileName;
+  private String secondFileName;
 
-    private int firstStart;
-    private int secondStart;
+  private int firstStart;
+  private int secondStart;
 
-    private int cloneLength;
+  private int cloneLength;
 
-    public CloneItem() {
+  public CloneItem() {
+  }
+
+  public CloneItem(String firstFile, int firstStart, String secondFile, int secondStart, int cloneLength) {
+    this.firstFileName = firstFile;
+    this.secondFileName = secondFile;
+    this.firstStart = firstStart;
+    this.secondStart = secondStart;
+    this.cloneLength = cloneLength;
+  }
+
+  public String getFirstFileName() {
+    return firstFileName;
+  }
+
+  public void setFirstFileName(String firstFileName) {
+    this.firstFileName = firstFileName;
+  }
+
+  public String getSecondFileName() {
+    return secondFileName;
+  }
+
+  public void setSecondFileName(String secondFileName) {
+    this.secondFileName = secondFileName;
+  }
+
+  public int getFirstStart() {
+    return firstStart;
+  }
+
+  public void setFirstStart(int firstStart) {
+    this.firstStart = firstStart;
+  }
+
+  public int getSecondStart() {
+    return secondStart;
+  }
+
+  public void setSecondStart(int secondStart) {
+    this.secondStart = secondStart;
+  }
+
+  public int getCloneLength() {
+    return cloneLength;
+  }
+
+  public void setCloneLength(int cloneLength) {
+    this.cloneLength = cloneLength;
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (object instanceof CloneItem) {
+      CloneItem another = (CloneItem) object;
+      return another.firstFileName.equals(firstFileName)
+          && another.firstStart == firstStart
+          && another.secondFileName.equals(secondFileName)
+          && another.secondStart == secondStart
+          && another.cloneLength == cloneLength;
     }
+    return false;
+  }
 
-    public CloneItem(String firstFile, int firstStart, String secondFile, int secondStart, int cloneLength) {
-        this.firstFileName = firstFile;
-        this.secondFileName = secondFile;
-        this.firstStart = firstStart;
-        this.secondStart = secondStart;
-        this.cloneLength = cloneLength;
-    }
+  @Override
+  public int hashCode() {
+    return firstFileName.hashCode() + secondFileName.hashCode() +
+        firstStart + secondStart + cloneLength;
+  }
 
-    public String getFirstFileName() {
-        return firstFileName;
-    }
-
-    public void setFirstFileName(String firstFileName) {
-        this.firstFileName = firstFileName;
-    }
-
-    public String getSecondFileName() {
-        return secondFileName;
-    }
-
-    public void setSecondFileName(String secondFileName) {
-        this.secondFileName = secondFileName;
-    }
-
-    public int getFirstStart() {
-        return firstStart;
-    }
-
-    public void setFirstStart(int firstStart) {
-        this.firstStart = firstStart;
-    }
-
-    public int getSecondStart() {
-        return secondStart;
-    }
-
-    public void setSecondStart(int secondStart) {
-        this.secondStart = secondStart;
-    }
-
-    public int getCloneLength() {
-        return cloneLength;
-    }
-
-    public void setCloneLength(int cloneLength) {
-        this.cloneLength = cloneLength;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof CloneItem) {
-            CloneItem another = (CloneItem) object;
-            return another.firstFileName.equals(firstFileName)
-                    && another.firstStart == firstStart
-                    && another.secondFileName.equals(secondFileName)
-                    && another.secondStart == secondStart
-                    && another.cloneLength == cloneLength;
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return firstFileName.hashCode() + secondFileName.hashCode() +
-                firstStart + secondStart + cloneLength;
-    }
-
-    @Override
-    public String toString() {
-        return "'" + firstFileName + "':[" + firstStart + "] - '" +
-                secondFileName + "':[" + secondStart + "] " + cloneLength;
-    }
+  @Override
+  public String toString() {
+    return "'" + firstFileName + "':[" + firstStart + "] - '" +
+        secondFileName + "':[" + secondStart + "] " + cloneLength;
+  }
 }

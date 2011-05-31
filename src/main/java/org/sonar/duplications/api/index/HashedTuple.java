@@ -24,84 +24,78 @@ import java.util.Arrays;
 
 public class HashedTuple implements Comparable {
 
-    static final String HEXES = "0123456789ABCDEF";
+  private static final String HEXES = "0123456789ABCDEF";
 
-    private final String fileName;
-    private final int statementIndex;
-    private final byte[] sequenceHash;
+  private final String fileName;
+  private final int statementIndex;
+  private final byte[] sequenceHash;
 
-    private final int fileNameHashCode;
-    private final int arrayHashCode;
+  private final int fileNameHashCode;
+  private final int arrayHashCode;
 
-    public HashedTuple(String fileName, int statementIndex, byte[] sequenceHash) {
-        if (sequenceHash == null) {
-            throw new IllegalArgumentException("sequenceHash argument cannot be null");
-        }
-        this.fileName = fileName;
-        this.statementIndex = statementIndex;
-        this.sequenceHash = sequenceHash;
-        this.arrayHashCode = Arrays.hashCode(sequenceHash);
-        this.fileNameHashCode = fileName.hashCode();
+  public HashedTuple(String fileName, int statementIndex, byte[] sequenceHash) {
+    if (sequenceHash == null) {
+      throw new IllegalArgumentException("sequenceHash argument cannot be null");
     }
+    this.fileName = fileName;
+    this.statementIndex = statementIndex;
+    this.sequenceHash = sequenceHash;
+    this.arrayHashCode = Arrays.hashCode(sequenceHash);
+    this.fileNameHashCode = fileName.hashCode();
+  }
 
-    public String getFileName() {
-        return fileName;
-    }
+  public String getFileName() {
+    return fileName;
+  }
 
-    public int getStatementIndex() {
-        return statementIndex;
-    }
+  public int getStatementIndex() {
+    return statementIndex;
+  }
 
-    public byte[] getSequenceHash() {
-        return sequenceHash;
-    }
+  public byte[] getSequenceHash() {
+    return sequenceHash;
+  }
 
-    private static String getHex(byte[] raw) {
-        if (raw == null) {
-            return null;
-        }
-        final StringBuilder hex = new StringBuilder(2 * raw.length);
-        for (final byte b : raw) {
-            hex.append(HEXES.charAt((b & 0xF0) >> 4))
-                    .append(HEXES.charAt((b & 0x0F)));
-        }
-        return hex.toString();
+  private static String getHex(byte[] raw) {
+    if (raw == null) {
+      return null;
     }
+    final StringBuilder hex = new StringBuilder(2 * raw.length);
+    for (final byte b : raw) {
+      hex.append(HEXES.charAt((b & 0xF0) >> 4))
+          .append(HEXES.charAt((b & 0x0F)));
+    }
+    return hex.toString();
+  }
 
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof HashedTuple) {
-            HashedTuple anotherTuple = (HashedTuple) object;
-            return anotherTuple.fileName.equals(fileName)
-                    && anotherTuple.statementIndex == statementIndex
-                    && Arrays.equals(anotherTuple.sequenceHash, sequenceHash);
-        }
-        return false;
+  @Override
+  public boolean equals(Object object) {
+    if (object instanceof HashedTuple) {
+      HashedTuple anotherTuple = (HashedTuple) object;
+      return anotherTuple.fileName.equals(fileName)
+          && anotherTuple.statementIndex == statementIndex
+          && Arrays.equals(anotherTuple.sequenceHash, sequenceHash);
     }
+    return false;
+  }
 
-    @Override
-    public int hashCode() {
-        return fileNameHashCode + statementIndex + this.arrayHashCode;
-    }
+  @Override
+  public int hashCode() {
+    return fileNameHashCode + statementIndex + this.arrayHashCode;
+  }
 
-    @Override
-    public String toString() {
-        return "'" + fileName + "'[" + statementIndex + "]:" + getHex(sequenceHash);
-    }
+  @Override
+  public String toString() {
+    return "'" + fileName + "'[" + statementIndex + "]:" + getHex(sequenceHash);
+  }
 
-    /**
-     * Need to compare only tuples with same fileName
-     *
-     * @param object
-     * @return
-     */
-    public int compareTo(Object object) {
-        if (object instanceof HashedTuple) {
-            HashedTuple anotherTuple = (HashedTuple) object;
-            if (anotherTuple.fileName.equals(fileName)) {
-                return statementIndex - anotherTuple.statementIndex;
-            }
-        }
-        return -1;
+  public int compareTo(Object object) {
+    if (object instanceof HashedTuple) {
+      HashedTuple anotherTuple = (HashedTuple) object;
+      if (anotherTuple.fileName.equals(fileName)) {
+        return statementIndex - anotherTuple.statementIndex;
+      }
     }
+    return -1;
+  }
 }
