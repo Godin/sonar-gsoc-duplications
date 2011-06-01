@@ -1,5 +1,6 @@
 package org.sonar.duplications.java;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +22,12 @@ public class BlockProviderTest {
 	
 	BlockProvider blockProvider;
 	
-	String filename = this.getClass().getResource("/org/sonar/duplications/java/TestFile.jav").getPath();
-	
+	File testFile = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
+
 	@Before
 	public void initTest(){
 		
-		SourceCodeElement rootSourceElement = new SourceCodeElement(filename , Charset.defaultCharset(), ELanguage.JAVA);
+		SourceCodeElement rootSourceElement = new SourceCodeElement(testFile.getPath() , Charset.defaultCharset(), ELanguage.JAVA);
 		Lexer lexer = LexterFactory.getJavaLexer();
 		TokenProvider tokenProvider = new TokenProvider(lexer);
 		StatementProvider statementProvider = new StatementProvider(tokenProvider, true);

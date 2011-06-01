@@ -21,12 +21,12 @@ import org.sonar.duplications.api.sourcecode.SourceCodeElement;
 public class StatementProviderTest {
 
 	StatementProvider statementProvider;
-	String filename = this.getClass().getResource("/org/sonar/duplications/java/TestFile.jav").getPath();
+	File testFile = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
 	
 	@Before
 	public void initTest(){
 		
-		SourceCodeElement rootSourceElement = new SourceCodeElement(filename , Charset.defaultCharset(), ELanguage.JAVA);
+		SourceCodeElement rootSourceElement = new SourceCodeElement(testFile.getPath() , Charset.defaultCharset(), ELanguage.JAVA);
 		Lexer lexer = LexterFactory.getJavaLexer();
 		TokenProvider tokenProvider = new TokenProvider(lexer);
 
@@ -43,10 +43,10 @@ public class StatementProviderTest {
 		}
 		
 		assertThat(statementList, hasItems(
-				new Statement(new File(filename), 4, 4, "publicstaticvoidmain(String[]args)", "publicstaticvoidmain(String[]args)", 2), 
-				new Statement(new File(filename), 8, 8, "caseINTEGER:dirlist(args[INTEGER])", "case1:dirlist(args[0])", 6), 
-				new Statement(new File(filename), 10, 10, "default:System.out.println(LITERAL)", "default:System.out.println(\"Multiple files are not allow.\")",8),
-				new Statement(new File(filename), 11, 11, "System.exit(INTEGER)", "System.exit(0)", 9)));
+				new Statement(testFile, 4, 4, "publicstaticvoidmain(String[]args)", "publicstaticvoidmain(String[]args)", 2), 
+				new Statement(testFile, 8, 8, "caseINTEGER:dirlist(args[INTEGER])", "case1:dirlist(args[0])", 6), 
+				new Statement(testFile, 10, 10, "default:System.out.println(LITERAL)", "default:System.out.println(\"Multiple files are not allow.\")",8),
+				new Statement(testFile, 11, 11, "System.exit(INTEGER)", "System.exit(0)", 9)));
 
 	}
 	

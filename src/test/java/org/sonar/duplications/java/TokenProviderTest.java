@@ -3,6 +3,7 @@ package org.sonar.duplications.java;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +26,9 @@ public class TokenProviderTest {
 	@Before
 	public void initTest(){
 		
-		String filename = this.getClass().getResource("/org/sonar/duplications/java/TestFile.jav").getPath();
+		File testFile = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
 		
-		SourceCodeElement rootSourceElement = new SourceCodeElement(filename , Charset
+		SourceCodeElement rootSourceElement = new SourceCodeElement(testFile.getPath() , Charset
 				.defaultCharset(), ELanguage.JAVA);
 		//ISourceCodeElementProvider<ISourceCodeElement> elementProvider = new SourceCodeElementProvider<ISourceCodeElement>();
 		lexer = LexterFactory.getJavaLexer();
