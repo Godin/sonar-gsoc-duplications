@@ -21,7 +21,7 @@ public class BlockProviderTest {
 	
 	BlockProvider blockProvider;
 	
-	String filename = this.getClass().getResource("../testdata/Test1.jav").getPath();
+	String filename = this.getClass().getResource("/org/sonar/duplications/java/TestFile.jav").getPath();
 	
 	@Before
 	public void initTest(){

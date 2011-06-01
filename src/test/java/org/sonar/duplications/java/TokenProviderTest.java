@@ -25,7 +25,7 @@ public class TokenProviderTest {
 	@Before
 	public void initTest(){
 		
-		String filename = this.getClass().getResource("../testdata/Test1.jav").getPath();
+		String filename = this.getClass().getResource("/org/sonar/duplications/java/TestFile.jav").getPath();
 		
 		SourceCodeElement rootSourceElement = new SourceCodeElement(filename , Charset
 				.defaultCharset(), ELanguage.JAVA);
