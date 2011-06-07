@@ -28,7 +28,7 @@ import java.util.*;
 public class CloneReporter {
 
   /**
-   * Use this wrapper int Set to intersect only by fileName
+   * Use this comparator in TreeSet to intersect only by fileName
    */
   private static class ResourceIdBlockComparator implements Comparator<Block> {
 

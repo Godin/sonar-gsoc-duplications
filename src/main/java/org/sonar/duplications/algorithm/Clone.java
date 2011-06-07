@@ -146,7 +146,7 @@ public class Clone {
   public int hashCode() {
     return firstResourceId.hashCode() + secondResourceId.hashCode() +
         firstUnitStart + secondUnitStart + firstLineStart +
-        firstLineStart + secondLineStart + secondLineEnd + 413 * cloneLength;
+        firstLineEnd + secondLineStart + secondLineEnd + 413 * cloneLength;
   }
 
   @Override
