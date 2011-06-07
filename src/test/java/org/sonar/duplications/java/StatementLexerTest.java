@@ -12,6 +12,7 @@ import static org.junit.Assert.assertThat;
 
 public class StatementLexerTest {
 
+  static String newline = System.getProperty("line.separator");
   StatementExtractor statementExtractor = StatementExtractor.getInstance();
 
   @Test
@@ -29,7 +30,7 @@ public class StatementLexerTest {
   @Test
   public void shouldLexAnnotationStatement() {
     File testFile = new File("test-resources/org/sonar/duplications/cpd/CPDTest/StatementTest/Annotation.java");
-    assertThat(statementExtractor.extractStatement(testFile).get(0).getOriginalContent(), is("@Override"));
+    assertThat(statementExtractor.extractStatement(testFile).get(0).getOriginalContent(), is("@Override"+newline));
   }
 
   @Test
@@ -46,7 +47,7 @@ public class StatementLexerTest {
     assertThat(tokenList.get(5).getOriginalContent(), is("else if(id.length() == -1){"));
     assertThat(tokenList.get(6).getOriginalContent(), is("id+= \"../\";"));
     assertThat(tokenList.get(7).getOriginalContent(), is("}"));
-    assertThat(tokenList.get(8).getOriginalContent(), is("if (id.length() == 0)\r\n{"));
+    assertThat(tokenList.get(8).getOriginalContent(), is("if (id.length() == 0)"+newline+"{"));
     assertThat(tokenList.get(9).getOriginalContent(), is("return localname;"));
     assertThat(tokenList.get(10).getOriginalContent(), is("}"));
     assertThat(tokenList.get(11).getOriginalContent(), is("if (id.length() == 0) {"));
@@ -63,7 +64,7 @@ public class StatementLexerTest {
     assertThat(tokenList.get(0).getOriginalContent(), is("for (int i=0; i<children.length; i++) {"));
     assertThat(tokenList.get(1).getOriginalContent(), is("total += i;"));
     assertThat(tokenList.get(2).getOriginalContent(), is("}"));
-    assertThat(tokenList.get(3).getOriginalContent(), is("for (int i=0; \r\ni<children.length; \r\ni++) {"));
+    assertThat(tokenList.get(3).getOriginalContent(), is("for (int i=0; "+newline+"i<children.length; "+newline+"i++) {"));
     assertThat(tokenList.get(4).getOriginalContent(), is("total += i;"));
     assertThat(tokenList.get(5).getOriginalContent(), is("}"));
     assertThat(tokenList.get(6).getOriginalContent(), is("for (int i=0; i<children.length; i++)"));
@@ -112,9 +113,9 @@ public class StatementLexerTest {
     assertThat(tokenList.get(0).getOriginalContent(), is("switch (month) {"));
     assertThat(tokenList.get(1).getOriginalContent(), is("case 1: monthString = \"January\";"));
     assertThat(tokenList.get(2).getOriginalContent(), is("break;"));
-    assertThat(tokenList.get(3).getOriginalContent(), is("case 2: \r\n\tmonthString = \"February\";"));
+    assertThat(tokenList.get(3).getOriginalContent(), is("case 2: "+newline+"\tmonthString = \"February\";"));
     assertThat(tokenList.get(4).getOriginalContent(), is("break;"));
-    assertThat(tokenList.get(5).getOriginalContent(), is("case 3: \r\n\tmonthString = \"March\";"));
+    assertThat(tokenList.get(5).getOriginalContent(), is("case 3: "+newline+"\tmonthString = \"March\";"));
     assertThat(tokenList.get(6).getOriginalContent(), is("break;"));
     assertThat(tokenList.get(7).getOriginalContent(), is("default: monthString = \"Invalid month\";"));
     assertThat(tokenList.get(8).getOriginalContent(), is("}"));
