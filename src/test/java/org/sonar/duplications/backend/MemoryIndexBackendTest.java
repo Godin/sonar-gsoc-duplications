@@ -21,6 +21,25 @@ public class MemoryIndexBackendTest {
   }
 
   @Test
+  public void testUniqueResources() {
+    memBack.insert(new Block("a", new byte[]{0}, 0, 0, 10));
+    memBack.insert(new Block("b", new byte[]{1}, 0, 0, 10));
+    memBack.insert(new Block("c", new byte[]{2}, 0, 0, 10));
+    assertThat(memBack.getAllUniqueResourceId().size(), is(3));
+  }
+
+  @Test
+  public void testContainsResource() {
+    memBack.insert(new Block("a", new byte[]{0}, 0, 0, 10));
+    memBack.insert(new Block("b", new byte[]{1}, 0, 0, 10));
+    memBack.insert(new Block("c", new byte[]{2}, 0, 0, 10));
+    assertThat(memBack.containsResourceId("a"), is(true));
+    assertThat(memBack.containsResourceId("b"), is(true));
+    assertThat(memBack.containsResourceId("c"), is(true));
+    assertThat(memBack.containsResourceId("d"), is(false));
+  }
+
+  @Test
   public void testClearAll() {
     assertThat(memBack.size(), is(0));
     for (int i = 0; i < 10; i++) {

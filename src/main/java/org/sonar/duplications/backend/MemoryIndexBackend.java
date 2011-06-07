@@ -94,6 +94,14 @@ public class MemoryIndexBackend implements CloneIndexBackend {
     sequenceHashIndex = HashMultimap.create();
   }
 
+  public Set<String> getAllUniqueResourceId() {
+    return filenameIndex.keySet();
+  }
+
+  public boolean containsResourceId(String resourceId) {
+    return filenameIndex.containsKey(resourceId);
+  }
+
   public SortedSet<Block> getByResourceId(String fileName) {
     return filenameIndex.get(fileName);
   }

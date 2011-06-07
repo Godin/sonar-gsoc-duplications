@@ -26,15 +26,20 @@ import java.util.Set;
 import java.util.SortedSet;
 
 public interface CloneIndexBackend {
+
+  public Set<String> getAllUniqueResourceId();
+
+  public boolean containsResourceId(String resourceId);
+
   /**
    * Method performs search in index db. Parameter is full filename inside
    * project exactly the same as it was saved in db.
    * If file is moved inside project it should be removed and then added again.
    *
-   * @param fileName - full path of file in project with filename
+   * @param resourceId - unique resourceId like file name
    * @return list of <tt>Block</tt> from index and empty list if nothing found
    */
-  public SortedSet<Block> getByResourceId(String fileName);
+  public SortedSet<Block> getByResourceId(String resourceId);
 
   /**
    * Search by sequence hash.

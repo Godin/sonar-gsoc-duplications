@@ -18,46 +18,16 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.backend;
+package org.sonar.duplications.api;
 
-import org.sonar.duplications.api.codeunit.block.Block;
-import org.sonar.duplications.api.index.CloneIndexBackend;
 
-import java.util.Set;
-import java.util.SortedSet;
+public class CloneIndexException extends RuntimeException {
 
-//TODO: only stub now
-public class DBIndexBackend implements CloneIndexBackend {
-
-  public Set<String> getAllUniqueResourceId() {
-    return null;
+  public CloneIndexException(String message) {
+    super(message);
   }
 
-  public boolean containsResourceId(String resourceId) {
-    return false;
-  }
-
-  public SortedSet<Block> getByResourceId(String fileName) {
-    return null;
-  }
-
-  public Set<Block> getBySequenceHash(byte[] sequenceHash) {
-    return null;
-  }
-
-  public void insert(Block tuple) {
-  }
-
-  public void remove(String fileName) {
-  }
-
-  public void remove(Block tuple) {
-  }
-
-  public void removeAll() {
-  }
-
-  public int size() {
-    return 0;
+  public CloneIndexException(String message, Throwable cause) {
+    super(message, cause);
   }
 }
