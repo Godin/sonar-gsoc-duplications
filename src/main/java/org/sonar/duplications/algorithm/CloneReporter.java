@@ -20,6 +20,7 @@
  */
 package org.sonar.duplications.algorithm;
 
+import com.sun.org.apache.xpath.internal.operations.And;
 import org.sonar.duplications.api.codeunit.Block;
 import org.sonar.duplications.api.index.CloneIndexBackend;
 
@@ -41,11 +42,39 @@ public class CloneReporter {
     }
   }
 
+  private static class BlockWrap implements Comparable<BlockWrap> {
+
+    private final Block block;
+
+    private boolean compareUnitMode;
+
+    private BlockWrap(Block block) {
+      this(block, false);
+    }
+
+    private BlockWrap(Block block, boolean compareUnitMode) {
+      this.block = block;
+      this.compareUnitMode = compareUnitMode;
+    }
+
+    public Block getBlock() {
+      return block;
+    }
+
+    public int compareTo(BlockWrap o) {
+      if ((compareUnitMode || o.compareUnitMode)
+          && block.getResourceId().equals(o.block.getResourceId())) {
+        return block.getFirstUnitIndex() - o.block.getFirstUnitIndex();
+      }
+      return block.getResourceId().compareTo(o.block.getResourceId());
+    }
+  }
+
   public static List<Clone> reportClones(String filename, CloneIndexBackend index) {
     SortedSet<Block> resourceSet = index.getByResourceId(filename);
 
     int totalSequences = resourceSet.size();
-    ArrayList<Set<Block>> tuplesC = new ArrayList<Set<Block>>(totalSequences);
+    ArrayList<Set<BlockWrap>> tuplesC = new ArrayList<Set<BlockWrap>>(totalSequences);
     ArrayList<Block> resourceBlocks = new ArrayList<Block>(totalSequences);
 
     ArrayList<Clone> clones = new ArrayList<Clone>();
@@ -58,9 +87,9 @@ public class CloneReporter {
         continue;
       }
 
-      Set<Block> current = createNewSet(tuplesC.get(i));
+      Set<BlockWrap> current = createNewSet(tuplesC.get(i));
       for (int j = i + 1; j < totalSequences + 1; j++) {
-        Set<Block> intersected = createNewSet(current);
+        Set<BlockWrap> intersected = createNewSet(current);
         //do intersection
         intersected.retainAll(tuplesC.get(j));
 
@@ -68,9 +97,9 @@ public class CloneReporter {
         if (intersected.size() < current.size()) {
           //report clones from tuplesC[i] to current
           int cloneLength = j - i;
-          Set<Block> beginSet = tuplesC.get(i);
-          Set<Block> endSet = tuplesC.get(j - 1);
-          Set<Block> prebeginSet = createNewSet(null);
+          Set<BlockWrap> beginSet = tuplesC.get(i);
+          Set<BlockWrap> endSet = tuplesC.get(j - 1);
+          Set<BlockWrap> prebeginSet = createNewSet(null);
           if (i > 0) {
             prebeginSet = tuplesC.get(i - 1);
           }
@@ -88,48 +117,57 @@ public class CloneReporter {
     return clones;
   }
 
-  private static Set<Block> createNewSet(Set<Block> set) {
-    Set<Block> treeSet = new TreeSet<Block>(new ResourceIdBlockComparator());
+  private static Set<BlockWrap> createNewSet(Set<BlockWrap> set) {
+    Set<BlockWrap> treeSet = new TreeSet<BlockWrap>();
     if (set != null) {
       treeSet.addAll(set);
     }
     return treeSet;
   }
 
-  private static void prepareSets(SortedSet<Block> fileSet, List<Set<Block>> tuplesC,
+  private static void prepareSets(SortedSet<Block> fileSet, List<Set<BlockWrap>> tuplesC,
                                   List<Block> fileBlocks, CloneIndexBackend index) {
     for (Block block : fileSet) {
       Set<Block> set = index.getBySequenceHash(block.getBlockHash());
+      Set<BlockWrap> wrapSet = new TreeSet<BlockWrap>();
+      for (Block foundBlock : set) {
+        boolean compSameFile = foundBlock.getResourceId().equals(block.getResourceId());
+        compSameFile = compSameFile && !foundBlock.equals(block);
+        compSameFile = compSameFile && block.getFirstUnitIndex() < foundBlock.getFirstUnitIndex();
+        wrapSet.add(new BlockWrap(foundBlock, compSameFile));
+      }
       fileBlocks.add(block);
-      tuplesC.add(createNewSet(set));
+      tuplesC.add(wrapSet);
     }
     //to fix last element bug
     tuplesC.add(createNewSet(null));
   }
 
-  private static void reportClone(Block beginTuple, Block endTuple, Set<Block> beginSet, Set<Block> endSet,
-                                  Set<Block> prebeginSet, Set<Block> intersected, int cloneLength, List<Clone> clones) {
+  private static void reportClone(Block beginTuple, Block endTuple, Set<BlockWrap> beginSet, Set<BlockWrap> endSet,
+                                  Set<BlockWrap> prebeginSet, Set<BlockWrap> intersected, int cloneLength, List<Clone> clones) {
     String firstFile = beginTuple.getResourceId();
     int firstUnitIndex = beginTuple.getFirstUnitIndex();
     int firstLineStart = beginTuple.getFirstLineNumber();
     int firstLineEnd = endTuple.getLastLineNumber();
-    TreeMap<String, Block> map = new TreeMap<String, Block>();
-    for (Block block : endSet) {
-      map.put(block.getResourceId(), block);
+    TreeMap<BlockWrap, Block> map = new TreeMap<BlockWrap, Block>();
+    for (BlockWrap blockWrap : endSet) {
+      Block block = blockWrap.getBlock();
+      map.put(blockWrap, block);
     }
 
     //cycle in filenames in clone start position
-    for (Block secondStartBlock : beginSet) {
+    for (BlockWrap secondStartBlockWrap : beginSet) {
       // &&
+      Block secondStartBlock = secondStartBlockWrap.getBlock();
       boolean condition = !firstFile.equals(secondStartBlock.getResourceId());
       condition = condition || beginTuple.getFirstUnitIndex() != secondStartBlock.getFirstUnitIndex();
-      condition = condition && !intersected.contains(secondStartBlock);
-      condition = condition && !prebeginSet.contains(secondStartBlock);
+      condition = condition && !intersected.contains(secondStartBlockWrap);
+      condition = condition && !prebeginSet.contains(secondStartBlockWrap);
       if (condition) {
         String secondFile = secondStartBlock.getResourceId();
         int secondUnitIndex = secondStartBlock.getFirstUnitIndex();
         int secondLineStart = secondStartBlock.getFirstLineNumber();
-        Block secondEndBlock = map.get(secondStartBlock.getResourceId());
+        Block secondEndBlock = map.get(secondStartBlockWrap);
         int secondLineEnd = secondEndBlock.getLastLineNumber();
 
         ClonePart part1 = new ClonePart(firstFile, firstUnitIndex, firstLineStart, firstLineEnd);

@@ -1,6 +1,7 @@
 package org.sonar.duplications.algorithm;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.duplications.api.codeunit.Block;
 import org.sonar.duplications.api.index.CloneIndexBackend;
@@ -90,5 +91,56 @@ public class CloneReporterTest {
     List<Clone> items = CloneReporter.reportClones("a", indexBackend);
     assertThat(items.size(), is(1));
     assertThat(items, hasItem(new Clone("a", 1, 1, 7, "b", 1, 1, 7, 2)));
+  }
+
+  @Test
+  public void testDuplicatesSameFile1() {
+    indexBackend.insert(new Block("a", new byte[]{0}, 0, 0, 5));
+    indexBackend.insert(new Block("a", new byte[]{1}, 1, 1, 6));
+    indexBackend.insert(new Block("a", new byte[]{2}, 2, 2, 7));
+
+    indexBackend.insert(new Block("a", new byte[]{3}, 3, 3, 8));
+    indexBackend.insert(new Block("a", new byte[]{1}, 4, 4, 9));
+    indexBackend.insert(new Block("a", new byte[]{4}, 5, 5, 10));
+
+    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
+    assertThat(items.size(), is(1));
+    assertThat(items, hasItem(new Clone("a", 1, 1, 6, "a", 4, 4, 9, 1)));
+  }
+
+  @Test
+  public void testDuplicatesSameFile2() {
+    indexBackend.insert(new Block("a", new byte[]{0}, 0, 0, 5));
+    indexBackend.insert(new Block("a", new byte[]{1}, 1, 1, 6));
+    indexBackend.insert(new Block("a", new byte[]{2}, 2, 2, 7));
+
+    indexBackend.insert(new Block("a", new byte[]{3}, 3, 3, 8));
+    indexBackend.insert(new Block("a", new byte[]{4}, 4, 4, 9));
+    indexBackend.insert(new Block("a", new byte[]{0}, 5, 5, 10));
+
+    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
+    assertThat(items.size(), is(1));
+    assertThat(items, hasItem(new Clone("a", 5, 5, 10, "a", 0, 0, 5, 1)));
+  }
+
+  @Test
+  public void testDuplicatesSameFileTriangle() {
+    indexBackend.insert(new Block("a", new byte[]{0}, 0, 0, 5));
+    indexBackend.insert(new Block("a", new byte[]{1}, 1, 1, 6));
+    indexBackend.insert(new Block("a", new byte[]{2}, 2, 2, 7));
+
+    indexBackend.insert(new Block("a", new byte[]{3}, 3, 3, 8));
+    indexBackend.insert(new Block("a", new byte[]{1}, 4, 4, 9));
+    indexBackend.insert(new Block("a", new byte[]{4}, 5, 5, 10));
+
+    indexBackend.insert(new Block("a", new byte[]{5}, 6, 6, 11));
+    indexBackend.insert(new Block("a", new byte[]{1}, 7, 7, 12));
+    indexBackend.insert(new Block("a", new byte[]{6}, 8, 8, 13));
+
+    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
+    assertThat(items.size(), is(3));
+    assertThat(items, hasItem(new Clone("a", 1, 1, 6, "a", 4, 4, 9, 1)));
+    assertThat(items, hasItem(new Clone("a", 1, 1, 6, "a", 7, 7, 12, 1)));
+    assertThat(items, hasItem(new Clone("a", 7, 7, 12, "a", 4, 4, 9, 1)));
   }
 }
