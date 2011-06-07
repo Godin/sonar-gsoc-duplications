@@ -2,12 +2,16 @@ package org.sonar.duplications;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.duplications.algorithm.Clone;
 import org.sonar.duplications.api.codeunit.block.Block;
 import org.sonar.duplications.api.index.CloneIndexBackend;
 import org.sonar.duplications.api.index.FileBlockGroup;
 import org.sonar.duplications.api.index.GlobalCloneIndex;
 import org.sonar.duplications.backend.MemoryIndexBackend;
 
+import java.util.Set;
+
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -44,5 +48,36 @@ public class GlobalCloneIndexTest {
     file2.addBlock(new Block("a", new byte[]{5}, 2, 2, 8));
     index.addOrUpdateFileCloneIndex(file2);
     assertThat(backend.size(), is(2));
+  }
+
+  //with duplicates
+  @Test
+  public void testClones() {
+    FileBlockGroup fileA = new FileBlockGroup("a");
+    fileA.addBlock(new Block("a", new byte[]{0}, 0, 0, 5));
+    fileA.addBlock(new Block("a", new byte[]{1}, 1, 1, 6));
+    fileA.addBlock(new Block("a", new byte[]{2}, 2, 2, 7));
+    fileA.addBlock(new Block("a", new byte[]{3}, 3, 3, 8));
+    fileA.addBlock(new Block("a", new byte[]{4}, 4, 4, 9));
+
+    FileBlockGroup fileB = new FileBlockGroup("b");
+    fileB.addBlock(new Block("b", new byte[]{1}, 1, 1, 6));
+    fileB.addBlock(new Block("b", new byte[]{2}, 2, 2, 7));
+    fileB.addBlock(new Block("b", new byte[]{3}, 3, 3, 8));
+
+    FileBlockGroup fileC = new FileBlockGroup("c");
+    fileC.addBlock(new Block("c", new byte[]{1}, 1, 1, 6));
+    fileC.addBlock(new Block("c", new byte[]{2}, 2, 2, 7));
+    fileC.addBlock(new Block("c", new byte[]{3}, 3, 3, 8));
+
+    index.addOrUpdateFileCloneIndex(fileA);
+    index.addOrUpdateFileCloneIndex(fileB);
+    index.addOrUpdateFileCloneIndex(fileC);
+
+    Set<Clone> items = index.getClones();
+    assertThat(items, hasItem(new Clone("a", 1, 1, 8, "b", 1, 1, 8, 3)));
+    assertThat(items, hasItem(new Clone("b", 1, 1, 8, "a", 1, 1, 8, 3)));
+    assertThat(items, hasItem(new Clone("a", 1, 1, 8, "c", 1, 1, 8, 3)));
+    assertThat(items, hasItem(new Clone("c", 1, 1, 8, "a", 1, 1, 8, 3)));
   }
 }
