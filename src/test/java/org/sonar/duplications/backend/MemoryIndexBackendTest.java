@@ -2,8 +2,8 @@ package org.sonar.duplications.backend;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.duplications.api.index.HashedStatementIndex;
-import org.sonar.duplications.api.index.HashedTuple;
+import org.sonar.duplications.api.codeunit.block.Block;
+import org.sonar.duplications.api.index.CloneIndexBackend;
 
 import java.util.SortedSet;
 
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 public class MemoryIndexBackendTest {
 
-  private HashedStatementIndex memBack;
+  private CloneIndexBackend memBack;
 
   @Before
   public void initialize() {
@@ -24,7 +24,7 @@ public class MemoryIndexBackendTest {
   public void testClearAll() {
     assertThat(memBack.size(), is(0));
     for (int i = 0; i < 10; i++) {
-      memBack.insert(new HashedTuple("a", i, new byte[]{0}));
+      memBack.insert(new Block("a", new byte[]{0}, i, 0, 10));
     }
     assertThat(memBack.size(), is(10));
 
@@ -34,22 +34,22 @@ public class MemoryIndexBackendTest {
 
   @Test
   public void byFileName() {
-    HashedTuple tuple1 = new HashedTuple("a", 0, new byte[]{0});
-    HashedTuple tuple2 = new HashedTuple("a", 1, new byte[]{0});
+    Block tuple1 = new Block("a", new byte[]{0}, 0, 0, 10);
+    Block tuple2 = new Block("a", new byte[]{0}, 1, 10, 20);
 
-    assertThat(memBack.getByFilename("a").size(), is(0));
+    assertThat(memBack.getByResourceId("a").size(), is(0));
 
     memBack.insert(tuple1);
-    assertThat(memBack.getByFilename("a").size(), is(1));
+    assertThat(memBack.getByResourceId("a").size(), is(1));
 
     memBack.insert(tuple2);
-    assertThat(memBack.getByFilename("a").size(), is(2));
+    assertThat(memBack.getByResourceId("a").size(), is(2));
   }
 
   @Test
   public void bySequenceHash() {
-    HashedTuple tuple1 = new HashedTuple("a", 0, new byte[]{0});
-    HashedTuple tuple2 = new HashedTuple("a", 1, new byte[]{0});
+    Block tuple1 = new Block("a", new byte[]{0}, 0, 0, 5);
+    Block tuple2 = new Block("a", new byte[]{0}, 1, 1, 6);
 
     assertThat(memBack.getBySequenceHash(new byte[]{0}).size(), is(0));
 
@@ -62,34 +62,34 @@ public class MemoryIndexBackendTest {
 
   @Test
   public void insertSame() {
-    HashedTuple tuple = new HashedTuple("a", 0, new byte[]{0});
-    HashedTuple tupleSame = new HashedTuple("a", 0, new byte[]{0});
+    Block tuple = new Block("a", new byte[]{0}, 0, 0, 5);
+    Block tupleSame = new Block("a", new byte[]{0}, 0, 0, 5);
 
-    assertThat(memBack.getByFilename("a").size(), is(0));
+    assertThat(memBack.getByResourceId("a").size(), is(0));
     assertThat(memBack.getBySequenceHash(new byte[]{0}).size(), is(0));
 
     memBack.insert(tuple);
-    assertThat(memBack.getByFilename("a").size(), is(1));
+    assertThat(memBack.getByResourceId("a").size(), is(1));
     assertThat(memBack.getBySequenceHash(new byte[]{0}).size(), is(1));
 
     memBack.insert(tupleSame);
-    assertThat(memBack.getByFilename("a").size(), is(1));
+    assertThat(memBack.getByResourceId("a").size(), is(1));
     assertThat(memBack.getBySequenceHash(new byte[]{0}).size(), is(1));
   }
 
   @Test
   public void testSorted() {
     for (int i = 0; i < 10; i++) {
-      memBack.insert(new HashedTuple("a", 10 - i, new byte[]{1}));
+      memBack.insert(new Block("a", new byte[]{1}, 10 - i, i, i + 5));
     }
-    assertThat(memBack.getByFilename("a").size(), is(10));
+    assertThat(memBack.getByResourceId("a").size(), is(10));
     assertThat(memBack.getBySequenceHash(new byte[]{1}).size(), is(10));
 
-    SortedSet<HashedTuple> set = memBack.getByFilename("a");
+    SortedSet<Block> set = memBack.getByResourceId("a");
     int prevStatementIndex = 0;
-    for (HashedTuple tuple : set) {
-      assertTrue(tuple.getStatementIndex() > prevStatementIndex);
-      prevStatementIndex = tuple.getStatementIndex();
+    for (Block tuple : set) {
+      assertTrue(tuple.getFirstUnitIndex() > prevStatementIndex);
+      prevStatementIndex = tuple.getFirstUnitIndex();
     }
   }
 }

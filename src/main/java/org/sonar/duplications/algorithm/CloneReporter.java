@@ -20,8 +20,8 @@
  */
 package org.sonar.duplications.algorithm;
 
-import org.sonar.duplications.api.index.HashedStatementIndex;
-import org.sonar.duplications.api.index.HashedTuple;
+import org.sonar.duplications.api.codeunit.block.Block;
+import org.sonar.duplications.api.index.CloneIndexBackend;
 
 import java.util.*;
 
@@ -30,52 +30,28 @@ public class CloneReporter {
   /**
    * Use this wrapper int Set to intersect only by fileName
    */
-  private static class HashedTupleWrapper implements Comparable {
+  private static class ResourceIdBlockComparator implements Comparator<Block> {
 
-    private final HashedTuple tuple;
-
-    private HashedTupleWrapper(HashedTuple tuple) {
-      this.tuple = tuple;
+    public int compare(Block o1, Block o2) {
+      return o1.getResourceId().compareTo(o2.getResourceId());
     }
 
-    public HashedTuple getTuple() {
-      return tuple;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-      if (object instanceof HashedTupleWrapper) {
-        HashedTupleWrapper another = (HashedTupleWrapper) object;
-        return another.tuple.getFileName().equals(tuple.getFileName());
-      }
-      return false;
-    }
-
-    @Override
-    public int hashCode() {
-      return tuple.getFileName().hashCode();
-    }
-
-    public int compareTo(Object object) {
-      if (object instanceof HashedTupleWrapper) {
-        HashedTupleWrapper another = (HashedTupleWrapper) object;
-        return tuple.getFileName().compareTo(another.tuple.getFileName());
-      }
-      return -1;
+    public boolean equals(Object obj) {
+      return obj instanceof ResourceIdBlockComparator;
     }
   }
 
 
-  public static List<CloneItem> reportClones(String filename, HashedStatementIndex index) {
-    SortedSet<HashedTuple> fileSet = index.getByFilename(filename);
+  public static List<Clone> reportClones(String filename, CloneIndexBackend index) {
+    SortedSet<Block> resourceSet = index.getByResourceId(filename);
 
-    int totalSequences = fileSet.size();
-    ArrayList<Set<HashedTupleWrapper>> tuplesC = new ArrayList<Set<HashedTupleWrapper>>(totalSequences);
-    ArrayList<HashedTuple> fileTuples = new ArrayList<HashedTuple>(totalSequences);
+    int totalSequences = resourceSet.size();
+    ArrayList<Set<Block>> tuplesC = new ArrayList<Set<Block>>(totalSequences);
+    ArrayList<Block> resourceBlocks = new ArrayList<Block>(totalSequences);
 
-    ArrayList<CloneItem> clones = new ArrayList<CloneItem>();
+    ArrayList<Clone> clones = new ArrayList<Clone>();
 
-    prepareSets(fileSet, tuplesC, fileTuples, index);
+    prepareSets(resourceSet, tuplesC, resourceBlocks, index);
 
     for (int i = 0; i < totalSequences; i++) {
       boolean containsInPrev = i > 0 && tuplesC.get(i - 1).containsAll(tuplesC.get(i));
@@ -83,9 +59,11 @@ public class CloneReporter {
         continue;
       }
 
-      Set<HashedTupleWrapper> current = new TreeSet<HashedTupleWrapper>(tuplesC.get(i));
+      Set<Block> current = createEmptySet();
+      current.addAll(tuplesC.get(i));
       for (int j = i + 1; j < totalSequences + 1; j++) {
-        Set<HashedTupleWrapper> intersected = new TreeSet<HashedTupleWrapper>(current);
+        Set<Block> intersected = createEmptySet();
+        intersected.addAll(current);
         //do intersection
         intersected.retainAll(tuplesC.get(j));
 
@@ -93,12 +71,14 @@ public class CloneReporter {
         if (intersected.size() < current.size()) {
           //report clones from tuplesC[i] to current
           int cloneLength = j - i;
-          Set<HashedTupleWrapper> beginSet = tuplesC.get(i);
-          Set<HashedTupleWrapper> prebeginSet = new TreeSet<HashedTupleWrapper>();
+          Set<Block> beginSet = tuplesC.get(i);
+          Set<Block> endSet = tuplesC.get(j - 1);
+          Set<Block> prebeginSet = createEmptySet();
           if (i > 0) {
             prebeginSet = tuplesC.get(i - 1);
           }
-          reportClone(fileTuples.get(i), beginSet, prebeginSet, intersected, cloneLength, clones);
+          reportClone(resourceBlocks.get(i), resourceBlocks.get(j - 1), beginSet, endSet,
+              prebeginSet, intersected, cloneLength, clones);
         }
 
         current = intersected;
@@ -111,39 +91,54 @@ public class CloneReporter {
     return clones;
   }
 
-  private static void prepareSets(SortedSet<HashedTuple> fileSet, List<Set<HashedTupleWrapper>> tuplesC,
-                                  List<HashedTuple> fileTuples, HashedStatementIndex index) {
-    for (HashedTuple tuple : fileSet) {
-      Set<HashedTuple> set = index.getBySequenceHash(tuple.getSequenceHash());
-      Set<HashedTupleWrapper> wrapSet = new TreeSet<HashedTupleWrapper>();
-      for (HashedTuple tup : set) {
-        wrapSet.add(new HashedTupleWrapper(tup));
-      }
-      fileTuples.add(tuple);
+  private static Set<Block> createEmptySet() {
+    return new TreeSet<Block>(new ResourceIdBlockComparator());
+  }
+
+  private static void prepareSets(SortedSet<Block> fileSet, List<Set<Block>> tuplesC,
+                                  List<Block> fileBlocks, CloneIndexBackend index) {
+    for (Block block : fileSet) {
+      Set<Block> set = index.getBySequenceHash(block.getBlockHash());
+      Set<Block> wrapSet = createEmptySet();
+      wrapSet.addAll(set);
+      fileBlocks.add(block);
       tuplesC.add(wrapSet);
     }
     //to fix last element bug
-    tuplesC.add(new TreeSet<HashedTupleWrapper>());
+    tuplesC.add(createEmptySet());
   }
 
-  private static void reportClone(HashedTuple beginTuple, Set<HashedTupleWrapper> beginSet, Set<HashedTupleWrapper> prebeginSet,
-                                  Set<HashedTupleWrapper> intersected, int cloneLength, List<CloneItem> clones) {
-    String firstFile = beginTuple.getFileName();
-    int firstStart = beginTuple.getStatementIndex();
+  private static void reportClone(Block beginTuple, Block endTuple, Set<Block> beginSet, Set<Block> endSet,
+                                  Set<Block> prebeginSet, Set<Block> intersected, int cloneLength, List<Clone> clones) {
+    String firstFile = beginTuple.getResourceId();
+    int firstUnitIndex = beginTuple.getFirstUnitIndex();
+    int firstLineStart = beginTuple.getFirstLineNumber();
+    int firstLineEnd = endTuple.getLastLineNumber();
+    TreeMap<String, Block> map = new TreeMap<String, Block>();
+    for (Block block : endSet) {
+      map.put(block.getResourceId(), block);
+    }
 
     //cycle in filenames in clone start position
-    for (HashedTupleWrapper tmpTupWrap : beginSet) {
-      HashedTuple tmpTuple = tmpTupWrap.getTuple();
-      if (!firstFile.equals(tmpTuple.getFileName()) && !intersected.contains(tmpTupWrap)
-          && !prebeginSet.contains(tmpTupWrap)) {
-        String secondFile = tmpTuple.getFileName();
-        int secondStart = tmpTuple.getStatementIndex();
+    for (Block secondStartBlock : beginSet) {
+      if (!firstFile.equals(secondStartBlock.getResourceId()) && !intersected.contains(secondStartBlock)
+          && !prebeginSet.contains(secondStartBlock)) {
+        String secondFile = secondStartBlock.getResourceId();
+        int secondUnitIndex = secondStartBlock.getFirstUnitIndex();
+        int secondLineStart = secondStartBlock.getFirstLineNumber();
+        Block secondEndBlock = map.get(secondStartBlock.getResourceId());
+        int secondLineEnd = secondEndBlock.getLastLineNumber();
 
-        CloneItem item = new CloneItem();
-        item.setFirstFileName(firstFile);
-        item.setSecondFileName(secondFile);
-        item.setFirstStart(firstStart);
-        item.setSecondStart(secondStart);
+        Clone item = new Clone();
+        item.setFirstResourceId(firstFile);
+        item.setFirstUnitStart(firstUnitIndex);
+        item.setFirstLineStart(firstLineStart);
+        item.setFirstLineEnd(firstLineEnd);
+
+        item.setSecondResourceId(secondFile);
+        item.setSecondUnitStart(secondUnitIndex);
+        item.setSecondLineStart(secondLineStart);
+        item.setSecondLineEnd(secondLineEnd);
         item.setCloneLength(cloneLength);
         clones.add(item);
       }

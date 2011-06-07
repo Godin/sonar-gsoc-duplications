@@ -20,29 +20,29 @@
  */
 package org.sonar.duplications.backend;
 
-import org.sonar.duplications.api.index.HashedStatementIndex;
-import org.sonar.duplications.api.index.HashedTuple;
+import org.sonar.duplications.api.codeunit.block.Block;
+import org.sonar.duplications.api.index.CloneIndexBackend;
 
 import java.util.Set;
 import java.util.SortedSet;
 
 //TODO: only stub now
-public class DBIndexBackend implements HashedStatementIndex {
-  public SortedSet<HashedTuple> getByFilename(String fileName) {
+public class DBIndexBackend implements CloneIndexBackend {
+  public SortedSet<Block> getByResourceId(String fileName) {
     return null;
   }
 
-  public Set<HashedTuple> getBySequenceHash(byte[] sequenceHash) {
+  public Set<Block> getBySequenceHash(byte[] sequenceHash) {
     return null;
   }
 
-  public void insert(HashedTuple tuple) {
+  public void insert(Block tuple) {
   }
 
   public void remove(String fileName) {
   }
 
-  public void remove(HashedTuple tuple) {
+  public void remove(Block tuple) {
   }
 
   public void removeAll() {

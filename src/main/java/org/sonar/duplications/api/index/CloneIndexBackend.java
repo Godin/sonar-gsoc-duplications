@@ -20,32 +20,34 @@
  */
 package org.sonar.duplications.api.index;
 
+import org.sonar.duplications.api.codeunit.block.Block;
+
 import java.util.Set;
 import java.util.SortedSet;
 
-public interface HashedStatementIndex {
+public interface CloneIndexBackend {
   /**
    * Method performs search in index db. Parameter is full filename inside
    * project exactly the same as it was saved in db.
    * If file is moved inside project it should be removed and then added again.
    *
    * @param fileName - full path of file in project with filename
-   * @return list of <tt>HashedTuple</tt> from index and empty list if nothing found
+   * @return list of <tt>Block</tt> from index and empty list if nothing found
    */
-  public SortedSet<HashedTuple> getByFilename(String fileName);
+  public SortedSet<Block> getByResourceId(String fileName);
 
   /**
    * Search by sequence hash.
    *
    * @param sequenceHash - hash of statement sequence
-   * @return set of <tt>HashedTuple</tt> from index and empty list if nothing found
+   * @return set of <tt>Block</tt> from index and empty list if nothing found
    */
-  public Set<HashedTuple> getBySequenceHash(byte[] sequenceHash);
+  public Set<Block> getBySequenceHash(byte[] sequenceHash);
 
-  public void insert(HashedTuple tuple);
+  public void insert(Block tuple);
 
   /**
-   * Remove all <tt>HashedTuple</tt> from index with <tt>fileName</tt>
+   * Remove all <tt>Block</tt> from index with <tt>fileName</tt>
    *
    * @param fileName - full path of file in project with filename
    */
@@ -56,7 +58,7 @@ public interface HashedStatementIndex {
    *
    * @param tuple - tuple to be removed from index
    */
-  public void remove(HashedTuple tuple);
+  public void remove(Block tuple);
 
   /**
    * Empty hash index - remove all tuples
