@@ -1,14 +1,12 @@
 package org.sonar.duplications.java;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
-import org.sonar.duplications.api.codeunit.token.Token;
+import org.sonar.duplications.api.codeunit.Token;
 import org.sonar.duplications.api.lexer.Lexer;
 import org.sonar.duplications.api.lexer.family.JavaLexer;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class JavaLexerTest {
 

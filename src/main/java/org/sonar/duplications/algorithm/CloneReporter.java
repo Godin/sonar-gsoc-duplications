@@ -20,7 +20,7 @@
  */
 package org.sonar.duplications.algorithm;
 
-import org.sonar.duplications.api.codeunit.block.Block;
+import org.sonar.duplications.api.codeunit.Block;
 import org.sonar.duplications.api.index.CloneIndexBackend;
 
 import java.util.*;

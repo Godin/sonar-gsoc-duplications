@@ -19,10 +19,10 @@
  */
 package org.sonar.duplications.api.lexer.channel;
 
-import java.util.List;
-
 import org.sonar.channel.RegexChannel;
-import org.sonar.duplications.api.codeunit.token.Token;
+import org.sonar.duplications.api.codeunit.Token;
+
+import java.util.List;
 
 public class BlackHoleLexerChannel extends RegexChannel<List<Token>> {
 

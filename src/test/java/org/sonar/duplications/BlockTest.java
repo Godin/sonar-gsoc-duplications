@@ -2,7 +2,7 @@ package org.sonar.duplications;
 
 
 import org.junit.Test;
-import org.sonar.duplications.api.codeunit.block.Block;
+import org.sonar.duplications.api.codeunit.Block;
 
 import java.util.Arrays;
 

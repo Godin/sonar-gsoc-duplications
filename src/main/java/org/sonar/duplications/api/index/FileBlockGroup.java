@@ -21,31 +21,31 @@
 package org.sonar.duplications.api.index;
 
 import org.sonar.duplications.api.CloneIndexException;
-import org.sonar.duplications.api.codeunit.block.Block;
+import org.sonar.duplications.api.codeunit.Block;
+import org.sonar.duplications.api.codeunit.BlockProvider;
 
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 
 public class FileBlockGroup {
   private final String fileResourceId;
-  private final SortedSet<Block> fileBlocks;
-
-  private static final class BlockComparator implements Comparator<Block> {
-
-    public int compare(Block o1, Block o2) {
-      if (o2.getResourceId().equals(o1.getResourceId())) {
-        return o1.getFirstUnitIndex() - o2.getFirstUnitIndex();
-      }
-      return -1;
-    }
-
-    public boolean equals(Object obj) {
-      return obj instanceof BlockComparator;
-    }
-  }
+  private final List<Block> fileBlocks = new ArrayList<Block>();
 
   public FileBlockGroup(String fileResourceId) {
     this.fileResourceId = fileResourceId;
-    this.fileBlocks = new TreeSet<Block>(new BlockComparator());
+  }
+
+  public FileBlockGroup(File sourceFile, BlockProvider blockProvider) {
+    this.fileResourceId = sourceFile.getAbsolutePath();
+    blockProvider.init(sourceFile);
+    Block block = blockProvider.getNext();
+    while (block != null) {
+      addBlock(block);
+      block = blockProvider.getNext();
+    }
   }
 
   public void addBlock(Block block) {
@@ -59,7 +59,7 @@ public class FileBlockGroup {
     return fileResourceId;
   }
 
-  public Set<Block> getAllBlocks() {
-    return Collections.unmodifiableSortedSet(fileBlocks);
+  public List<Block> getBlockList() {
+    return Collections.unmodifiableList(fileBlocks);
   }
 }

@@ -19,22 +19,19 @@
  */
 package org.sonar.duplications.api.lexer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.io.IOUtils;
 import org.sonar.channel.Channel;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.CodeReaderConfiguration;
 import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.codeunit.token.Token;
+import org.sonar.duplications.api.codeunit.Statement;
+import org.sonar.duplications.api.codeunit.Token;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class Lexer {
   private final Charset charset;
@@ -94,6 +91,11 @@ public final class Lexer {
       return this;
     }
 
+    public Builder addStextexChannel(Channel<List<Statement>> channel) {
+      channels.add(channel);
+      return this;
+    }
+
     private ChannelDispatcher<List<Token>> getChannelDispatcher() {
       return new ChannelDispatcher<List<Token>>(channels);
     }
@@ -104,5 +106,5 @@ public final class Lexer {
     }
 
   }
-  
+
 }

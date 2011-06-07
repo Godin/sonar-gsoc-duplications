@@ -19,13 +19,13 @@
  */
 package org.sonar.duplications.api.lexer.channel;
 
+import org.sonar.channel.Channel;
+import org.sonar.channel.CodeReader;
+import org.sonar.duplications.api.codeunit.Token;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.sonar.channel.Channel;
-import org.sonar.channel.CodeReader;
-import org.sonar.duplications.api.codeunit.token.Token;
 
 public class LexerChannel extends Channel<List<Token>> {
 
@@ -48,9 +48,9 @@ public class LexerChannel extends Channel<List<Token>> {
       String tokenValue = tmpBuilder.toString();
       int column = code.getColumnPosition() - tokenValue.length();
       if (normalizationValue != null)
-    	  output.add(new Token(normalizationValue, tokenValue, code.getLinePosition(), column));
+        output.add(new Token(normalizationValue, tokenValue, code.getLinePosition(), column));
       else
-    	  output.add(new Token(tokenValue, tokenValue, code.getLinePosition(), column));  
+        output.add(new Token(tokenValue, tokenValue, code.getLinePosition(), column));
       tmpBuilder.delete(0, tmpBuilder.length());
       return true;
     }

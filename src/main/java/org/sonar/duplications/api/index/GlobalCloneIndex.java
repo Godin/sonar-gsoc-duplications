@@ -22,7 +22,7 @@ package org.sonar.duplications.api.index;
 
 import org.sonar.duplications.algorithm.Clone;
 import org.sonar.duplications.algorithm.CloneReporter;
-import org.sonar.duplications.api.codeunit.block.Block;
+import org.sonar.duplications.api.codeunit.Block;
 
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +38,7 @@ public class GlobalCloneIndex {
 
   public void addOrUpdateFileCloneIndex(FileBlockGroup fileBlockGroup) {
     removeFileCloneIndex(fileBlockGroup.getFileResourceId());
-    for (Block block : fileBlockGroup.getAllBlocks()) {
+    for (Block block : fileBlockGroup.getBlockList()) {
       backend.insert(block);
     }
   }

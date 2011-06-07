@@ -1,4 +1,4 @@
-package org.sonar.duplications.api.codeunit.block;
+package org.sonar.duplications.api.codeunit;
 
 import org.sonar.duplications.util.BlockUtils;
 

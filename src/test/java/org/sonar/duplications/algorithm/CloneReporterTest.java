@@ -2,7 +2,7 @@ package org.sonar.duplications.algorithm;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.duplications.api.codeunit.block.Block;
+import org.sonar.duplications.api.codeunit.Block;
 import org.sonar.duplications.api.index.CloneIndexBackend;
 import org.sonar.duplications.backend.MemoryIndexBackend;
 

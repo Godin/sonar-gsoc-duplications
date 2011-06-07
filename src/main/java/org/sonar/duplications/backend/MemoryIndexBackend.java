@@ -22,7 +22,7 @@ package org.sonar.duplications.backend;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.TreeMultimap;
-import org.sonar.duplications.api.codeunit.block.Block;
+import org.sonar.duplications.api.codeunit.Block;
 import org.sonar.duplications.api.index.CloneIndexBackend;
 
 import java.util.Arrays;
