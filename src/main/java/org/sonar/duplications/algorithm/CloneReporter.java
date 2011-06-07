@@ -41,7 +41,6 @@ public class CloneReporter {
     }
   }
 
-
   public static List<Clone> reportClones(String filename, CloneIndexBackend index) {
     SortedSet<Block> resourceSet = index.getByResourceId(filename);
 
@@ -59,11 +58,9 @@ public class CloneReporter {
         continue;
       }
 
-      Set<Block> current = createEmptySet();
-      current.addAll(tuplesC.get(i));
+      Set<Block> current = createNewSet(tuplesC.get(i));
       for (int j = i + 1; j < totalSequences + 1; j++) {
-        Set<Block> intersected = createEmptySet();
-        intersected.addAll(current);
+        Set<Block> intersected = createNewSet(current);
         //do intersection
         intersected.retainAll(tuplesC.get(j));
 
@@ -73,7 +70,7 @@ public class CloneReporter {
           int cloneLength = j - i;
           Set<Block> beginSet = tuplesC.get(i);
           Set<Block> endSet = tuplesC.get(j - 1);
-          Set<Block> prebeginSet = createEmptySet();
+          Set<Block> prebeginSet = createNewSet(null);
           if (i > 0) {
             prebeginSet = tuplesC.get(i - 1);
           }
@@ -91,21 +88,23 @@ public class CloneReporter {
     return clones;
   }
 
-  private static Set<Block> createEmptySet() {
-    return new TreeSet<Block>(new ResourceIdBlockComparator());
+  private static Set<Block> createNewSet(Set<Block> set) {
+    Set<Block> treeSet = new TreeSet<Block>(new ResourceIdBlockComparator());
+    if (set != null) {
+      treeSet.addAll(set);
+    }
+    return treeSet;
   }
 
   private static void prepareSets(SortedSet<Block> fileSet, List<Set<Block>> tuplesC,
                                   List<Block> fileBlocks, CloneIndexBackend index) {
     for (Block block : fileSet) {
       Set<Block> set = index.getBySequenceHash(block.getBlockHash());
-      Set<Block> wrapSet = createEmptySet();
-      wrapSet.addAll(set);
       fileBlocks.add(block);
-      tuplesC.add(wrapSet);
+      tuplesC.add(createNewSet(set));
     }
     //to fix last element bug
-    tuplesC.add(createEmptySet());
+    tuplesC.add(createNewSet(null));
   }
 
   private static void reportClone(Block beginTuple, Block endTuple, Set<Block> beginSet, Set<Block> endSet,
@@ -121,25 +120,22 @@ public class CloneReporter {
 
     //cycle in filenames in clone start position
     for (Block secondStartBlock : beginSet) {
-      if (!firstFile.equals(secondStartBlock.getResourceId()) && !intersected.contains(secondStartBlock)
-          && !prebeginSet.contains(secondStartBlock)) {
+      // &&
+      boolean condition = !firstFile.equals(secondStartBlock.getResourceId());
+      condition = condition || beginTuple.getFirstUnitIndex() != secondStartBlock.getFirstUnitIndex();
+      condition = condition && !intersected.contains(secondStartBlock);
+      condition = condition && !prebeginSet.contains(secondStartBlock);
+      if (condition) {
         String secondFile = secondStartBlock.getResourceId();
         int secondUnitIndex = secondStartBlock.getFirstUnitIndex();
         int secondLineStart = secondStartBlock.getFirstLineNumber();
         Block secondEndBlock = map.get(secondStartBlock.getResourceId());
         int secondLineEnd = secondEndBlock.getLastLineNumber();
 
-        Clone item = new Clone();
-        item.setFirstResourceId(firstFile);
-        item.setFirstUnitStart(firstUnitIndex);
-        item.setFirstLineStart(firstLineStart);
-        item.setFirstLineEnd(firstLineEnd);
+        ClonePart part1 = new ClonePart(firstFile, firstUnitIndex, firstLineStart, firstLineEnd);
+        ClonePart part2 = new ClonePart(secondFile, secondUnitIndex, secondLineStart, secondLineEnd);
 
-        item.setSecondResourceId(secondFile);
-        item.setSecondUnitStart(secondUnitIndex);
-        item.setSecondLineStart(secondLineStart);
-        item.setSecondLineEnd(secondLineEnd);
-        item.setCloneLength(cloneLength);
+        Clone item = new Clone(part1, part2, cloneLength);
         clones.add(item);
       }
     }

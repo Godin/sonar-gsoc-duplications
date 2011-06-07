@@ -50,9 +50,8 @@ public class GlobalCloneIndexTest {
     assertThat(backend.size(), is(2));
   }
 
-  //with duplicates
   @Test
-  public void testClones() {
+  public void testClonesWithoutDuplications() {
     FileBlockGroup fileA = new FileBlockGroup("a");
     fileA.addBlock(new Block("a", new byte[]{0}, 0, 0, 5));
     fileA.addBlock(new Block("a", new byte[]{1}, 1, 1, 6));
@@ -76,8 +75,9 @@ public class GlobalCloneIndexTest {
 
     Set<Clone> items = index.getClones();
     assertThat(items, hasItem(new Clone("a", 1, 1, 8, "b", 1, 1, 8, 3)));
-    assertThat(items, hasItem(new Clone("b", 1, 1, 8, "a", 1, 1, 8, 3)));
-    assertThat(items, hasItem(new Clone("a", 1, 1, 8, "c", 1, 1, 8, 3)));
+    assertThat(items, hasItem(new Clone("b", 1, 1, 8, "c", 1, 1, 8, 3)));
     assertThat(items, hasItem(new Clone("c", 1, 1, 8, "a", 1, 1, 8, 3)));
+
+    assertThat(items.size(), is(3));
   }
 }

@@ -20,100 +20,39 @@
  */
 package org.sonar.duplications.algorithm;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 public class Clone {
 
-  private static final class ClonePart {
-    String resourceId;
-    int unitStart;
-    int lineStart;
-    int lineEnd;
-  }
-
-  private final ClonePart first = new ClonePart();
-  private final ClonePart second = new ClonePart();
+  private final List<ClonePart> parts = new ArrayList<ClonePart>();
 
   //clone length in units (not lines)
   private int cloneLength;
 
-  public Clone() {
-  }
-
-  public Clone(String firstFile, int firstUnitStart, int firstLineStart, int firstLineEnd,
-               String secondFile, int secondUnitStart, int secondLineStart, int secondLineEnd,
+  public Clone(String resourceId1, int unitIndex1, int lineStart1, int lineEnd1,
+               String resourceId2, int unitIndex2, int lineStart2, int lineEnd2,
                int cloneLength) {
-    this.first.resourceId = firstFile;
-    this.first.unitStart = firstUnitStart;
-    this.first.lineStart = firstLineStart;
-    this.first.lineEnd = firstLineEnd;
-    this.second.resourceId = secondFile;
-    this.second.unitStart = secondUnitStart;
-    this.second.lineStart = secondLineStart;
-    this.second.lineEnd = secondLineEnd;
+    parts.add(new ClonePart(resourceId1, unitIndex1, lineStart1, lineEnd1));
+    parts.add(new ClonePart(resourceId2, unitIndex2, lineStart2, lineEnd2));
+
+    Collections.sort(parts, null);
+
     this.cloneLength = cloneLength;
   }
 
-  public String getFirstResourceId() {
-    return first.resourceId;
+  public Clone(ClonePart part1, ClonePart part2, int cloneLength) {
+    parts.add(part1);
+    parts.add(part2);
+    Collections.sort(parts, null);
+
+    this.cloneLength = cloneLength;
   }
 
-  public void setFirstResourceId(String firstResourceId) {
-    this.first.resourceId = firstResourceId;
-  }
-
-  public String getSecondResourceId() {
-    return second.resourceId;
-  }
-
-  public void setSecondResourceId(String secondResourceId) {
-    this.second.resourceId = secondResourceId;
-  }
-
-  public int getFirstUnitStart() {
-    return first.unitStart;
-  }
-
-  public void setFirstUnitStart(int firstUnitStart) {
-    this.first.unitStart = firstUnitStart;
-  }
-
-  public int getSecondUnitStart() {
-    return second.unitStart;
-  }
-
-  public void setSecondUnitStart(int secondUnitStart) {
-    this.second.unitStart = secondUnitStart;
-  }
-
-  public int getFirstLineStart() {
-    return first.lineStart;
-  }
-
-  public void setFirstLineStart(int firstLineStart) {
-    this.first.lineStart = firstLineStart;
-  }
-
-  public int getSecondLineStart() {
-    return second.lineStart;
-  }
-
-  public void setSecondLineStart(int secondLineStart) {
-    this.second.lineStart = secondLineStart;
-  }
-
-  public int getFirstLineEnd() {
-    return first.lineEnd;
-  }
-
-  public void setFirstLineEnd(int firstLineEnd) {
-    this.first.lineEnd = firstLineEnd;
-  }
-
-  public int getSecondLineEnd() {
-    return second.lineEnd;
-  }
-
-  public void setSecondLineEnd(int secondLineEnd) {
-    this.second.lineEnd = secondLineEnd;
+  public List<ClonePart> getCloneParts() {
+    return Collections.unmodifiableList(parts);
   }
 
   public int getCloneLength() {
@@ -128,14 +67,8 @@ public class Clone {
   public boolean equals(Object object) {
     if (object instanceof Clone) {
       Clone another = (Clone) object;
-      return another.first.resourceId.equals(first.resourceId)
-          && another.first.unitStart == first.unitStart
-          && another.first.lineStart == first.lineStart
-          && another.first.lineEnd == first.lineEnd
-          && another.second.resourceId.equals(second.resourceId)
-          && another.second.unitStart == second.unitStart
-          && another.second.lineStart == second.lineStart
-          && another.second.lineEnd == second.lineEnd
+      return another.parts.get(0).equals(parts.get(0))
+          && another.parts.get(1).equals(parts.get(1))
           && another.cloneLength == cloneLength;
     }
     return false;
@@ -143,16 +76,11 @@ public class Clone {
 
   @Override
   public int hashCode() {
-    return first.resourceId.hashCode() + second.resourceId.hashCode() +
-        first.unitStart + second.unitStart + first.lineStart +
-        first.lineEnd + second.lineStart + second.lineEnd + 413 * cloneLength;
+    return parts.get(0).hashCode() + 31 * parts.get(1).hashCode() + 413 * cloneLength;
   }
 
   @Override
   public String toString() {
-    return "'" + first.resourceId + "':[" + first.unitStart + "|" +
-        first.lineStart + "-" + first.lineEnd + "] - '" +
-        second.resourceId + "':[" + second.unitStart + "|" +
-        second.lineStart + "-" + second.lineEnd + "] " + cloneLength;
+    return parts.get(0).toString() + " - " + parts.get(1).toString() + " " + cloneLength;
   }
 }
