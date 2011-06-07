@@ -1,24 +1,28 @@
 package org.sonar.duplications.java;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Assert;
 
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.api.codeunit.Block;
 import org.sonar.duplications.api.codeunit.BlockProvider;
 import org.sonar.duplications.api.codeunit.StatementProvider;
+import org.sonar.duplications.api.index.FileCloneIndex;
 import org.sonar.duplications.api.lexer.Lexer;
 import org.sonar.duplications.api.lexer.family.JavaLexer;
 import org.sonar.duplications.api.lexer.family.StatementExtractor;
 
-public class BlockProviderTest {
+public class FileCloneIndexTest {
 	
 	BlockProvider blockProvider;
-	
 	File testFile = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
 
 	@Before
@@ -27,30 +31,12 @@ public class BlockProviderTest {
 		StatementExtractor statementExtractor = StatementExtractor.getInstance();
 		StatementProvider statementProvider = new StatementProvider(tokenizer, statementExtractor);
 		blockProvider = new BlockProvider(statementProvider, BlockProvider.DEFAULT_BLOCK_SIZE);
-		blockProvider.init(testFile);
 	}
 	
 	@Test
 	public void shouldTokenizeSource(){
-		List <Block> blockList = new ArrayList<Block>();
-		Block block;
-		while( (block = blockProvider.getNext() ) != null){
-			blockList.add((Block) block);
-		//	System.out.println(block);
-		}
-		
-		Assert.assertEquals(0, blockList.get(0).getFirstUnitIndex());
-		Assert.assertEquals(3, blockList.get(0).getFirstLineNumber());
-		Assert.assertEquals(7, blockList.get(0).getLastLineNumber());
-
-		Assert.assertEquals(7, blockList.get(blockList.size()-1).getFirstUnitIndex());
-		Assert.assertEquals(10, blockList.get(blockList.size()-1).getFirstLineNumber());
-		Assert.assertEquals(14, blockList.get(blockList.size()-1).getLastLineNumber());
-		
-//		assertThat(blockList, hasItems(
-//				new Block(filename, null, 0 , 1 , 4), 
-//				new Block(filename, null, 7 , 9 , 11)));
-		
+		FileCloneIndex  fci = new FileCloneIndex(testFile, blockProvider);
+		assertThat(fci.getBlockList().size(), is(8));
 	}
 	
 }

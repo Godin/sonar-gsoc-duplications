@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
-import org.sonar.duplications.api.codeunit.token.Token;
+import org.sonar.duplications.api.codeunit.Token;
 
 public class LexerChannel extends Channel<List<Token>> {
 

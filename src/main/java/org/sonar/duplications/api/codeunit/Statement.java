@@ -1,21 +1,19 @@
-package org.sonar.duplications.api.codeunit.statement;
+package org.sonar.duplications.api.codeunit;
 
-import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 
-import org.sonar.duplications.api.codeunit.token.IToken;
-import org.sonar.duplications.api.codeunit.token.Token;
 
 /**
  * @author sharif
  *
  */
-public class Statement {
+public class Statement implements Serializable{
+
+	private static final long serialVersionUID = 535333895463882703L;
 
 	/** List of tokens this statement comprises. */
-	private Token[] tokens;
-
-	private final File sourceFile;
+	//private Token[] tokens;
 
 	private final int startLine;
 
@@ -27,34 +25,29 @@ public class Statement {
 	
 	private final int indexInFile ;
 
-	public Statement(File file, int startLine, int endLine, String originalContent,
+	public Statement( int startLine, int endLine, String originalContent,
 			 int indexInFile) {
-		this(file, startLine,  endLine, originalContent, originalContent, indexInFile);
+		this( startLine,  endLine, originalContent, originalContent, indexInFile);
 	}
 
-	public Statement(File file, int startLine, int endLine, String originalContent, 
+	public Statement( int startLine, int endLine, String originalContent, 
 			String normalizedContent, int indexInFile) {
 		this.startLine = startLine;
-		this.sourceFile = file;
 		this.originalContent = originalContent.intern();
 		this.normalizedContent = normalizedContent.intern();
 		this.endLine = endLine;
 		this.indexInFile = indexInFile;
 	}
 	
-	public Statement(File file, List<IToken> tokenList, boolean storeTokens,
+	public Statement(int startLine, int endLine, List<Token> tokenList, boolean storeTokens,
 			int indexInFile) {
-		this(file, tokenList.get(0).getLine(), tokenList.get(tokenList.size()-1).getLine(), createContent(tokenList),
-				createUnnormalizedContent(tokenList),indexInFile);
-		if (storeTokens) {
-			tokens = tokenList.toArray(new Token[] {});
-		}
+		this( startLine, endLine, createUnnormalizedContent(tokenList),
+				 createNormalizedContentContent(tokenList),indexInFile);
+//		if (storeTokens) {
+//			tokens = tokenList.toArray(new Token[] {});
+//		}
 	}
 	
-	public File getFile() {
-		return sourceFile;
-	}
-
 	public int getStartLine() {
 		return startLine;
 	}
@@ -77,7 +70,7 @@ public class Statement {
 
 	@Override
 	public int hashCode() {
-		return originalContent.hashCode();
+		return originalContent.hashCode() + startLine + endLine + indexInFile ;
 	}
 
 	@Override
@@ -85,20 +78,23 @@ public class Statement {
 		if (!(other instanceof Statement)) {
 			return false;
 		}
-		return originalContent == ((Statement) other).originalContent;
+		return originalContent.equals(((Statement) other).originalContent) 
+		&& startLine == ((Statement) other).startLine
+		&& endLine == ((Statement) other).endLine
+		&&indexInFile == ((Statement) other).indexInFile; 
 	}
 
-	private static String createContent(List<IToken> tokens) {
+	private static String createNormalizedContentContent(List<Token> tokens) {
 		StringBuilder builder = new StringBuilder();
-		for (IToken token : tokens) {
+		for (Token token : tokens) {
 			builder.append(token.getNormalizedContent());
 		}
 		return builder.toString();
 	}
 
-	private static String createUnnormalizedContent(List<IToken> tokens) {
+	private static String createUnnormalizedContent(List<Token> tokens) {
 		StringBuilder builder = new StringBuilder();
-		for (IToken token : tokens) {
+		for (Token token : tokens) {
 			builder.append(token.getOriginalContent());
 		}
 		return builder.toString();
@@ -106,22 +102,22 @@ public class Statement {
 
 	@Override
 	public String toString() {
-		return getOriginalContent() + " [" + getFile() + "(" + getStartLine()
-				+ ")][index:" + getIndexInFile() + "]";
+		return "[" + getStartLine()+ "-" + getEndLine()
+				+ "][index:" + getIndexInFile() + "] ["+ getOriginalContent()+"] ["+ getNormalizedContent()+"]";
 	}
 
-	public Token[] getTokens() {
+	/*public Token[] getTokens() {
 		assertTokensStored();
 		return tokens;
 	}
 
-	/** Throws an {@link IllegalStateException}, if tokens have not been stored */
+	*//** Throws an {@link IllegalStateException}, if tokens have not been stored *//*
 	private void assertTokensStored() {
 		if (tokens == null) {
 			throw new IllegalStateException(
 					"In order to access the underlying tokens, Statement must store its tokens. "
 							+ "(Set storeTokens flag in constructor)");
 		}
-	}
+	}*/
 
 }

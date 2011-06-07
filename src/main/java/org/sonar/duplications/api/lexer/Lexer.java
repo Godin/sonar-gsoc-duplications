@@ -34,7 +34,8 @@ import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.CodeReaderConfiguration;
 import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.codeunit.token.Token;
+import org.sonar.duplications.api.codeunit.Statement;
+import org.sonar.duplications.api.codeunit.Token;
 
 public final class Lexer {
   private final Charset charset;
@@ -94,6 +95,11 @@ public final class Lexer {
       return this;
     }
 
+    public Builder addStextexChannel(Channel<List<Statement>> channel) {
+        channels.add(channel);
+        return this;
+     }
+    
     private ChannelDispatcher<List<Token>> getChannelDispatcher() {
       return new ChannelDispatcher<List<Token>>(channels);
     }

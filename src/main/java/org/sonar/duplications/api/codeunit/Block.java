@@ -1,4 +1,4 @@
-package org.sonar.duplications.api.codeunit.block;
+package org.sonar.duplications.api.codeunit;
 
 /**
  * @author sharif
@@ -61,5 +61,10 @@ public class Block {
 	@Override
 	public int hashCode() {
 		return originId.hashCode() + blockHash.hashCode() + 413 * firstUnitIndex;
+	}
+	
+	@Override
+	public String toString() {
+		return "["+ firstUnitIndex +"] : {"+ firstLineNumber+"-"+lastLineNumber+ "} ("+blockHash.hashCode()+")";
 	}
 }

@@ -1,20 +1,17 @@
 package org.sonar.duplications.api.provider;
 
-import org.sonar.duplications.api.sourcecode.ISourceCodeElement;
-
 /**
  * @author sharif
  *
- * @param <Element>
- * @param <Data>
- * @param <X>
+ * @param <INPUT>
+ * @param <OUTPUT>
  */
-public interface IProvider<Element extends ISourceCodeElement, Data, X extends Exception> {
+public interface IProvider<INPUT, OUTPUT> {
 
-	public Data getNext() throws X;
+	public OUTPUT getNext();
 
-	public Data lookahead(int index) throws X;
+	public OUTPUT lookahead(int index);
 
-	public void init(Element root) throws X;
+	public void init(INPUT root);
 
 }

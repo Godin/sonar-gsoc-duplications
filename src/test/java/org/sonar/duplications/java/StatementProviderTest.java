@@ -4,19 +4,16 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.duplications.api.codeunit.statement.Statement;
-import org.sonar.duplications.api.codeunit.statement.StatementProvider;
-import org.sonar.duplications.api.codeunit.token.TokenProvider;
-import org.sonar.duplications.api.lexer.ELanguage;
+import org.sonar.duplications.api.codeunit.Statement;
+import org.sonar.duplications.api.codeunit.StatementProvider;
 import org.sonar.duplications.api.lexer.Lexer;
-import org.sonar.duplications.api.lexer.LexterFactory;
-import org.sonar.duplications.api.sourcecode.SourceCodeElement;
+import org.sonar.duplications.api.lexer.family.JavaLexer;
+import org.sonar.duplications.api.lexer.family.StatementExtractor;
 
 public class StatementProviderTest {
 
@@ -26,12 +23,11 @@ public class StatementProviderTest {
 	@Before
 	public void initTest(){
 		
-		SourceCodeElement rootSourceElement = new SourceCodeElement(testFile.getPath() , Charset.defaultCharset(), ELanguage.JAVA);
-		Lexer lexer = LexterFactory.getJavaLexer();
-		TokenProvider tokenProvider = new TokenProvider(lexer);
+		Lexer lexer = JavaLexer.build();
+		StatementExtractor statementExtractor = StatementExtractor.getInstance();
 
-		statementProvider = new StatementProvider(tokenProvider, true);
-		statementProvider.init(rootSourceElement);
+		statementProvider = new StatementProvider(lexer, statementExtractor);
+		statementProvider.init(testFile);
 	}
 	
 	@Test
@@ -40,13 +36,15 @@ public class StatementProviderTest {
 		Statement statement;
 		while( (statement = statementProvider.getNext() ) != null){
 			statementList.add((Statement) statement);
+			System.out.println(statement);
 		}
 		
-		assertThat(statementList, hasItems(
-				new Statement(testFile, 4, 4, "publicstaticvoidmain(String[]args)", "publicstaticvoidmain(String[]args)", 2), 
-				new Statement(testFile, 8, 8, "caseINTEGER:dirlist(args[INTEGER])", "case1:dirlist(args[0])", 6), 
-				new Statement(testFile, 10, 10, "default:System.out.println(LITERAL)", "default:System.out.println(\"Multiple files are not allow.\")",8),
-				new Statement(testFile, 11, 11, "System.exit(INTEGER)", "System.exit(0)", 9)));
+		Statement st1 = new Statement(4, 4, "publicstaticvoidmain(String[]args){", "publicstaticvoidmain(String[]args){", 1);
+		Statement st2 = new Statement(8, 8, "case1:dirlist(args[0]);", "caseINTEGER:dirlist(args[INTEGER]);", 5);
+		Statement st3 = new Statement(10, 10, "default:System.out.println(\"Multiple files are not allow.\");", "default:System.out.println(LITERAL);", 7);
+		Statement st4 = new Statement(11, 11, "System.exit(0);","System.exit(INTEGER);", 8);
+		
+		assertThat(statementList, hasItems(st1,st2,st3,st4));
 
 	}
 	
