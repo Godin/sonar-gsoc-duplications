@@ -36,7 +36,6 @@ public class StatementProviderTest {
     Statement statement;
     while ((statement = statementProvider.getNext()) != null) {
       statementList.add(statement);
-      System.out.println(statement);
     }
 
     Statement st1 = new Statement(4, 4, "publicstaticvoidmain(String[]args){", "publicstaticvoidmain(String[]args){", 1);
