@@ -26,6 +26,8 @@ public class Token {
   private final String normalizedContent;
   private final String originalContent;
 
+  public static final Token EMPTY_TOKEN = new Token("", -1, -1);
+  
   public Token(String originalContent, int line, int column) {
     this.normalizedContent = originalContent;
     this.originalContent = originalContent;
