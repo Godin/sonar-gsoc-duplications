@@ -16,6 +16,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
 
+@Ignore
 public class StatementProviderTest {
 
   StatementProvider statementProvider;

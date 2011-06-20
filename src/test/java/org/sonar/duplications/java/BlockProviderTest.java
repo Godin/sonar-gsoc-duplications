@@ -14,7 +14,7 @@ import org.sonar.duplications.api.lexer.family.StatementExtractor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+@Ignore
 public class BlockProviderTest {
 
   BlockProvider blockProvider;
