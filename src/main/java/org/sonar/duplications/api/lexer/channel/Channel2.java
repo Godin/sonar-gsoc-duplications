@@ -19,6 +19,10 @@
  */
 package org.sonar.duplications.api.lexer.channel;
 
+import java.util.List;
+
+import org.sonar.duplications.api.codeunit.Statement;
+
 
 /**
  * @author sharif
@@ -38,5 +42,6 @@ public abstract class Channel2<OUTPUT> {
    *          the OUTPUT that can be optionally fed by the Channel
    * @return false if the Channel doesn't want to consume the character stream, true otherwise.
    */
-  public abstract boolean consume(TokenReader tokenReader, OUTPUT output);
+  public abstract boolean consume(TokenQueue tokenQueue, OUTPUT output);
+
 }

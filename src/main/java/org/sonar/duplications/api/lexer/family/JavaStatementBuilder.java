@@ -22,6 +22,7 @@ package org.sonar.duplications.api.lexer.family;
 import org.sonar.duplications.api.lexer.StatementBuilder;
 import org.sonar.duplications.api.lexer.channel.BlackHoleStatementBuilderChannel;
 import org.sonar.duplications.api.lexer.channel.StatementBuilderChannel;
+import static org.sonar.duplications.api.lexer.matcher.TokenMatcherFactory.*;
 
 public class JavaStatementBuilder {
 
@@ -30,17 +31,18 @@ public class JavaStatementBuilder {
 
   public static final StatementBuilder build() {
 	StatementBuilder.Builder builder = StatementBuilder.builder()
-		.addStextexChannel(new BlackHoleStatementBuilderChannel("import", new String[]{";"}))
-		.addStextexChannel(new BlackHoleStatementBuilderChannel("package", new String[]{";"}))
-		.addStextexChannel(new StatementBuilderChannel("@", new String[]{StatementBuilderChannel.END_MARKER_AFTER_NEXT_TOKEN_EXCEPT_LEFT_BRACKET_NEXT,")"}, "(){}"))
-		.addStextexChannel(new StatementBuilderChannel("do", new String[]{StatementBuilderChannel.END_MARKER_BEFORE_NEXT_TOKEN,"{"}))
-		.addStextexChannel(new StatementBuilderChannel("if", new String[]{")"}, "(){}"))
-		.addStextexChannel(new StatementBuilderChannel("else", new String[]{")"}, "(){}"))
-		.addStextexChannel(new StatementBuilderChannel("for", new String[]{")"}, "(){}"))
-		.addStextexChannel(new StatementBuilderChannel("while", new String[]{")",";"}, "(){}", true))
-		.addStextexChannel(new StatementBuilderChannel("case", new String[]{":"}))
-		.addStextexChannel(new StatementBuilderChannel("default", new String[]{":"}))
-		.addStextexChannel(new StatementBuilderChannel(new String[]{";","}",StatementBuilderChannel.END_MARKER_BEFORE_LEFT_CURLY_BRACE,"{"}))
+		.addStextexChannel(new BlackHoleStatementBuilderChannel(from("import"), to(";")))
+		.addStextexChannel(new BlackHoleStatementBuilderChannel(from("package"), to(";")))
+		.addStextexChannel(new StatementBuilderChannel(from("@"), nextAnyToken(1), bridge(MATCH_IS_OPTIONAL, "(", ")")))
+		.addStextexChannel(new StatementBuilderChannel(from("do")))
+		.addStextexChannel(new StatementBuilderChannel(from("if"), bridge("(", ")")))
+		.addStextexChannel(new StatementBuilderChannel(from("else"), nextThisToken("if"), bridge("(", ")"))) //match else if
+		.addStextexChannel(new StatementBuilderChannel(from("else"))) //match else only
+		.addStextexChannel(new StatementBuilderChannel(from("for"), bridge("(", ")")))
+		.addStextexChannel(new StatementBuilderChannel(from("while"), bridge("(", ")"), nextThisToken(MATCH_IS_OPTIONAL,";")))
+		.addStextexChannel(new StatementBuilderChannel(from("case"), to(":")))
+		.addStextexChannel(new StatementBuilderChannel(from("default"), to(":")))
+		.addStextexChannel(new StatementBuilderChannel(to(";","!{","{","}")))  //!TOKEN means before token "TOKEN" i.e., !{ means before token "{"
 		;
 	
     return builder.build();

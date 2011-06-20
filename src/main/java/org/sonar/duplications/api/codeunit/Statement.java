@@ -40,14 +40,29 @@ public class Statement implements Serializable {
     this.indexInFile = indexInFile;
   }
 
-  public Statement(int startLine, int endLine, List<Token> tokenList, boolean storeTokens,
-                   int indexInFile) {
-    this(startLine, endLine, createUnnormalizedContent(tokenList),
-        createNormalizedContentContent(tokenList), indexInFile);
+  public Statement(List<Token> tokenList, int indexInFile) {
 //		if (storeTokens) {
 //			tokens = tokenList.toArray(new Token[] {});
 //		}
-  }
+		int fromLine = -1;
+		int toLine = -1;
+		StringBuilder sbNormalizedContent = new StringBuilder();
+		StringBuilder sbOriginalContent = new StringBuilder();
+		for (int i = 0; i < tokenList.size(); i++) {
+			Token token = tokenList.get(i);
+			if (i == 0)
+				fromLine = token.getLine();
+			if (i == tokenList.size() - 1)
+				toLine = token.getLine();
+			sbNormalizedContent.append(token.getNormalizedContent());
+			sbOriginalContent.append(token.getOriginalContent());
+		}
+		this.startLine = fromLine;
+		this.endLine = toLine;
+		this.originalContent = sbOriginalContent.toString().intern();
+		this.normalizedContent = sbNormalizedContent.toString().intern();
+		this.indexInFile = indexInFile;
+	}
 
   public int getStartLine() {
     return startLine;

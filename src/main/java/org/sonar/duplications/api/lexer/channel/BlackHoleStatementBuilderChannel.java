@@ -19,8 +19,11 @@
  */
 package org.sonar.duplications.api.lexer.channel;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.duplications.api.codeunit.Statement;
+import org.sonar.duplications.api.codeunit.Token;
+import org.sonar.duplications.api.lexer.matcher.TokenMatcher;
 
 /**
  * channel that just consumes tokens but does not provide any output
@@ -30,19 +33,23 @@ import org.sonar.duplications.api.codeunit.Statement;
  */
 public class BlackHoleStatementBuilderChannel extends StatementBuilderChannel {
 
-	public BlackHoleStatementBuilderChannel(String startsWith, String[] endsWith) {
-		super(startsWith, endsWith);
+	public BlackHoleStatementBuilderChannel(TokenMatcher ... tokenMatchers) {
+		super(tokenMatchers);
 	}
 
-	public BlackHoleStatementBuilderChannel(String startsWith, String[] endsWith, 
-			String symbolRepetatingPairs) {
-		super(startsWith, endsWith, symbolRepetatingPairs);
-	}
-	
 	@Override
-	public boolean consume(TokenReader tokenReader, List<Statement> output) {
-		if (tokenReader.popTo(startsWith, endsWith, symbolRepetatingPairs, combineEndMarker, tmpBuilder, lineRange) > -1) {
-			tmpBuilder.delete(0, tmpBuilder.length());
+	public boolean consume(TokenQueue tokenQueue, List<Statement> output) {
+		if(tokenMatchers != null){
+			List<Token> matchedTokenList = new ArrayList<Token>();
+			for(TokenMatcher tokenMatcher : tokenMatchers){
+				if(!tokenMatcher.matchToken(tokenQueue, matchedTokenList)){
+					//match unsuccessful, restore the consumed tokens by previous successful matchers
+					tokenQueue.restore(matchedTokenList);
+					return false;
+				}
+			}
+
+			//all matchers were successful, so just ignore the output
 			return true;
 		}
 		return false;

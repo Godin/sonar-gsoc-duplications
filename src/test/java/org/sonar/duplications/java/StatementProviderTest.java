@@ -1,6 +1,7 @@
 package org.sonar.duplications.java;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.duplications.api.codeunit.Statement;
 import org.sonar.duplications.api.codeunit.StatementProvider;
@@ -30,7 +31,7 @@ public class StatementProviderTest {
     statementProvider.init(testFile);
   }
 
-  @Test
+  @Ignore //this test will be updated after statement builder framework integration is done
   public void shouldTokenizeSource() {
     List<Statement> statementList = new ArrayList<Statement>();
     Statement statement;

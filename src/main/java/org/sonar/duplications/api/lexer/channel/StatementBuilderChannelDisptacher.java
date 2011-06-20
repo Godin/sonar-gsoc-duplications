@@ -51,25 +51,25 @@ public class StatementBuilderChannelDisptacher<OUTPUT> extends Channel2<OUTPUT> 
     this.failIfNoChannelToConsumeOneCharacter = failIfNoChannelToConsumeOneCharacter;
   }
 
-  public boolean consume(TokenReader tokenReader, OUTPUT output) {
-    Token nextToken = tokenReader.peek();
+  public boolean consume(TokenQueue tokenQueue, OUTPUT output) {
+    Token nextToken = tokenQueue.peek();
     while (nextToken != Token.EMPTY_TOKEN) {
       boolean channelConsumed = false;
       for (Channel2<OUTPUT> channel : channels) {
-        if (channel.consume(tokenReader, output)) {
+        if (channel.consume(tokenQueue, output)) {
           channelConsumed = true;
           break;
         }
       }
       if (!channelConsumed) {
-        String message = "None of the channel has been able to handle token '" + tokenReader.peek();
+        String message = "None of the channel has been able to handle token '" + tokenQueue.peek();
         if (failIfNoChannelToConsumeOneCharacter) {
           throw new IllegalStateException(message);
         }
         logger.debug(message);
-        tokenReader.pop();
+        tokenQueue.pop();
       }
-      nextToken = tokenReader.peek();
+      nextToken = tokenQueue.peek();
     }
     return true;
   }

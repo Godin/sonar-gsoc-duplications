@@ -19,10 +19,12 @@
  */
 package org.sonar.duplications.api.lexer.channel;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.sonar.duplications.api.DuplicationsException;
 import org.sonar.duplications.api.codeunit.Statement;
+import org.sonar.duplications.api.codeunit.Token;
+import org.sonar.duplications.api.lexer.matcher.TokenMatcher;
 
 /**
  * channel that consumes tokens if a statement can be build using those tokens as per given rule
@@ -33,130 +35,33 @@ import org.sonar.duplications.api.codeunit.Statement;
  */
 public class StatementBuilderChannel extends Channel2<List<Statement>> {
 
-	/**
-	 * These are some special end markers to handle special type of statement
-	 * 1. Annotation parameterized/non-parameterized
-	 * 2. do in do-while with/without { }
-	 * 
-	 */
-	public static final String END_MARKER_BEFORE_LEFT_CURLY_BRACE = "end_marker_before_{"; 
-	public static final String END_MARKER_BEFORE_NEXT_TOKEN = "end_marker_before_next_token"; 
-	public static final String END_MARKER_AFTER_NEXT_TOKEN = "end_marker_after_next_token";
-	public static final String END_MARKER_AFTER_NEXT_TOKEN_EXCEPT_LEFT_BRACKET_NEXT = "end_marker_after_next_token_except_(_NEXT";
+	protected final TokenMatcher[] tokenMatchers;
 	
 	protected final StringBuilder tmpBuilder = new StringBuilder();
 	
 	private static int indexInFile = 0;
 	
-	/**
-	 * stores the range of lines a statement spans over in physical file
-	 */
-	protected LineRange lineRange = new LineRange();
-	
-	/**
-	 * if true
-	 * multiple valid end marker tokens will be combined at the end of statement
-	 * for example "while( condition );" in do-while block where ')' and ';' are both used as end marker
-	 */
-	protected boolean combineEndMarker = false;
-	
-	/**
-	 * start token of an statement
-	 */
-	protected String startsWith;	
-	
-	/**
-	 * tokens eligible for an end of a statement
-	 */
-	protected String[] endsWith;	
-	
-	/**
-	 * some of the end of statement marker token might be appear before actual end marker position
-	 * as a token pair for example, consider this code fragment:
-	 * 
-	 * if( getCount() > 0 ) return true; else return false;
-	 * 
-	 * we are considering 3 statements out of it as follows:
-	 * 
-	 * if( getCount() > 0 )
-	 * return true;
-	 * else return false;
-	 * 
-	 * the end marker of the 1st statement is ) but it appears once inside the statement before 
-	 * end of the statement is reached. 
-	 * 
-	 * so this field will contain which of the tokens in the statement need to check for
-	 * pairwise appearance before deciding for an end of statement   
-	 * 
-	 */
-	protected String symbolRepetatingPairs; 
-	
-	public StatementBuilderChannel(String[] endsWith) {
-		this(null, endsWith, null);
-	}
-
-	public StatementBuilderChannel(String startsWith, String[] endsWith) {
-		this(startsWith, endsWith, null);
-	}
-
-	public StatementBuilderChannel(String[] endsWith,
-			String symbolRepetatingPairs) {
-		this(null, endsWith, symbolRepetatingPairs);
-	}
-	public StatementBuilderChannel(String startsWith, String[] endsWith,
-			String symbolRepetatingPairs) {
-		this(startsWith, endsWith, symbolRepetatingPairs, false);
-	}
-	
-	public StatementBuilderChannel(String startsWith, String[] endsWith,
-			String symbolRepetatingPairs, boolean combineEndMarker) {
-		this.startsWith = startsWith;
-		this.endsWith = endsWith;
-		if(symbolRepetatingPairs != null && symbolRepetatingPairs.length()%2 != 0) 
-			throw new DuplicationsException("Incvaid input \""+ symbolRepetatingPairs +"\": need to provide symbols in pair");
-		this.symbolRepetatingPairs = symbolRepetatingPairs;
-		this.combineEndMarker = combineEndMarker;
+	public StatementBuilderChannel(TokenMatcher ... tokenMatchers) {
+		this.tokenMatchers = tokenMatchers;
 	}
 
 	@Override
-	public boolean consume(TokenReader tokenReader, List<Statement> output) {
-		if (tokenReader.popTo(startsWith, endsWith, symbolRepetatingPairs, combineEndMarker, tmpBuilder, lineRange) > -1) {
-			String statementValue = tmpBuilder.toString();
-			output.add(new Statement(lineRange.getFromLine(), lineRange.getToLine(), statementValue, indexInFile++));
-			tmpBuilder.delete(0, tmpBuilder.length());
-			lineRange.reset();
+	public boolean consume(TokenQueue tokenQueue, List<Statement> output) {
+		
+		if(tokenMatchers != null){
+			List<Token> matchedTokenList = new ArrayList<Token>();
+			for(TokenMatcher tokenMatcher : tokenMatchers){
+				if(!tokenMatcher.matchToken(tokenQueue, matchedTokenList)){
+					//match unsuccessful, restore the consumed tokens by previous successful matchers
+					tokenQueue.restore(matchedTokenList);
+					return false;
+				}
+			}
+
+			//all matchers were successful, so now build the statement
+			output.add(new Statement(matchedTokenList, indexInFile++));
 			return true;
 		}
 		return false;
-	}
-	
-	public static final class LineRange {
-		private Integer toLine;
-		private Integer fromLine;
-
-		public LineRange() {
-			reset();
-		}
-
-		public void reset() {
-			this.toLine = -1;
-			this.fromLine = -1;
-		}
-
-		public Integer getToLine() {
-			return toLine;
-		}
-
-		public Integer getFromLine() {
-			return fromLine;
-		}
-
-		public void setToLine(Integer toLine) {
-			this.toLine = toLine;
-		}
-
-		public void setFromLine(Integer fromLine) {
-			this.fromLine = fromLine;
-		}
 	}
 }

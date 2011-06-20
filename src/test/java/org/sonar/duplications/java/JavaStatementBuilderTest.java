@@ -39,21 +39,21 @@ public class JavaStatementBuilderTest {
 	    List<Token> tokens = lexer.lex(testFile);
 	    List<Statement> statementList = stmtBldr.build(tokens);
 	    
-	    assertThat(statementList.get(0).getOriginalContent(), is("@Entity"));
-	    assertThat(statementList.get(1).getOriginalContent(), is("@Table(name=LITERAL)"));
-	    assertThat(statementList.get(2).getOriginalContent(), is("publicclassPropertyextendsBaseIdentifiable"));
-	    assertThat(statementList.get(3).getOriginalContent(), is("{"));
-	    assertThat(statementList.get(4).getOriginalContent(), is("@Column(name=LITERAL,updatable=true,nullable=true)"));
-	    assertThat(statementList.get(5).getOriginalContent(), is("privateStringkey;"));
-	    assertThat(statementList.get(6).getOriginalContent(), is("@Column(name=LITERAL,updatable=true,nullable=true,length=INTEGER)"));
-	    assertThat(statementList.get(7).getOriginalContent(), is("@Lob"));
-	    assertThat(statementList.get(8).getOriginalContent(), is("privatechar[]value;"));
-	    assertThat(statementList.get(9).getOriginalContent(), is("@Override"));
-	    assertThat(statementList.get(10).getOriginalContent(), is("publicIntegergetUserId()"));
-	    assertThat(statementList.get(11).getOriginalContent(), is("{"));
-	    assertThat(statementList.get(12).getOriginalContent(), is("returnuserId;"));
-	    assertThat(statementList.get(13).getOriginalContent(), is("}"));
-	    assertThat(statementList.get(14).getOriginalContent(), is("}"));
+	    assertThat(statementList.get(0).getNormalizedContent(), is("@Entity"));
+	    assertThat(statementList.get(1).getNormalizedContent(), is("@Table(name=LITERAL)"));
+	    assertThat(statementList.get(2).getNormalizedContent(), is("publicclassPropertyextendsBaseIdentifiable"));
+	    assertThat(statementList.get(3).getNormalizedContent(), is("{"));
+	    assertThat(statementList.get(4).getNormalizedContent(), is("@Column(name=LITERAL,updatable=true,nullable=true)"));
+	    assertThat(statementList.get(5).getNormalizedContent(), is("privateStringkey;"));
+	    assertThat(statementList.get(6).getNormalizedContent(), is("@Column(name=LITERAL,updatable=true,nullable=true,length=INTEGER)"));
+	    assertThat(statementList.get(7).getNormalizedContent(), is("@Lob"));
+	    assertThat(statementList.get(8).getNormalizedContent(), is("privatechar[]value;"));
+	    assertThat(statementList.get(9).getNormalizedContent(), is("@Override"));
+	    assertThat(statementList.get(10).getNormalizedContent(), is("publicIntegergetUserId()"));
+	    assertThat(statementList.get(11).getNormalizedContent(), is("{"));
+	    assertThat(statementList.get(12).getNormalizedContent(), is("returnuserId;"));
+	    assertThat(statementList.get(13).getNormalizedContent(), is("}"));
+	    assertThat(statementList.get(14).getNormalizedContent(), is("}"));
 	}
   
 	@Test
@@ -62,24 +62,24 @@ public class JavaStatementBuilderTest {
 	    List<Token> tokens = lexer.lex(testFile);
 	    List<Statement> statementList = stmtBldr.build(tokens);
 	
-	    assertThat(statementList.get(0).getOriginalContent(), is("if(getParent()==null)"));
-	    assertThat(statementList.get(1).getOriginalContent(), is("returnlocalName;"));
-	    assertThat(statementList.get(2).getOriginalContent(), is("if(id.length()>INTEGER)"));
-	    assertThat(statementList.get(3).getOriginalContent(), is("{"));
-	    assertThat(statementList.get(4).getOriginalContent(), is("id+=File.separator;"));
-	    assertThat(statementList.get(5).getOriginalContent(), is("}"));
-	    assertThat(statementList.get(6).getOriginalContent(), is("elseif(id.length()==-INTEGER)"));
-	    assertThat(statementList.get(7).getOriginalContent(), is("{"));
-	    assertThat(statementList.get(8).getOriginalContent(), is("id+=LITERAL;"));
-	    assertThat(statementList.get(9).getOriginalContent(), is("}"));
-	    assertThat(statementList.get(10).getOriginalContent(), is("if(id.length()==INTEGER)"));
-	    assertThat(statementList.get(11).getOriginalContent(), is("{"));
-	    assertThat(statementList.get(12).getOriginalContent(), is("returnlocalname;"));
-	    assertThat(statementList.get(13).getOriginalContent(), is("}"));
-	    assertThat(statementList.get(14).getOriginalContent(), is("if(id.length()==INTEGER)"));
-	    assertThat(statementList.get(15).getOriginalContent(), is("{"));
-	    assertThat(statementList.get(16).getOriginalContent(), is("returnlocalname;"));
-	    assertThat(statementList.get(17).getOriginalContent(), is("}"));
+	    assertThat(statementList.get(0).getNormalizedContent(), is("if(getParent()==null)"));
+	    assertThat(statementList.get(1).getNormalizedContent(), is("returnlocalName;"));
+	    assertThat(statementList.get(2).getNormalizedContent(), is("if(id.length()>INTEGER)"));
+	    assertThat(statementList.get(3).getNormalizedContent(), is("{"));
+	    assertThat(statementList.get(4).getNormalizedContent(), is("id+=File.separator;"));
+	    assertThat(statementList.get(5).getNormalizedContent(), is("}"));
+	    assertThat(statementList.get(6).getNormalizedContent(), is("elseif(id.length()==-INTEGER)"));
+	    assertThat(statementList.get(7).getNormalizedContent(), is("{"));
+	    assertThat(statementList.get(8).getNormalizedContent(), is("id+=LITERAL;"));
+	    assertThat(statementList.get(9).getNormalizedContent(), is("}"));
+	    assertThat(statementList.get(10).getNormalizedContent(), is("if(id.length()==INTEGER)"));
+	    assertThat(statementList.get(11).getNormalizedContent(), is("{"));
+	    assertThat(statementList.get(12).getNormalizedContent(), is("returnlocalname;"));
+	    assertThat(statementList.get(13).getNormalizedContent(), is("}"));
+	    assertThat(statementList.get(14).getNormalizedContent(), is("if(id.length()==INTEGER)"));
+	    assertThat(statementList.get(15).getNormalizedContent(), is("{"));
+	    assertThat(statementList.get(16).getNormalizedContent(), is("returnlocalname;"));
+	    assertThat(statementList.get(17).getNormalizedContent(), is("}"));
 	}
   
 	@Test
@@ -89,18 +89,18 @@ public class JavaStatementBuilderTest {
 	    List<Token> tokens = lexer.lex(testFile);
 	    List<Statement> statementList = stmtBldr.build(tokens);
 		
-		assertThat(statementList.get(0).getOriginalContent(), is("for(inti=INTEGER;i<children.length;i++)"));
-		assertThat(statementList.get(1).getOriginalContent(), is("{"));
-		assertThat(statementList.get(2).getOriginalContent(), is("total+=i;"));
-		assertThat(statementList.get(3).getOriginalContent(), is("}"));
-		assertThat(statementList.get(4).getOriginalContent(), is("for(inti=INTEGER;i<children.length;i++)"));
-		assertThat(statementList.get(5).getOriginalContent(), is("{"));
-		assertThat(statementList.get(6).getOriginalContent(), is("total+=i;"));
-		assertThat(statementList.get(7).getOriginalContent(), is("}"));
-		assertThat(statementList.get(8).getOriginalContent(), is("for(inti=INTEGER;i<children.length;i++)"));
-		assertThat(statementList.get(9).getOriginalContent(), is("total+=i;"));
-		assertThat(statementList.get(10).getOriginalContent(),is("for(Tokentoken:tokenList)"));
-		assertThat(statementList.get(11).getOriginalContent(),is("System.out.println(token.getNormalizedContent());"));
+		assertThat(statementList.get(0).getNormalizedContent(), is("for(inti=INTEGER;i<children.length;i++)"));
+		assertThat(statementList.get(1).getNormalizedContent(), is("{"));
+		assertThat(statementList.get(2).getNormalizedContent(), is("total+=i;"));
+		assertThat(statementList.get(3).getNormalizedContent(), is("}"));
+		assertThat(statementList.get(4).getNormalizedContent(), is("for(inti=INTEGER;i<children.length;i++)"));
+		assertThat(statementList.get(5).getNormalizedContent(), is("{"));
+		assertThat(statementList.get(6).getNormalizedContent(), is("total+=i;"));
+		assertThat(statementList.get(7).getNormalizedContent(), is("}"));
+		assertThat(statementList.get(8).getNormalizedContent(), is("for(inti=INTEGER;i<children.length;i++)"));
+		assertThat(statementList.get(9).getNormalizedContent(), is("total+=i;"));
+		assertThat(statementList.get(10).getNormalizedContent(),is("for(Tokentoken:tokenList)"));
+		assertThat(statementList.get(11).getNormalizedContent(),is("System.out.println(token.getNormalizedContent());"));
 		
 		// for statement that spans multiple lines
 		assertThat(statementList.get(4).getStartLine(), is(5));
@@ -115,13 +115,13 @@ public class JavaStatementBuilderTest {
 	    List<Token> tokens = lexer.lex(testFile);
 	    List<Statement> statementList = stmtBldr.build(tokens);
 	    
-	    assertThat(statementList.get(0).getOriginalContent(), is("while(i<args.length)"));
-	    assertThat(statementList.get(1).getOriginalContent(), is("{"));
-	    assertThat(statementList.get(2).getOriginalContent(), is("System.out.print(args[i]);"));
-	    assertThat(statementList.get(3).getOriginalContent(), is("i=i+INTEGER;"));
-	    assertThat(statementList.get(4).getOriginalContent(), is("}"));
-	    assertThat(statementList.get(5).getOriginalContent(), is("while(i<args.length)"));
-	    assertThat(statementList.get(6).getOriginalContent(), is("System.out.print(args[i++]);"));
+	    assertThat(statementList.get(0).getNormalizedContent(), is("while(i<args.length)"));
+	    assertThat(statementList.get(1).getNormalizedContent(), is("{"));
+	    assertThat(statementList.get(2).getNormalizedContent(), is("System.out.print(args[i]);"));
+	    assertThat(statementList.get(3).getNormalizedContent(), is("i=i+INTEGER;"));
+	    assertThat(statementList.get(4).getNormalizedContent(), is("}"));
+	    assertThat(statementList.get(5).getNormalizedContent(), is("while(i<args.length)"));
+	    assertThat(statementList.get(6).getNormalizedContent(), is("System.out.print(args[i++]);"));
 	  }
 
 	  @Test
@@ -132,15 +132,15 @@ public class JavaStatementBuilderTest {
 	    List<Token> tokens = lexer.lex(testFile);
 	    List<Statement> statementList = stmtBldr.build(tokens);
 	    
-	    assertThat(statementList.get(0).getOriginalContent(), is("do"));
-	    assertThat(statementList.get(1).getOriginalContent(), is("{"));
-	    assertThat(statementList.get(2).getOriginalContent(), is("System.out.print(args[i]);"));
-	    assertThat(statementList.get(3).getOriginalContent(), is("i=i+INTEGER;"));
-	    assertThat(statementList.get(4).getOriginalContent(), is("}"));
-	    assertThat(statementList.get(5).getOriginalContent(), is("while(i<args.length);"));
-	    assertThat(statementList.get(6).getOriginalContent(), is("do"));
-	    assertThat(statementList.get(7).getOriginalContent(), is("System.out.print(i++);"));
-	    assertThat(statementList.get(8).getOriginalContent(), is("while(i<INTEGER);"));
+	    assertThat(statementList.get(0).getNormalizedContent(), is("do"));
+	    assertThat(statementList.get(1).getNormalizedContent(), is("{"));
+	    assertThat(statementList.get(2).getNormalizedContent(), is("System.out.print(args[i]);"));
+	    assertThat(statementList.get(3).getNormalizedContent(), is("i=i+INTEGER;"));
+	    assertThat(statementList.get(4).getNormalizedContent(), is("}"));
+	    assertThat(statementList.get(5).getNormalizedContent(), is("while(i<args.length);"));
+	    assertThat(statementList.get(6).getNormalizedContent(), is("do"));
+	    assertThat(statementList.get(7).getNormalizedContent(), is("System.out.print(i++);"));
+	    assertThat(statementList.get(8).getNormalizedContent(), is("while(i<INTEGER);"));
 	  }
 
 	  @Test
@@ -151,19 +151,19 @@ public class JavaStatementBuilderTest {
 	    List<Token> tokens = lexer.lex(testFile);
 	    List<Statement> statementList = stmtBldr.build(tokens);
 
-	    assertThat(statementList.get(0).getOriginalContent(), is("switch(month)"));
-	    assertThat(statementList.get(1).getOriginalContent(), is("{"));
-	    assertThat(statementList.get(2).getOriginalContent(), is("caseINTEGER:"));
-	    assertThat(statementList.get(3).getOriginalContent(), is("monthString=LITERAL;"));
-	    assertThat(statementList.get(4).getOriginalContent(), is("break;"));
-	    assertThat(statementList.get(5).getOriginalContent(), is("caseINTEGER:"));
-	    assertThat(statementList.get(6).getOriginalContent(), is("monthString=LITERAL;"));
-	    assertThat(statementList.get(7).getOriginalContent(), is("break;"));
-	    assertThat(statementList.get(8).getOriginalContent(), is("caseINTEGER:"));
-	    assertThat(statementList.get(9).getOriginalContent(), is("monthString=LITERAL;"));
-	    assertThat(statementList.get(10).getOriginalContent(), is("break;"));
-	    assertThat(statementList.get(11).getOriginalContent(), is("default:"));
-	    assertThat(statementList.get(12).getOriginalContent(), is("monthString=LITERAL;"));
-	    assertThat(statementList.get(13).getOriginalContent(), is("}"));
+	    assertThat(statementList.get(0).getNormalizedContent(), is("switch(month)"));
+	    assertThat(statementList.get(1).getNormalizedContent(), is("{"));
+	    assertThat(statementList.get(2).getNormalizedContent(), is("caseINTEGER:"));
+	    assertThat(statementList.get(3).getNormalizedContent(), is("monthString=LITERAL;"));
+	    assertThat(statementList.get(4).getNormalizedContent(), is("break;"));
+	    assertThat(statementList.get(5).getNormalizedContent(), is("caseINTEGER:"));
+	    assertThat(statementList.get(6).getNormalizedContent(), is("monthString=LITERAL;"));
+	    assertThat(statementList.get(7).getNormalizedContent(), is("break;"));
+	    assertThat(statementList.get(8).getNormalizedContent(), is("caseINTEGER:"));
+	    assertThat(statementList.get(9).getNormalizedContent(), is("monthString=LITERAL;"));
+	    assertThat(statementList.get(10).getNormalizedContent(), is("break;"));
+	    assertThat(statementList.get(11).getNormalizedContent(), is("default:"));
+	    assertThat(statementList.get(12).getNormalizedContent(), is("monthString=LITERAL;"));
+	    assertThat(statementList.get(13).getNormalizedContent(), is("}"));
 	  }
 }

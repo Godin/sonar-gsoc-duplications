@@ -28,8 +28,7 @@ import org.sonar.duplications.api.codeunit.Statement;
 import org.sonar.duplications.api.codeunit.Token;
 import org.sonar.duplications.api.lexer.channel.Channel2;
 import org.sonar.duplications.api.lexer.channel.StatementBuilderChannelDisptacher;
-import org.sonar.duplications.api.lexer.channel.TokenReader;
-import org.sonar.duplications.api.lexer.channel.TokenReaderConfiguration;
+import org.sonar.duplications.api.lexer.channel.TokenQueue;
 
 /**
  * This class is similar to lexer but takes list of token as input and provide
@@ -50,13 +49,13 @@ public final class StatementBuilder {
 	}
 
 	public List<Statement> build(List<Token> tokens) {
-		TokenReader tokenReader = new TokenReader(tokens, new TokenReaderConfiguration());
+		TokenQueue tokenQueue = new TokenQueue(tokens);
 		List<Statement> statements = new ArrayList<Statement>();
 		try {
-			channelDispatcher.consume(tokenReader, statements);
+			channelDispatcher.consume(tokenQueue, statements);
 			return statements;
 		} catch (Exception e) {
-			throw new DuplicationsException("Unable to build statement from token : "+ tokenReader.peek(), e);
+			throw new DuplicationsException("Unable to build statement from token : "+ tokenQueue.peek(), e);
 		}
 	}
 

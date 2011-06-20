@@ -45,7 +45,7 @@ public class StatementProvider extends ProviderBase<File, Statement> {
       //for multi-line statement original statement stores only toLine
       int toLine = originalStatement.getLine();
       int fromLine = toLine - originalStatement.getOriginalContent().split("\n").length + 1;
-      return new Statement(fromLine, toLine, tokenizer.lex(originalStatement.getOriginalContent()), true, indexInFile++);
+      return new Statement(tokenizer.lex(originalStatement.getOriginalContent()), indexInFile++);
     }
 
     if (currentElement == null) {
