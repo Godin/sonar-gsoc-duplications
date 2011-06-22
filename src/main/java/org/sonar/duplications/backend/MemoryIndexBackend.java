@@ -20,21 +20,26 @@
  */
 package org.sonar.duplications.backend;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.TreeMultimap;
-import org.sonar.duplications.api.codeunit.Block;
-import org.sonar.duplications.api.index.CloneIndexBackend;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.sonar.duplications.api.codeunit.Block;
+import org.sonar.duplications.api.index.CloneIndexBackend;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.TreeMultimap;
+
 public class MemoryIndexBackend implements CloneIndexBackend {
 
   private final TreeMultimap<String, Block> filenameIndex;
-  private final HashMultimap<ByteArrayWrap, Block> sequenceHashIndex;
+  private final HashMultimap<String, Block> sequenceHashIndex;
 
+ /**
+ * block hashes are now stored in String, so this class is no longer needed
+ */
+@Deprecated
   private static final class ByteArrayWrap {
 
     private final byte[] data;
@@ -68,7 +73,7 @@ public class MemoryIndexBackend implements CloneIndexBackend {
 
     public int compare(Block o1, Block o2) {
       if (o2.getResourceId().equals(o1.getResourceId())) {
-        return o1.getFirstUnitIndex() - o2.getFirstUnitIndex();
+        return o1.getIndexInFile() - o2.getIndexInFile();
       }
       return -1;
     }
@@ -106,29 +111,29 @@ public class MemoryIndexBackend implements CloneIndexBackend {
     return filenameIndex.get(fileName);
   }
 
-  public Set<Block> getBySequenceHash(byte[] sequenceHash) {
-    return sequenceHashIndex.get(ByteArrayWrap.create(sequenceHash));
+  public Set<Block> getBySequenceHash(String sequenceHash) {
+    return sequenceHashIndex.get(sequenceHash);
   }
 
   public void insert(Block tuple) {
     filenameIndex.put(tuple.getResourceId(), tuple);
-    ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getBlockHash());
-    sequenceHashIndex.put(wrap, tuple);
+    //ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getBlockHash());
+    sequenceHashIndex.put(tuple.getBlockHash(), tuple);
   }
 
   public void remove(String fileName) {
     Set<Block> set = filenameIndex.get(fileName);
     filenameIndex.removeAll(fileName);
     for (Block tuple : set) {
-      ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getBlockHash());
-      sequenceHashIndex.remove(wrap, tuple);
+      //ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getBlockHash());
+      sequenceHashIndex.remove(tuple.getBlockHash(), tuple);
     }
   }
 
   public void remove(Block tuple) {
     filenameIndex.remove(tuple.getResourceId(), tuple);
-    ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getBlockHash());
-    sequenceHashIndex.remove(wrap, tuple);
+    //ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getBlockHash());
+    sequenceHashIndex.remove(tuple.getBlockHash(), tuple);
   }
 
   public void removeAll() {
