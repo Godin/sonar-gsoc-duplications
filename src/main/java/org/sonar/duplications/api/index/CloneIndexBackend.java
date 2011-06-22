@@ -47,7 +47,7 @@ public interface CloneIndexBackend {
    * @param sequenceHash - hash of statement sequence
    * @return set of <tt>Block</tt> from index and empty list if nothing found
    */
-  public Set<Block> getBySequenceHash(byte[] sequenceHash);
+  public Set<Block> getBySequenceHash(String sequenceHash);
 
   public void insert(Block tuple);
 

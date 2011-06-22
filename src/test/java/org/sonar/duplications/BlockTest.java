@@ -1,13 +1,16 @@
 package org.sonar.duplications;
 
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.sonar.duplications.api.codeunit.Block;
-
-import java.util.Arrays;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 
 public class BlockTest {
 
@@ -15,20 +18,20 @@ public class BlockTest {
   public void fieldsTest() {
     String fileName = "someFile";
     int statementIndex = 4;
-    byte[] hash = {1, 2, 3, 4, 5, 6};
+    String hash = "123456";
     Block tuple = new Block(fileName, hash, statementIndex, 0, 10);
     assertThat(tuple.getResourceId(), equalTo(fileName));
-    assertThat(tuple.getFirstUnitIndex(), equalTo(statementIndex));
-    assertTrue(Arrays.equals(tuple.getBlockHash(), hash));
+    assertThat(tuple.getIndexInFile(), equalTo(statementIndex));
+    assertEquals(tuple.getBlockHash(), hash);
   }
 
   @Test
   public void tupleEqualsTest() {
-    Block tuple1 = new Block("somefile", new byte[]{10, 126, -15}, 1, 1, 10);
-    Block tuple2 = new Block("somefile", new byte[]{10, 126, -15}, 1, 1, 10);
-    Block tupleArr = new Block("somefile", new byte[]{17}, 1, 1, 10);
-    Block tupleIndex = new Block("somefile", new byte[]{10, 126, -15}, 2, 1, 10);
-    Block tupleName = new Block("other", new byte[]{10, 126, -15}, 1, 1, 10);
+    Block tuple1 = new Block("somefile", "abc123", 1, 1, 10);
+    Block tuple2 = new Block("somefile", "abc123", 1, 1, 10);
+    Block tupleArr = new Block("somefile", "xyz", 1, 1, 10);
+    Block tupleIndex = new Block("somefile", "abc123", 2, 1, 10);
+    Block tupleName = new Block("other", "abc123", 1, 1, 10);
 
     assertTrue(tuple1.equals(tuple2));
     assertThat(tuple1.toString(), is(tuple2.toString()));
@@ -47,7 +50,7 @@ public class BlockTest {
   public void hashCodeTest() {
     String[] files = {"file1", "file2"};
     int[] unitIndexes = {1, 2};
-    byte[][] arrays = {new byte[]{1, 2, 3}, new byte[]{3, 2, 1}};
+    String[] arrays = {"123", "321"};
 
     //fileName is in hashCode()
     int defaultTupleHashCode = new Block(files[0], arrays[0], unitIndexes[0], 1, 10).hashCode();

@@ -20,11 +20,16 @@
  */
 package org.sonar.duplications.algorithm;
 
-import com.sun.org.apache.xpath.internal.operations.And;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 import org.sonar.duplications.api.codeunit.Block;
 import org.sonar.duplications.api.index.CloneIndexBackend;
-
-import java.util.*;
 
 public class CloneReporter {
 
@@ -64,7 +69,7 @@ public class CloneReporter {
     public int compareTo(BlockWrap o) {
       if ((compareUnitMode || o.compareUnitMode)
           && block.getResourceId().equals(o.block.getResourceId())) {
-        return block.getFirstUnitIndex() - o.block.getFirstUnitIndex();
+        return block.getIndexInFile() - o.block.getIndexInFile();
       }
       return block.getResourceId().compareTo(o.block.getResourceId());
     }
@@ -133,7 +138,7 @@ public class CloneReporter {
       for (Block foundBlock : set) {
         boolean compSameFile = foundBlock.getResourceId().equals(block.getResourceId());
         compSameFile = compSameFile && !foundBlock.equals(block);
-        compSameFile = compSameFile && block.getFirstUnitIndex() < foundBlock.getFirstUnitIndex();
+        compSameFile = compSameFile && block.getIndexInFile() < foundBlock.getIndexInFile();
         wrapSet.add(new BlockWrap(foundBlock, compSameFile));
       }
       fileBlocks.add(block);
@@ -146,7 +151,7 @@ public class CloneReporter {
   private static void reportClone(Block beginTuple, Block endTuple, Set<BlockWrap> beginSet, Set<BlockWrap> endSet,
                                   Set<BlockWrap> prebeginSet, Set<BlockWrap> intersected, int cloneLength, List<Clone> clones) {
     String firstFile = beginTuple.getResourceId();
-    int firstUnitIndex = beginTuple.getFirstUnitIndex();
+    int firstUnitIndex = beginTuple.getIndexInFile();
     int firstLineStart = beginTuple.getFirstLineNumber();
     int firstLineEnd = endTuple.getLastLineNumber();
     TreeMap<BlockWrap, Block> map = new TreeMap<BlockWrap, Block>();
@@ -160,12 +165,12 @@ public class CloneReporter {
       // &&
       Block secondStartBlock = secondStartBlockWrap.getBlock();
       boolean condition = !firstFile.equals(secondStartBlock.getResourceId());
-      condition = condition || beginTuple.getFirstUnitIndex() != secondStartBlock.getFirstUnitIndex();
+      condition = condition || beginTuple.getIndexInFile() != secondStartBlock.getIndexInFile();
       condition = condition && !intersected.contains(secondStartBlockWrap);
       condition = condition && !prebeginSet.contains(secondStartBlockWrap);
       if (condition) {
         String secondFile = secondStartBlock.getResourceId();
-        int secondUnitIndex = secondStartBlock.getFirstUnitIndex();
+        int secondUnitIndex = secondStartBlock.getIndexInFile();
         int secondLineStart = secondStartBlock.getFirstLineNumber();
         Block secondEndBlock = map.get(secondStartBlockWrap);
         int secondLineEnd = secondEndBlock.getLastLineNumber();

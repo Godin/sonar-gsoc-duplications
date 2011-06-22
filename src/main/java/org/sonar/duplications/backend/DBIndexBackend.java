@@ -41,7 +41,7 @@ public class DBIndexBackend implements CloneIndexBackend {
     return null;
   }
 
-  public Set<Block> getBySequenceHash(byte[] sequenceHash) {
+  public Set<Block> getBySequenceHash(String sequenceHash) {
     return null;
   }
 

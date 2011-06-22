@@ -1,8 +1,5 @@
 package org.sonar.duplications.api.codeunit;
 
-import org.sonar.duplications.util.BlockUtils;
-
-import java.util.Arrays;
 
 /**
  * @author sharif
@@ -11,9 +8,9 @@ public class Block {
 
   private final String resourceId; //filename
 
-  private final byte[] blockHash;
+  private final String blockHash;
 
-  private final int firstUnitIndex;
+  private final int indexInFile;
 
   private final int firstLineNumber;
 
@@ -21,26 +18,26 @@ public class Block {
 
   private final int arrHashCode;
 
-  public Block(String resourceId, byte[] blockHash,
-               int firstUnitIndex, int firstLineNumber, int lastLineNumber) {
+  public Block(String resourceId, String blockHash,
+               int indexInFile, int firstLineNumber, int lastLineNumber) {
     this.resourceId = resourceId;
     this.blockHash = blockHash;
-    this.firstUnitIndex = firstUnitIndex;
+    this.indexInFile = indexInFile;
     this.firstLineNumber = firstLineNumber;
     this.lastLineNumber = lastLineNumber;
-    this.arrHashCode = Arrays.hashCode(blockHash);
+    this.arrHashCode = blockHash.hashCode();
   }
 
   public String getResourceId() {
     return resourceId;
   }
 
-  public byte[] getBlockHash() {
+  public String getBlockHash() {
     return blockHash;
   }
 
-  public int getFirstUnitIndex() {
-    return firstUnitIndex;
+  public int getIndexInFile() {
+    return indexInFile;
   }
 
   public int getFirstLineNumber() {
@@ -58,21 +55,21 @@ public class Block {
     }
     Block other = (Block) obj;
     return other.resourceId.equals(resourceId)
-        && Arrays.equals(other.blockHash, blockHash)
-        && other.firstUnitIndex == firstUnitIndex
+        && other.blockHash.equals(blockHash)
+        && other.indexInFile == indexInFile
         && other.firstLineNumber == firstLineNumber
         && other.lastLineNumber == lastLineNumber;
   }
 
   @Override
   public int hashCode() {
-    return resourceId.hashCode() + arrHashCode + 413 * firstUnitIndex;
+    return resourceId.hashCode() + arrHashCode + 413 * indexInFile;
   }
 
   @Override
   public String toString() {
-    return "'" + resourceId + "'[" + firstUnitIndex + "|" + firstLineNumber
-        + "-" + lastLineNumber + "]:" + BlockUtils.getHex(blockHash);
+    return "'" + resourceId + "'[" + indexInFile + "|" + firstLineNumber
+        + "-" + lastLineNumber + "]:" + blockHash;
   }
 
 }
