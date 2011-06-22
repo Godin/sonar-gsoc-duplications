@@ -33,6 +33,8 @@ public class JavaStatementBuilder {
 	StatementBuilder.Builder builder = StatementBuilder.builder()
 		.addStextexChannel(new BlackHoleStatementBuilderChannel(from("import"), to(";")))
 		.addStextexChannel(new BlackHoleStatementBuilderChannel(from("package"), to(";")))
+		.addStextexChannel(new BlackHoleStatementBuilderChannel(nextThisToken("}")))
+		.addStextexChannel(new BlackHoleStatementBuilderChannel(nextThisToken("{")))
 		.addStextexChannel(new StatementBuilderChannel(from("@"), nextAnyToken(1), bridge(MATCH_IS_OPTIONAL, "(", ")")))
 		.addStextexChannel(new StatementBuilderChannel(from("do")))
 		.addStextexChannel(new StatementBuilderChannel(from("if"), bridge("(", ")")))
