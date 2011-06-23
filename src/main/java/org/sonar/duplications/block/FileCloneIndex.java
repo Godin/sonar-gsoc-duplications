@@ -20,24 +20,19 @@
  */
 package org.sonar.duplications.block;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.sonar.duplications.DuplicationsException;
 
-public class FileCloneIndexGroup {
+public class FileCloneIndex {
 
   private final String fileResourceId;
   private final List<Block> fileBlocks = new ArrayList<Block>();
 
-  public FileCloneIndexGroup(String fileResourceId) {
+  public FileCloneIndex(String fileResourceId) {
     this.fileResourceId = fileResourceId;
-  }
-
-  public FileCloneIndexGroup(File sourceFile) {
-    this.fileResourceId = sourceFile.getAbsolutePath();
   }
 
   public void addBlock(Block block) {

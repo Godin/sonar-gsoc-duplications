@@ -3,7 +3,7 @@ package org.sonar.duplications;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.FileCloneIndexGroup;
+import org.sonar.duplications.block.FileCloneIndex;
 import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.CloneIndexBackend;
 import org.sonar.duplications.index.GlobalCloneIndex;
@@ -28,7 +28,7 @@ public class GlobalCloneIndexTest {
 
   @Test
   public void testRemove() {
-    FileCloneIndexGroup file = new FileCloneIndexGroup("a");
+    FileCloneIndex file = new FileCloneIndex("a");
     file.addBlock(new Block("a", "123", 1, 1, 7));
     index.addOrUpdateFileCloneIndex(file);
     assertThat(backend.size(), is(1));
@@ -38,12 +38,12 @@ public class GlobalCloneIndexTest {
 
   @Test
   public void testUpdate() {
-    FileCloneIndexGroup file1 = new FileCloneIndexGroup("a");
+    FileCloneIndex file1 = new FileCloneIndex("a");
     file1.addBlock(new Block("a", "123", 1, 1, 7));
     index.addOrUpdateFileCloneIndex(file1);
     assertThat(backend.size(), is(1));
 
-    FileCloneIndexGroup file2 = new FileCloneIndexGroup("a");
+    FileCloneIndex file2 = new FileCloneIndex("a");
     file2.addBlock(new Block("a", "1234", 1, 1, 7));
     file2.addBlock(new Block("a", "12345", 2, 2, 8));
     index.addOrUpdateFileCloneIndex(file2);
@@ -52,19 +52,19 @@ public class GlobalCloneIndexTest {
 
   @Test
   public void testClonesWithoutDuplications() {
-    FileCloneIndexGroup fileA = new FileCloneIndexGroup("a");
+    FileCloneIndex fileA = new FileCloneIndex("a");
     fileA.addBlock(new Block("a", "0", 0, 0, 5));
     fileA.addBlock(new Block("a", "1", 1, 1, 6));
     fileA.addBlock(new Block("a", "2", 2, 2, 7));
     fileA.addBlock(new Block("a", "3", 3, 3, 8));
     fileA.addBlock(new Block("a", "4", 4, 4, 9));
 
-    FileCloneIndexGroup fileB = new FileCloneIndexGroup("b");
+    FileCloneIndex fileB = new FileCloneIndex("b");
     fileB.addBlock(new Block("b", "1", 1, 1, 6));
     fileB.addBlock(new Block("b", "2", 2, 2, 7));
     fileB.addBlock(new Block("b", "3", 3, 3, 8));
 
-    FileCloneIndexGroup fileC = new FileCloneIndexGroup("c");
+    FileCloneIndex fileC = new FileCloneIndex("c");
     fileC.addBlock(new Block("c", "1", 1, 1, 6));
     fileC.addBlock(new Block("c", "2", 2, 2, 7));
     fileC.addBlock(new Block("c", "3", 3, 3, 8));

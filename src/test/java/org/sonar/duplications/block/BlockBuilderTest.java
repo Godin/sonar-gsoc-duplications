@@ -8,8 +8,6 @@ import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.JavaStatementBuilder;
 import org.sonar.duplications.statement.StatementChunker;
@@ -21,7 +19,7 @@ public class BlockBuilderTest {
   TokenChunker lexer = JavaTokenProducer.build();
   StatementChunker statementBuilder = JavaStatementBuilder.build();
   int blockSize = 3;
-  BlockChunker blockBuilder = new BlockChunker(testFile);
+  BlockChunker blockBuilder = new BlockChunker("myFile", 5);
 
   @Test
   @Ignore

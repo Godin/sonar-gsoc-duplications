@@ -1,12 +1,11 @@
 package org.sonar.duplications.block;
 
-
 /**
  * @author sharif
  */
 public class Block {
 
-  private final String resourceId; //filename
+  private final String resourceId;
 
   private final String blockHash;
 
@@ -16,16 +15,12 @@ public class Block {
 
   private final int lastLineNumber;
 
-  private final int arrHashCode;
-
-  public Block(String resourceId, String blockHash,
-               int indexInFile, int firstLineNumber, int lastLineNumber) {
+  public Block(String resourceId, String blockHash, int indexInFile, int firstLineNumber, int lastLineNumber) {
     this.resourceId = resourceId;
     this.blockHash = blockHash;
     this.indexInFile = indexInFile;
     this.firstLineNumber = firstLineNumber;
     this.lastLineNumber = lastLineNumber;
-    this.arrHashCode = blockHash.hashCode();
   }
 
   public String getResourceId() {
@@ -50,26 +45,22 @@ public class Block {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof Block)) {
+    if ( !(obj instanceof Block)) {
       return false;
     }
     Block other = (Block) obj;
-    return other.resourceId.equals(resourceId)
-        && other.blockHash.equals(blockHash)
-        && other.indexInFile == indexInFile
-        && other.firstLineNumber == firstLineNumber
-        && other.lastLineNumber == lastLineNumber;
+    return other.resourceId.equals(resourceId) && other.blockHash.equals(blockHash) && other.indexInFile == indexInFile
+        && other.firstLineNumber == firstLineNumber && other.lastLineNumber == lastLineNumber;
   }
 
   @Override
   public int hashCode() {
-    return resourceId.hashCode() + arrHashCode + 413 * indexInFile;
+    return resourceId.hashCode() + blockHash.hashCode() + 413 * indexInFile;
   }
 
   @Override
   public String toString() {
-    return "'" + resourceId + "'[" + indexInFile + "|" + firstLineNumber
-        + "-" + lastLineNumber + "]:" + blockHash;
+    return "'" + resourceId + "'[" + indexInFile + "|" + firstLineNumber + "-" + lastLineNumber + "]:" + blockHash;
   }
 
 }
