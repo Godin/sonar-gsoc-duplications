@@ -3,7 +3,7 @@ package org.sonar.duplications.backend;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.api.Block;
-import org.sonar.duplications.api.index.CloneIndexBackend;
+import org.sonar.duplications.index.CloneIndexBackend;
 
 import java.util.SortedSet;
 

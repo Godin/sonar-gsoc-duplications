@@ -17,20 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api;
+package org.sonar.duplications.token;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.sonar.channel.Channel;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.CodeReaderConfiguration;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import org.sonar.duplications.api.DuplicationsException;
+import org.sonar.duplications.api.Token;
 
 public final class Lexer {
+
   private final Charset charset;
   private final ChannelDispatcher<List<Token>> channelDispatcher;
 
@@ -83,13 +90,18 @@ public final class Lexer {
       return new Lexer(this);
     }
 
-    public Builder addChannel(Channel<List<Token>> channel) {
-      channels.add(channel);
+    public Builder addBlackHoleChannel(String regularExpression) {
+      channels.add(new BlackHoleLexerChannel(regularExpression));
       return this;
     }
 
-    public Builder addStextexChannel(Channel<List<Statement>> channel) {
-      channels.add(channel);
+    public Builder addChannel(String regularExpression) {
+      channels.add(new LexerChannel(regularExpression));
+      return this;
+    }
+
+    public Builder addChannel(String regularExpression, String normalizationValue) {
+      channels.add(new LexerChannel(regularExpression, normalizationValue));
       return this;
     }
 

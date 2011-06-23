@@ -18,7 +18,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.index;
+package org.sonar.duplications.index;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,10 +28,10 @@ import java.util.List;
 import org.sonar.duplications.api.Block;
 import org.sonar.duplications.api.BlockBuilder;
 import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.Lexer;
-import org.sonar.duplications.api.StatementBuilder;
 import org.sonar.duplications.java.JavaLexer;
 import org.sonar.duplications.java.JavaStatementBuilder;
+import org.sonar.duplications.statement.StatementBuilder;
+import org.sonar.duplications.token.Lexer;
 
 public class FileBlockGroup {
 

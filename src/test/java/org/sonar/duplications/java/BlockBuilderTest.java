@@ -10,8 +10,8 @@ import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.api.Block;
 import org.sonar.duplications.api.BlockBuilder;
-import org.sonar.duplications.api.Lexer;
-import org.sonar.duplications.api.StatementBuilder;
+import org.sonar.duplications.statement.StatementBuilder;
+import org.sonar.duplications.token.Lexer;
 
 public class BlockBuilderTest {
 

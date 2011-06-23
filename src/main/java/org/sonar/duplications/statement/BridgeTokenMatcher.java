@@ -1,11 +1,10 @@
-package org.sonar.duplications.api.matcher;
+package org.sonar.duplications.statement;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.sonar.duplications.api.Token;
-import org.sonar.duplications.api.channel.TokenQueue;
 
 /**
  * match everything between two token pair

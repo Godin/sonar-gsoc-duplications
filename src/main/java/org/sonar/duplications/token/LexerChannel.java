@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.channel;
+package org.sonar.duplications.token;
 
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LexerChannel extends Channel<List<Token>> {
+class LexerChannel extends Channel<List<Token>> {
 
   private final StringBuilder tmpBuilder = new StringBuilder();
   private final Matcher matcher;

@@ -8,10 +8,10 @@ import java.util.List;
 
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
-import org.sonar.duplications.api.Lexer;
 import org.sonar.duplications.api.Statement;
-import org.sonar.duplications.api.StatementBuilder;
 import org.sonar.duplications.api.Token;
+import org.sonar.duplications.statement.StatementBuilder;
+import org.sonar.duplications.token.Lexer;
 
 public class JavaStatementBuilderTest {
 

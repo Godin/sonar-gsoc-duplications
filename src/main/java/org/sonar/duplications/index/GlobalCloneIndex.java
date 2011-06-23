@@ -18,10 +18,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.index;
+package org.sonar.duplications.index;
 
-import org.sonar.duplications.algorithm.Clone;
-import org.sonar.duplications.algorithm.CloneReporter;
 import org.sonar.duplications.api.Block;
 
 import java.util.HashSet;

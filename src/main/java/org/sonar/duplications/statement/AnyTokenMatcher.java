@@ -1,9 +1,8 @@
-package org.sonar.duplications.api.matcher;
+package org.sonar.duplications.statement;
 
 import java.util.List;
 
 import org.sonar.duplications.api.Token;
-import org.sonar.duplications.api.channel.TokenQueue;
 
 /**
  * match any token upto specified number

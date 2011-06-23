@@ -17,22 +17,19 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.channel;
+package org.sonar.duplications.java;
 
-import org.sonar.channel.RegexChannel;
-import org.sonar.duplications.api.Token;
+import org.sonar.duplications.token.Lexer;
 
-import java.util.List;
+public class JavaLexer {
 
-public class BlackHoleLexerChannel extends RegexChannel<List<Token>> {
-
-  public BlackHoleLexerChannel(String regex) {
-    super(regex);
+  private JavaLexer() {
   }
 
-  @Override
-  protected void consume(CharSequence token, List<Token> output) {
-    // do nothing
+  public static final Lexer build() {
+    Lexer.Builder builder = Lexer.builder().addBlackHoleChannel("\\s").addBlackHoleChannel("//[^\\n\\r]*+")
+        .addBlackHoleChannel("/\\*[\\s\\S]*?\\*/").addChannel("\".*?\"", "LITERAL").addChannel("[a-zA-Z_]++")
+        .addChannel("[0-9]++", "INTEGER").addChannel(".");
+    return builder.build();
   }
-
 }

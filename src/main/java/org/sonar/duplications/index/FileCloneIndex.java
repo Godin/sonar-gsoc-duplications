@@ -1,4 +1,4 @@
-package org.sonar.duplications.api.index;
+package org.sonar.duplications.index;
 
 import java.io.File;
 import java.util.List;
@@ -6,10 +6,10 @@ import java.util.List;
 import org.sonar.duplications.api.Block;
 import org.sonar.duplications.api.BlockBuilder;
 import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.Lexer;
-import org.sonar.duplications.api.StatementBuilder;
 import org.sonar.duplications.java.JavaLexer;
 import org.sonar.duplications.java.JavaStatementBuilder;
+import org.sonar.duplications.statement.StatementBuilder;
+import org.sonar.duplications.token.Lexer;
 
 /**
  * @author sharif

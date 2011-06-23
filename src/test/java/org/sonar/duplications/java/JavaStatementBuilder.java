@@ -19,11 +19,11 @@
  */
 package org.sonar.duplications.java;
 
-import org.sonar.duplications.api.StatementBuilder;
-import org.sonar.duplications.api.channel.BlackHoleStatementBuilderChannel;
-import org.sonar.duplications.api.channel.StatementBuilderChannel;
+import org.sonar.duplications.statement.BlackHoleStatementBuilderChannel;
+import org.sonar.duplications.statement.StatementBuilder;
+import org.sonar.duplications.statement.StatementBuilderChannel;
 
-import static org.sonar.duplications.api.matcher.TokenMatcherFactory.*;
+import static org.sonar.duplications.statement.TokenMatcherFactory.*;
 
 public class JavaStatementBuilder {
 

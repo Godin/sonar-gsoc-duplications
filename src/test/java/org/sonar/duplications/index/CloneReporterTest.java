@@ -1,4 +1,4 @@
-package org.sonar.duplications.algorithm;
+package org.sonar.duplications.index;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -9,8 +9,10 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.api.Block;
-import org.sonar.duplications.api.index.CloneIndexBackend;
 import org.sonar.duplications.backend.MemoryIndexBackend;
+import org.sonar.duplications.index.Clone;
+import org.sonar.duplications.index.CloneIndexBackend;
+import org.sonar.duplications.index.CloneReporter;
 
 public class CloneReporterTest {
 

@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.duplications.api.channel;
+package org.sonar.duplications.statement;
 
 import java.util.Arrays;
 import java.util.List;

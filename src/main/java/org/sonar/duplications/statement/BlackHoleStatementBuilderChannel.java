@@ -17,37 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.channel;
+package org.sonar.duplications.statement;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.sonar.duplications.api.Statement;
 import org.sonar.duplications.api.Token;
-import org.sonar.duplications.api.matcher.TokenMatcher;
 
 /**
- * channel that consumes tokens if a statement can be build using those tokens as per given rule
- * the statement is added to the output
- *
+ * channel that just consumes tokens but does not provide any output
+ *  
  * @author sharif
  *
  */
-public class StatementBuilderChannel extends Channel2<List<Statement>> {
+public class BlackHoleStatementBuilderChannel extends StatementBuilderChannel {
 
-	protected final TokenMatcher[] tokenMatchers;
-	
-	protected final StringBuilder tmpBuilder = new StringBuilder();
-	
-	private static int indexInFile = 0;
-	
-	public StatementBuilderChannel(TokenMatcher ... tokenMatchers) {
-		this.tokenMatchers = tokenMatchers;
+	public BlackHoleStatementBuilderChannel(TokenMatcher ... tokenMatchers) {
+		super(tokenMatchers);
 	}
 
 	@Override
 	public boolean consume(TokenQueue tokenQueue, List<Statement> output) {
-		
 		if(tokenMatchers != null){
 			List<Token> matchedTokenList = new ArrayList<Token>();
 			for(TokenMatcher tokenMatcher : tokenMatchers){
@@ -58,8 +49,7 @@ public class StatementBuilderChannel extends Channel2<List<Statement>> {
 				}
 			}
 
-			//all matchers were successful, so now build the statement
-			output.add(new Statement(matchedTokenList, indexInFile++));
+			//all matchers were successful, so just ignore the output
 			return true;
 		}
 		return false;

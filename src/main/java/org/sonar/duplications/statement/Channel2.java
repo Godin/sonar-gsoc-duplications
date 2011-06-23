@@ -17,23 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.java;
+package org.sonar.duplications.statement;
 
-import org.sonar.duplications.api.Lexer;
-import org.sonar.duplications.api.channel.BlackHoleLexerChannel;
-import org.sonar.duplications.api.channel.LexerChannel;
+import java.util.List;
+
+import org.sonar.duplications.api.Statement;
 
 
-public class JavaLexer {
+/**
+ * @author sharif
+ *
+ * @param <OUTPUT>
+ */
+public abstract class Channel2<OUTPUT> {
 
-  private JavaLexer() {
-  }
+  /**
+   * Tries to consume the token stream at the current reading cursor position 
+   * (provided by the {@link org.sonar.duplications.api.lexer.channel.TokenReader}). If
+   * the token stream is consumed the method must return true and the OUTPUT object can be fed.
+   * 
+   * @param tokenReader
+   *          the handle on the input token stream
+   * @param output
+   *          the OUTPUT that can be optionally fed by the Channel
+   * @return false if the Channel doesn't want to consume the character stream, true otherwise.
+   */
+  public abstract boolean consume(TokenQueue tokenQueue, OUTPUT output);
 
-  public static final Lexer build() {
-    Lexer.Builder builder = Lexer.builder().addChannel(new BlackHoleLexerChannel("\\s"))
-        .addChannel(new BlackHoleLexerChannel("//[^\\n\\r]*+")).addChannel(new BlackHoleLexerChannel("/\\*[\\s\\S]*?\\*/"))
-        .addChannel(new LexerChannel("\".*?\"", "LITERAL")).addChannel(new LexerChannel("[a-zA-Z_]++"))
-        .addChannel(new LexerChannel("[0-9]++", "INTEGER")).addChannel(new LexerChannel("."));
-    return builder.build();
-  }
- }
+}

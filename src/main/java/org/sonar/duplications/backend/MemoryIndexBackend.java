@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import org.sonar.duplications.api.Block;
-import org.sonar.duplications.api.index.CloneIndexBackend;
+import org.sonar.duplications.index.CloneIndexBackend;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.TreeMultimap;
