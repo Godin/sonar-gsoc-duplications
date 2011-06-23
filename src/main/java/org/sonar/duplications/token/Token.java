@@ -23,22 +23,12 @@ public class Token {
 
   private final int line;
   private final int column;
-  private final String normalizedContent;
-  private final String originalContent;
+  private final String value;
 
   public static final Token EMPTY_TOKEN = new Token("", -1, -1);
-  
-  public Token(String originalContent, int line, int column) {
-    this.normalizedContent = originalContent;
-    this.originalContent = originalContent;
-    this.column = column;
-    this.line = line;
-  }
 
-  public Token(String normalizedContent, String originalContent, int line,
-               int column) {
-    this.normalizedContent = normalizedContent;
-    this.originalContent = originalContent;
+  public Token(String value, int line, int column) {
+    this.value = value;
     this.column = column;
     this.line = line;
   }
@@ -47,9 +37,7 @@ public class Token {
   public boolean equals(Object object) {
     if (object instanceof Token) {
       Token anotherToken = (Token) object;
-      return anotherToken.normalizedContent.equals(normalizedContent)
-          && anotherToken.line == line
-          && anotherToken.column == column;
+      return anotherToken.line == line && anotherToken.column == column && anotherToken.value.equals(value);
     }
     return false;
   }
@@ -62,21 +50,17 @@ public class Token {
     return column;
   }
 
-  public String getNormalizedContent() {
-    return normalizedContent;
-  }
-
-  public String getOriginalContent() {
-    return originalContent;
+  public String getValue() {
+    return value;
   }
 
   @Override
   public int hashCode() {
-    return normalizedContent.hashCode() + line + column;
+    return value.hashCode() + line + column;
   }
 
   @Override
   public String toString() {
-    return "'" + normalizedContent + "'[" + line + "," + column + "]";
+    return "'" + value + "'[" + line + "," + column + "]";
   }
 }

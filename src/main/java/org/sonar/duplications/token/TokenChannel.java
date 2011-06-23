@@ -46,9 +46,8 @@ class TokenChannel extends Channel<TokenQueue> {
       String tokenValue = tmpBuilder.toString();
       int column = code.getColumnPosition() - tokenValue.length();
       if (normalizationValue != null)
-        output.add(new Token(normalizationValue, tokenValue, code.getLinePosition(), column));
-      else
-        output.add(new Token(tokenValue, tokenValue, code.getLinePosition(), column));
+        output.add(new Token(normalizationValue, code.getLinePosition(), column));
+      else output.add(new Token(tokenValue, code.getLinePosition(), column));
       tmpBuilder.delete(0, tmpBuilder.length());
       return true;
     }

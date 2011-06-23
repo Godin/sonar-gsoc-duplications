@@ -28,7 +28,7 @@ public class ExactTokenMatcher extends TokenMatcher {
 	public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList){
 		Token nextToken = tokenQueue.peek();
 		if (tokenToMatch != null
-				&& tokenToMatch.equals(nextToken.getNormalizedContent())){
+				&& tokenToMatch.equals(nextToken.getValue())){
 			matchedTokenList.add(tokenQueue.pop());
 			return true;
 		}
