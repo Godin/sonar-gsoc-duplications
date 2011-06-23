@@ -34,12 +34,11 @@ import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.CodeReaderConfiguration;
 import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.Token;
 
 public final class TokenChunker {
 
   private final Charset charset;
-  private final ChannelDispatcher<List<Token>> channelDispatcher;
+  private final ChannelDispatcher<TokenQueue> channelDispatcher;
 
   public static Builder builder() {
     return new Builder();
@@ -50,11 +49,11 @@ public final class TokenChunker {
     this.channelDispatcher = builder.getChannelDispatcher();
   }
 
-  public List<Token> chunk(String sourceCode) {
+  public TokenQueue chunk(String sourceCode) {
     return chunk(new StringReader(sourceCode));
   }
 
-  public List<Token> chunk(File file) {
+  public TokenQueue chunk(File file) {
     InputStreamReader reader = null;
     try {
       reader = new InputStreamReader(new FileInputStream(file), charset);
@@ -66,12 +65,12 @@ public final class TokenChunker {
     }
   }
 
-  public List<Token> chunk(Reader reader) {
+  public TokenQueue chunk(Reader reader) {
     CodeReader code = new CodeReader(reader, new CodeReaderConfiguration());
-    List<Token> tokens = new ArrayList<Token>();
+    TokenQueue queue = new TokenQueue();
     try {
-      channelDispatcher.consume(code, tokens);
-      return tokens;
+      channelDispatcher.consume(code, queue);
+      return queue;
     } catch (Exception e) {
       throw new DuplicationsException("Unable to lex source code at line : " + code.getLinePosition() + " and column : "
           + code.getColumnPosition(), e);
@@ -105,8 +104,8 @@ public final class TokenChunker {
       return this;
     }
 
-    private ChannelDispatcher<List<Token>> getChannelDispatcher() {
-      return new ChannelDispatcher<List<Token>>(channels);
+    private ChannelDispatcher<TokenQueue> getChannelDispatcher() {
+      return new ChannelDispatcher<TokenQueue>(channels);
     }
 
     public Builder setCharset(Charset charset) {

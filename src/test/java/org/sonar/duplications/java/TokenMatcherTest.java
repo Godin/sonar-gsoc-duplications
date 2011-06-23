@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.sonar.channel.ChannelException;
 import org.sonar.duplications.api.Token;
 import org.sonar.duplications.statement.TokenMatcherFactory;
-import org.sonar.duplications.statement.TokenQueue;
+import org.sonar.duplications.token.TokenQueue;
 
 public class TokenMatcherTest {
 	

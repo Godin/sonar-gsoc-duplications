@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.sonar.duplications.api.Statement;
 import org.sonar.duplications.api.Token;
+import org.sonar.duplications.token.TokenQueue;
 
 /**
  * channel that consumes tokens if a statement can be build using those tokens as per given rule the statement is added to the output

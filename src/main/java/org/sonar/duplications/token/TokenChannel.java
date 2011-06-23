@@ -19,15 +19,14 @@
  */
 package org.sonar.duplications.token;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
 import org.sonar.duplications.api.Token;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-class TokenChannel extends Channel<List<Token>> {
+class TokenChannel extends Channel<TokenQueue> {
 
   private final StringBuilder tmpBuilder = new StringBuilder();
   private final Matcher matcher;
@@ -43,7 +42,7 @@ class TokenChannel extends Channel<List<Token>> {
   }
 
   @Override
-  public boolean consume(CodeReader code, List<Token> output) {
+  public boolean consume(CodeReader code, TokenQueue output) {
     if (code.popTo(matcher, tmpBuilder) > 0) {
       String tokenValue = tmpBuilder.toString();
       int column = code.getColumnPosition() - tokenValue.length();

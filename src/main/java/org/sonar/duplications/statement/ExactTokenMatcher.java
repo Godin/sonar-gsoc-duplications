@@ -3,6 +3,7 @@ package org.sonar.duplications.statement;
 import java.util.List;
 
 import org.sonar.duplications.api.Token;
+import org.sonar.duplications.token.TokenQueue;
 
 /**
  * match an exact token

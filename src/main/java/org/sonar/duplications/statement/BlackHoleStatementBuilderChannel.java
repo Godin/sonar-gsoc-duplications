@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.sonar.duplications.api.Statement;
 import org.sonar.duplications.api.Token;
+import org.sonar.duplications.token.TokenQueue;
 
 /**
  * channel that just consumes tokens but does not provide any output

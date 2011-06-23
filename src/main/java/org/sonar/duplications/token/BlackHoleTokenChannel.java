@@ -19,19 +19,16 @@
  */
 package org.sonar.duplications.token;
 
-import java.util.List;
-
 import org.sonar.channel.RegexChannel;
-import org.sonar.duplications.api.Token;
 
-class BlackHoleTokenChannel extends RegexChannel<List<Token>> {
+class BlackHoleTokenChannel extends RegexChannel<TokenQueue> {
 
   public BlackHoleTokenChannel(String regex) {
     super(regex);
   }
 
   @Override
-  protected void consume(CharSequence token, List<Token> output) {
+  protected void consume(CharSequence token, TokenQueue output) {
     // do nothing
   }
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sonar.duplications.api.Token;
+import org.sonar.duplications.token.TokenQueue;
 
 /**
  * match everything between two token pair

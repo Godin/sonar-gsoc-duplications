@@ -9,9 +9,9 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.api.Statement;
-import org.sonar.duplications.api.Token;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
+import org.sonar.duplications.token.TokenQueue;
 
 public class JavaStatementBuilderTest {
 
@@ -21,21 +21,21 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldIgnoreImportStatement() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/Import.java");
-    List<Token> tokens = lexer.chunk(testFile);
+    TokenQueue tokens = lexer.chunk(testFile);
     assertThat(stmtBldr.chunk(tokens).size(), is(0));
   }
 
   @Test
   public void shouldIgnorePackageStatement() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/Package.java");
-    List<Token> tokens = lexer.chunk(testFile);
+    TokenQueue tokens = lexer.chunk(testFile);
     assertThat(stmtBldr.chunk(tokens).size(), is(0));
   }
 
   @Test
   public void shouldLexAnnotationStatement() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/Annotation.java");
-    List<Token> tokens = lexer.chunk(testFile);
+    TokenQueue tokens = lexer.chunk(testFile);
     List<Statement> statementList = stmtBldr.chunk(tokens);
 
     assertThat(statementList.get(0).getNormalizedContent(), is("@Entity"));
@@ -54,7 +54,7 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldLexIfStatement() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/If.java");
-    List<Token> tokens = lexer.chunk(testFile);
+    TokenQueue tokens = lexer.chunk(testFile);
     List<Statement> statementList = stmtBldr.chunk(tokens);
 
     assertThat(statementList.get(0).getNormalizedContent(), is("if(getParent()==null)"));
@@ -72,7 +72,7 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldLexForStatement() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/For.java");
-    List<Token> tokens = lexer.chunk(testFile);
+    TokenQueue tokens = lexer.chunk(testFile);
     List<Statement> statementList = stmtBldr.chunk(tokens);
 
     assertThat(statementList.get(0).getNormalizedContent(), is("for(inti=INTEGER;i<children.length;i++)"));
@@ -93,7 +93,7 @@ public class JavaStatementBuilderTest {
   public void shouldLexWhileStatement() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/While.java");
 
-    List<Token> tokens = lexer.chunk(testFile);
+    TokenQueue tokens = lexer.chunk(testFile);
     List<Statement> statementList = stmtBldr.chunk(tokens);
 
     assertThat(statementList.get(0).getNormalizedContent(), is("while(i<args.length)"));
@@ -107,7 +107,7 @@ public class JavaStatementBuilderTest {
   public void shouldLexDoWhileStatement() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/DoWhile.java");
 
-    List<Token> tokens = lexer.chunk(testFile);
+    TokenQueue tokens = lexer.chunk(testFile);
     List<Statement> statementList = stmtBldr.chunk(tokens);
 
     assertThat(statementList.get(0).getNormalizedContent(), is("do"));
@@ -123,7 +123,7 @@ public class JavaStatementBuilderTest {
   public void shouldLexSwitchStatement() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/Switch.java");
 
-    List<Token> tokens = lexer.chunk(testFile);
+    TokenQueue tokens = lexer.chunk(testFile);
     List<Statement> statementList = stmtBldr.chunk(tokens);
 
     assertThat(statementList.get(0).getNormalizedContent(), is("switch(month)"));
