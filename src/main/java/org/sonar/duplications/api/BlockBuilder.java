@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
 /**
  * this class provides a list of blocks from a list of statements
  * 
@@ -16,72 +15,67 @@ import java.util.List;
  */
 public class BlockBuilder {
 
-	private static final long serialVersionUID = -7421443570641400239L;
+  private static final long serialVersionUID = -7421443570641400239L;
 
-	public final static int DEFAULT_BLOCK_SIZE = 5;
+  public final static int DEFAULT_BLOCK_SIZE = 5;
 
-	private File sourceFile;
+  private File sourceFile;
 
-	private int blockSize;
+  private int blockSize;
 
-	private final MessageDigest digest;
+  private final MessageDigest digest;
 
-	public BlockBuilder(File sourceFile) {
-		this(sourceFile, DEFAULT_BLOCK_SIZE);
-	}
-	
-	public BlockBuilder(File sourceFile, int blockSize) {
-		this.blockSize = blockSize;
-		this.sourceFile = sourceFile;
-		try {
-			this.digest = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			throw new DuplicationsException(e.getMessage());
-		}
-	}
+  public BlockBuilder(File sourceFile) {
+    this(sourceFile, DEFAULT_BLOCK_SIZE);
+  }
 
-	public List<Block> build(List<Statement> statements) {
-		Iterator<Statement> stmtIterator = statements.iterator();
-		List<Statement> statementsForBlock = new ArrayList<Statement>();
-		List<Block> blockList = new ArrayList<Block>();
+  public BlockBuilder(File sourceFile, int blockSize) {
+    this.blockSize = blockSize;
+    this.sourceFile = sourceFile;
+    try {
+      this.digest = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      throw new DuplicationsException(e.getMessage());
+    }
+  }
 
-		try {
-			// build the first block
-			for (int i = 0; i < blockSize && stmtIterator.hasNext(); i++) {
-				statementsForBlock.add(stmtIterator.next());
-			}
-			blockList.add(new Block(sourceFile.getCanonicalPath(),
-					buildBlockHash(statementsForBlock), statementsForBlock.get(
-							0).getIndexInFile(), statementsForBlock.get(0)
-							.getStartLine(), statementsForBlock.get(
-							statementsForBlock.size() - 1).getEndLine()));
+  public List<Block> build(List<Statement> statements) {
+    Iterator<Statement> stmtIterator = statements.iterator();
+    List<Statement> statementsForBlock = new ArrayList<Statement>();
+    List<Block> blockList = new ArrayList<Block>();
 
-			// and now build the remaining blocks
-			while (stmtIterator.hasNext()) {
+    try {
+      // build the first block
+      for (int i = 0; i < blockSize && stmtIterator.hasNext(); i++) {
+        statementsForBlock.add(stmtIterator.next());
+      }
+      blockList.add(new Block(sourceFile.getAbsolutePath(), buildBlockHash(statementsForBlock), statementsForBlock.get(0).getIndexInFile(),
+          statementsForBlock.get(0).getStartLine(), statementsForBlock.get(statementsForBlock.size() - 1).getEndLine()));
 
-				statementsForBlock.remove(0);
-				statementsForBlock.add(stmtIterator.next());
-				blockList.add(new Block(sourceFile.getCanonicalPath(),
-						buildBlockHash(statementsForBlock), statementsForBlock
-								.get(0).getIndexInFile(), statementsForBlock
-								.get(0).getStartLine(), statementsForBlock.get(
-								statementsForBlock.size() - 1).getEndLine()));
-			}
-		} catch (Exception e) {
-			throw new DuplicationsException(e.getMessage());
-		}
+      // and now build the remaining blocks
+      while (stmtIterator.hasNext()) {
 
-		return blockList;
-	}
+        statementsForBlock.remove(0);
+        statementsForBlock.add(stmtIterator.next());
+        blockList
+            .add(new Block(sourceFile.getAbsolutePath(), buildBlockHash(statementsForBlock), statementsForBlock.get(0).getIndexInFile(),
+                statementsForBlock.get(0).getStartLine(), statementsForBlock.get(statementsForBlock.size() - 1).getEndLine()));
+      }
+    } catch (Exception e) {
+      throw new DuplicationsException(e.getMessage());
+    }
 
-	private String buildBlockHash(List<Statement> statementList) {
-		digest.reset();
-		for (Statement statement : statementList) {
-			digest.update(statement.getNormalizedContent().getBytes());
-		}
-		byte messageDigest[] = digest.digest();
-		BigInteger number = new BigInteger(1, messageDigest);
-		return String.format("%1$032X", number);
-	}
+    return blockList;
+  }
+
+  private String buildBlockHash(List<Statement> statementList) {
+    digest.reset();
+    for (Statement statement : statementList) {
+      digest.update(statement.getNormalizedContent().getBytes());
+    }
+    byte messageDigest[] = digest.digest();
+    BigInteger number = new BigInteger(1, messageDigest);
+    return String.format("%1$032X", number);
+  }
 
 }

@@ -26,12 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sonar.duplications.api.Block;
-import org.sonar.duplications.api.BlockBuilder;
 import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.java.JavaLexer;
-import org.sonar.duplications.java.JavaStatementBuilder;
-import org.sonar.duplications.statement.StatementBuilder;
-import org.sonar.duplications.token.Lexer;
 
 public class FileBlockGroup {
 
@@ -40,12 +35,10 @@ public class FileBlockGroup {
 
   public FileBlockGroup(String fileResourceId) {
     this.fileResourceId = fileResourceId;
-    // init();
   }
 
   public FileBlockGroup(File sourceFile) {
     this.fileResourceId = sourceFile.getAbsolutePath();
-    // init();
   }
 
   public void addBlock(Block block) {
@@ -62,17 +55,4 @@ public class FileBlockGroup {
   public List<Block> getBlockList() {
     return Collections.unmodifiableList(fileBlocks);
   }
-
-  public void init() {
-    try {
-      Lexer lexer = JavaLexer.build();
-      StatementBuilder statementBuilder = JavaStatementBuilder.build();
-      BlockBuilder blockBuilder = new BlockBuilder(new File(fileResourceId));
-
-      fileBlocks.addAll(blockBuilder.build(statementBuilder.build(lexer.lex(new File(fileResourceId)))));
-    } catch (Exception e) {
-      throw new DuplicationsException("Error in initialization", e);
-    }
-  }
-
 }

@@ -25,7 +25,7 @@ public class FileBlockGroupTest {
   @Test
   public void shouldTokenizeSource() {
     FileBlockGroup fci = new FileBlockGroup(testFile);
-    fci.init();
+    init(fci, testFile);
     assertThat(fci.getBlockList().size(), is(8));
   }
 
@@ -33,5 +33,18 @@ public class FileBlockGroupTest {
   public void testWrongResourceId() {
     FileBlockGroup file = new FileBlockGroup("a");
     file.addBlock(new Block("b", "13dws2324d", 1, 1, 7));
+  }
+
+  public void init(FileBlockGroup fci, File file) {
+    try {
+      Lexer lexer = JavaLexer.build();
+      StatementBuilder statementBuilder = JavaStatementBuilder.build();
+      BlockBuilder blockBuilder = new BlockBuilder(file);
+      for (Block block : blockBuilder.build(statementBuilder.build(lexer.lex(file)))) {
+        fci.addBlock(block);
+      }
+    } catch (Exception e) {
+      throw new DuplicationsException("Error in initialization", e);
+    }
   }
 }
