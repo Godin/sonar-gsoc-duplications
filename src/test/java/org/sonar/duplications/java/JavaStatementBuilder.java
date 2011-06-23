@@ -20,8 +20,8 @@
 package org.sonar.duplications.java;
 
 import org.sonar.duplications.statement.BlackHoleStatementBuilderChannel;
-import org.sonar.duplications.statement.StatementBuilder;
-import org.sonar.duplications.statement.StatementBuilderChannel;
+import org.sonar.duplications.statement.StatementChunker;
+import org.sonar.duplications.statement.StatementChannel;
 
 import static org.sonar.duplications.statement.TokenMatcherFactory.*;
 
@@ -30,22 +30,22 @@ public class JavaStatementBuilder {
   private JavaStatementBuilder() {
   }
 
-  public static final StatementBuilder build() {
-	StatementBuilder.Builder builder = StatementBuilder.builder()
+  public static final StatementChunker build() {
+	StatementChunker.Builder builder = StatementChunker.builder()
 		.addStextexChannel(new BlackHoleStatementBuilderChannel(from("import"), to(";")))
 		.addStextexChannel(new BlackHoleStatementBuilderChannel(from("package"), to(";")))
 		.addStextexChannel(new BlackHoleStatementBuilderChannel(nextThisToken("}")))
 		.addStextexChannel(new BlackHoleStatementBuilderChannel(nextThisToken("{")))
-		.addStextexChannel(new StatementBuilderChannel(from("@"), nextAnyToken(1), bridge(MATCH_IS_OPTIONAL, "(", ")")))
-		.addStextexChannel(new StatementBuilderChannel(from("do")))
-		.addStextexChannel(new StatementBuilderChannel(from("if"), bridge("(", ")")))
-		.addStextexChannel(new StatementBuilderChannel(from("else"), nextThisToken("if"), bridge("(", ")"))) //match else if
-		.addStextexChannel(new StatementBuilderChannel(from("else"))) //match else only
-		.addStextexChannel(new StatementBuilderChannel(from("for"), bridge("(", ")")))
-		.addStextexChannel(new StatementBuilderChannel(from("while"), bridge("(", ")"), nextThisToken(MATCH_IS_OPTIONAL,";")))
-		.addStextexChannel(new StatementBuilderChannel(from("case"), to(":")))
-		.addStextexChannel(new StatementBuilderChannel(from("default"), to(":")))
-		.addStextexChannel(new StatementBuilderChannel(to(";","!{","{","}")))  //!TOKEN means before token "TOKEN" i.e., !{ means before token "{"
+		.addStextexChannel(new StatementChannel(from("@"), nextAnyToken(1), bridge(MATCH_IS_OPTIONAL, "(", ")")))
+		.addStextexChannel(new StatementChannel(from("do")))
+		.addStextexChannel(new StatementChannel(from("if"), bridge("(", ")")))
+		.addStextexChannel(new StatementChannel(from("else"), nextThisToken("if"), bridge("(", ")"))) //match else if
+		.addStextexChannel(new StatementChannel(from("else"))) //match else only
+		.addStextexChannel(new StatementChannel(from("for"), bridge("(", ")")))
+		.addStextexChannel(new StatementChannel(from("while"), bridge("(", ")"), nextThisToken(MATCH_IS_OPTIONAL,";")))
+		.addStextexChannel(new StatementChannel(from("case"), to(":")))
+		.addStextexChannel(new StatementChannel(from("default"), to(":")))
+		.addStextexChannel(new StatementChannel(to(";","!{","{","}")))  //!TOKEN means before token "TOKEN" i.e., !{ means before token "{"
 		;
 	
     return builder.build();

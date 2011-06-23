@@ -9,22 +9,22 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.api.Block;
-import org.sonar.duplications.api.BlockBuilder;
-import org.sonar.duplications.statement.StatementBuilder;
-import org.sonar.duplications.token.Lexer;
+import org.sonar.duplications.block.BlockChunker;
+import org.sonar.duplications.statement.StatementChunker;
+import org.sonar.duplications.token.TokenChunker;
 
 public class BlockBuilderTest {
 
   File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
-  Lexer lexer = JavaLexer.build();
-  StatementBuilder statementBuilder = JavaStatementBuilder.build();
+  TokenChunker lexer = JavaTokenProducer.build();
+  StatementChunker statementBuilder = JavaStatementBuilder.build();
   int blockSize = 3;
-  BlockBuilder blockBuilder = new BlockBuilder(testFile);
+  BlockChunker blockBuilder = new BlockChunker(testFile);
 
   @Test
   @Ignore
   public void shouldTokenizeSource() {
-    List<Block> blockList = blockBuilder.build(statementBuilder.build(lexer.lex(testFile)));
+    List<Block> blockList = blockBuilder.chunk(statementBuilder.chunk(lexer.chunk(testFile)));
 
     Assert.assertEquals(0, blockList.get(0).getIndexInFile());
     Assert.assertEquals(3, blockList.get(0).getFirstLineNumber());

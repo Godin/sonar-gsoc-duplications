@@ -8,19 +8,19 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.api.Block;
-import org.sonar.duplications.api.BlockBuilder;
 import org.sonar.duplications.api.DuplicationsException;
+import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.index.FileBlockGroup;
-import org.sonar.duplications.statement.StatementBuilder;
-import org.sonar.duplications.token.Lexer;
+import org.sonar.duplications.statement.StatementChunker;
+import org.sonar.duplications.token.TokenChunker;
 
 public class FileBlockGroupTest {
 
   File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
-  Lexer lexer = JavaLexer.build();
-  StatementBuilder statementBuilder = JavaStatementBuilder.build();
+  TokenChunker lexer = JavaTokenProducer.build();
+  StatementChunker statementBuilder = JavaStatementBuilder.build();
   int blockSize = 3;
-  BlockBuilder blockBuilder = new BlockBuilder(testFile, blockSize);
+  BlockChunker blockBuilder = new BlockChunker(testFile, blockSize);
 
   @Test
   public void shouldTokenizeSource() {
@@ -37,10 +37,10 @@ public class FileBlockGroupTest {
 
   public void init(FileBlockGroup fci, File file) {
     try {
-      Lexer lexer = JavaLexer.build();
-      StatementBuilder statementBuilder = JavaStatementBuilder.build();
-      BlockBuilder blockBuilder = new BlockBuilder(file);
-      for (Block block : blockBuilder.build(statementBuilder.build(lexer.lex(file)))) {
+      TokenChunker lexer = JavaTokenProducer.build();
+      StatementChunker statementBuilder = JavaStatementBuilder.build();
+      BlockChunker blockBuilder = new BlockChunker(file);
+      for (Block block : blockBuilder.chunk(statementBuilder.chunk(lexer.chunk(file)))) {
         fci.addBlock(block);
       }
     } catch (Exception e) {

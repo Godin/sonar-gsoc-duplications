@@ -27,17 +27,17 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class LexerChannel extends Channel<List<Token>> {
+class TokenChannel extends Channel<List<Token>> {
 
   private final StringBuilder tmpBuilder = new StringBuilder();
   private final Matcher matcher;
   private String normalizationValue;
 
-  public LexerChannel(String regex) {
+  public TokenChannel(String regex) {
     matcher = Pattern.compile(regex).matcher("");
   }
 
-  public LexerChannel(String regex, String normalizationValue) {
+  public TokenChannel(String regex, String normalizationValue) {
     this(regex);
     this.normalizationValue = normalizationValue;
   }

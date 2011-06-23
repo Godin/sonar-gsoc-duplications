@@ -25,43 +25,40 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.duplications.api.Statement;
 import org.sonar.duplications.api.Token;
 
-public class StatementBuilderChannelDisptacher<OUTPUT> extends Channel2<OUTPUT> {
+public class StatementChannelDisptacher {
 
-  private static final Logger logger = LoggerFactory.getLogger(StatementBuilderChannelDisptacher.class);
+  private static final Logger logger = LoggerFactory.getLogger(StatementChannelDisptacher.class);
   private final boolean failIfNoChannelToConsumeOneCharacter;
 
-  @SuppressWarnings("rawtypes")
-  private final Channel2[] channels;
+  private final StatementChannel[] channels;
 
-  @SuppressWarnings("rawtypes")
-  public StatementBuilderChannelDisptacher(List<Channel2> channels) {
+  public StatementChannelDisptacher(List<StatementChannel> channels) {
     this(channels, false);
   }
 
-  @SuppressWarnings("rawtypes")
-  public StatementBuilderChannelDisptacher(Channel2... channels) {
+  public StatementChannelDisptacher(StatementChannel... channels) {
     this(Arrays.asList(channels), false);
   }
 
-  @SuppressWarnings("rawtypes")
-  public StatementBuilderChannelDisptacher(List<Channel2> channels, boolean failIfNoChannelToConsumeOneCharacter) {
-    this.channels = channels.toArray(new Channel2[channels.size()]);
+  public StatementChannelDisptacher(List<StatementChannel> channels, boolean failIfNoChannelToConsumeOneCharacter) {
+    this.channels = channels.toArray(new StatementChannel[channels.size()]);
     this.failIfNoChannelToConsumeOneCharacter = failIfNoChannelToConsumeOneCharacter;
   }
 
-  public boolean consume(TokenQueue tokenQueue, OUTPUT output) {
+  public boolean consume(TokenQueue tokenQueue, List<Statement> statements) {
     Token nextToken = tokenQueue.peek();
     while (nextToken != Token.EMPTY_TOKEN) {
       boolean channelConsumed = false;
-      for (Channel2<OUTPUT> channel : channels) {
-        if (channel.consume(tokenQueue, output)) {
+      for (StatementChannel channel : channels) {
+        if (channel.consume(tokenQueue, statements)) {
           channelConsumed = true;
           break;
         }
       }
-      if (!channelConsumed) {
+      if ( !channelConsumed) {
         String message = "None of the channel has been able to handle token '" + tokenQueue.peek();
         if (failIfNoChannelToConsumeOneCharacter) {
           throw new IllegalStateException(message);

@@ -36,7 +36,7 @@ import org.sonar.channel.CodeReaderConfiguration;
 import org.sonar.duplications.api.DuplicationsException;
 import org.sonar.duplications.api.Token;
 
-public final class Lexer {
+public final class TokenChunker {
 
   private final Charset charset;
   private final ChannelDispatcher<List<Token>> channelDispatcher;
@@ -45,20 +45,20 @@ public final class Lexer {
     return new Builder();
   }
 
-  private Lexer(Builder builder) {
+  private TokenChunker(Builder builder) {
     this.charset = builder.charset;
     this.channelDispatcher = builder.getChannelDispatcher();
   }
 
-  public List<Token> lex(String sourceCode) {
-    return lex(new StringReader(sourceCode));
+  public List<Token> chunk(String sourceCode) {
+    return chunk(new StringReader(sourceCode));
   }
 
-  public List<Token> lex(File file) {
+  public List<Token> chunk(File file) {
     InputStreamReader reader = null;
     try {
       reader = new InputStreamReader(new FileInputStream(file), charset);
-      return lex(reader);
+      return chunk(reader);
     } catch (Exception e) {
       throw new DuplicationsException("Unable to lex file : " + file.getAbsolutePath(), e);
     } finally {
@@ -66,7 +66,7 @@ public final class Lexer {
     }
   }
 
-  public List<Token> lex(Reader reader) {
+  public List<Token> chunk(Reader reader) {
     CodeReader code = new CodeReader(reader, new CodeReaderConfiguration());
     List<Token> tokens = new ArrayList<Token>();
     try {
@@ -86,22 +86,22 @@ public final class Lexer {
     private Builder() {
     }
 
-    public Lexer build() {
-      return new Lexer(this);
+    public TokenChunker build() {
+      return new TokenChunker(this);
     }
 
     public Builder addBlackHoleChannel(String regularExpression) {
-      channels.add(new BlackHoleLexerChannel(regularExpression));
+      channels.add(new BlackHoleTokenChannel(regularExpression));
       return this;
     }
 
     public Builder addChannel(String regularExpression) {
-      channels.add(new LexerChannel(regularExpression));
+      channels.add(new TokenChannel(regularExpression));
       return this;
     }
 
     public Builder addChannel(String regularExpression, String normalizationValue) {
-      channels.add(new LexerChannel(regularExpression, normalizationValue));
+      channels.add(new TokenChannel(regularExpression, normalizationValue));
       return this;
     }
 

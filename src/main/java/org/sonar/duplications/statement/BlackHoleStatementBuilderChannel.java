@@ -31,7 +31,7 @@ import org.sonar.duplications.api.Token;
  * @author sharif
  *
  */
-public class BlackHoleStatementBuilderChannel extends StatementBuilderChannel {
+public class BlackHoleStatementBuilderChannel extends StatementChannel {
 
 	public BlackHoleStatementBuilderChannel(TokenMatcher ... tokenMatchers) {
 		super(tokenMatchers);

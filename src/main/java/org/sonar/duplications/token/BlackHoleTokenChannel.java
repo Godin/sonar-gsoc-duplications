@@ -24,9 +24,9 @@ import java.util.List;
 import org.sonar.channel.RegexChannel;
 import org.sonar.duplications.api.Token;
 
-class BlackHoleLexerChannel extends RegexChannel<List<Token>> {
+class BlackHoleTokenChannel extends RegexChannel<List<Token>> {
 
-  public BlackHoleLexerChannel(String regex) {
+  public BlackHoleTokenChannel(String regex) {
     super(regex);
   }
 

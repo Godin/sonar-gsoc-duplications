@@ -19,15 +19,15 @@
  */
 package org.sonar.duplications.java;
 
-import org.sonar.duplications.token.Lexer;
+import org.sonar.duplications.token.TokenChunker;
 
-public class JavaLexer {
+public class JavaTokenProducer {
 
-  private JavaLexer() {
+  private JavaTokenProducer() {
   }
 
-  public static final Lexer build() {
-    Lexer.Builder builder = Lexer.builder().addBlackHoleChannel("\\s").addBlackHoleChannel("//[^\\n\\r]*+")
+  public static final TokenChunker build() {
+    TokenChunker.Builder builder = TokenChunker.builder().addBlackHoleChannel("\\s").addBlackHoleChannel("//[^\\n\\r]*+")
         .addBlackHoleChannel("/\\*[\\s\\S]*?\\*/").addChannel("\".*?\"", "LITERAL").addChannel("[a-zA-Z_]++")
         .addChannel("[0-9]++", "INTEGER").addChannel(".");
     return builder.build();

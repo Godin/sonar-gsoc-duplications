@@ -1,4 +1,4 @@
-package org.sonar.duplications.api;
+package org.sonar.duplications.block;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -8,12 +8,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sonar.duplications.api.Block;
+import org.sonar.duplications.api.DuplicationsException;
+import org.sonar.duplications.api.Statement;
+
 /**
  * this class provides a list of blocks from a list of statements
  * 
  * @author sharif
  */
-public class BlockBuilder {
+public class BlockChunker {
 
   private static final long serialVersionUID = -7421443570641400239L;
 
@@ -25,11 +29,11 @@ public class BlockBuilder {
 
   private final MessageDigest digest;
 
-  public BlockBuilder(File sourceFile) {
+  public BlockChunker(File sourceFile) {
     this(sourceFile, DEFAULT_BLOCK_SIZE);
   }
 
-  public BlockBuilder(File sourceFile, int blockSize) {
+  public BlockChunker(File sourceFile, int blockSize) {
     this.blockSize = blockSize;
     this.sourceFile = sourceFile;
     try {
@@ -39,7 +43,7 @@ public class BlockBuilder {
     }
   }
 
-  public List<Block> build(List<Statement> statements) {
+  public List<Block> chunk(List<Statement> statements) {
     Iterator<Statement> stmtIterator = statements.iterator();
     List<Statement> statementsForBlock = new ArrayList<Statement>();
     List<Block> blockList = new ArrayList<Block>();
