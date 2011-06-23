@@ -5,9 +5,9 @@ import org.junit.Test;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileCloneIndex;
 import org.sonar.duplications.index.Clone;
-import org.sonar.duplications.index.CloneIndexBackend;
+import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.GlobalCloneIndex;
-import org.sonar.duplications.index.MemoryIndexBackend;
+import org.sonar.duplications.index.MemoryCloneIndex;
 
 import java.util.Set;
 
@@ -18,11 +18,11 @@ import static org.junit.Assert.assertThat;
 public class GlobalCloneIndexTest {
 
   GlobalCloneIndex index;
-  CloneIndexBackend backend;
+  CloneIndex backend;
 
   @Before
   public void initialize() {
-    backend = new MemoryIndexBackend();
+    backend = new MemoryCloneIndex();
     index = new GlobalCloneIndex(backend);
   }
 

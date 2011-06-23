@@ -29,9 +29,9 @@ import java.util.Set;
 
 public class GlobalCloneIndex {
 
-  private final CloneIndexBackend backend;
+  private final CloneIndex backend;
 
-  public GlobalCloneIndex(CloneIndexBackend backend) {
+  public GlobalCloneIndex(CloneIndex backend) {
     this.backend = backend;
   }
 

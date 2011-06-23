@@ -10,16 +10,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.index.Clone;
-import org.sonar.duplications.index.CloneIndexBackend;
+import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.CloneReporter;
 
 public class CloneReporterTest {
 
-  private CloneIndexBackend indexBackend;
+  private CloneIndex indexBackend;
 
   @Before
   public void initialize() {
-    indexBackend = new MemoryIndexBackend();
+    indexBackend = new MemoryCloneIndex();
   }
 
   @Test

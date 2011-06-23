@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 //TODO: only stub now
-public class DBIndexBackend implements CloneIndexBackend {
+public class DBCloneIndex implements CloneIndex {
 
   public Set<String> getAllUniqueResourceId() {
     return null;

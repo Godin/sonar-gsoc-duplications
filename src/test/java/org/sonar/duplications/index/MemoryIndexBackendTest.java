@@ -3,7 +3,7 @@ package org.sonar.duplications.index;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.index.CloneIndexBackend;
+import org.sonar.duplications.index.CloneIndex;
 
 import java.util.SortedSet;
 
@@ -13,11 +13,11 @@ import static org.junit.Assert.assertTrue;
 
 public class MemoryIndexBackendTest {
 
-  private CloneIndexBackend memBack;
+  private CloneIndex memBack;
 
   @Before
   public void initialize() {
-    memBack = new MemoryIndexBackend();
+    memBack = new MemoryCloneIndex();
   }
 
   @Test

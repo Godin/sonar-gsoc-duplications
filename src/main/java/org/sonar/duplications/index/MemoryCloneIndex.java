@@ -30,7 +30,7 @@ import org.sonar.duplications.block.Block;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.TreeMultimap;
 
-public class MemoryIndexBackend implements CloneIndexBackend {
+public class MemoryCloneIndex implements CloneIndex {
 
   private final TreeMultimap<String, Block> filenameIndex;
   private final HashMultimap<String, Block> sequenceHashIndex;
@@ -93,7 +93,7 @@ public class MemoryIndexBackend implements CloneIndexBackend {
     }
   }
 
-  public MemoryIndexBackend() {
+  public MemoryCloneIndex() {
     filenameIndex = TreeMultimap.create(new KeyComparator(), new ValueComparator());
     sequenceHashIndex = HashMultimap.create();
   }

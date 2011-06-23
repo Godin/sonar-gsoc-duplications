@@ -74,7 +74,7 @@ public class CloneReporter {
     }
   }
 
-  public static List<Clone> reportClones(String filename, CloneIndexBackend index) {
+  public static List<Clone> reportClones(String filename, CloneIndex index) {
     SortedSet<Block> resourceSet = index.getByResourceId(filename);
 
     int totalSequences = resourceSet.size();
@@ -130,7 +130,7 @@ public class CloneReporter {
   }
 
   private static void prepareSets(SortedSet<Block> fileSet, List<Set<BlockWrap>> tuplesC,
-                                  List<Block> fileBlocks, CloneIndexBackend index) {
+                                  List<Block> fileBlocks, CloneIndex index) {
     for (Block block : fileSet) {
       Set<Block> set = index.getBySequenceHash(block.getBlockHash());
       Set<BlockWrap> wrapSet = new TreeSet<BlockWrap>();

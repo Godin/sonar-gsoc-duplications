@@ -25,7 +25,7 @@ import org.sonar.duplications.block.Block;
 import java.util.Set;
 import java.util.SortedSet;
 
-public interface CloneIndexBackend {
+public interface CloneIndex {
 
   public Set<String> getAllUniqueResourceId();
 
