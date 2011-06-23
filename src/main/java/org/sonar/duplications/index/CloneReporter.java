@@ -28,7 +28,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.sonar.duplications.api.Block;
+import org.sonar.duplications.block.Block;
 
 public class CloneReporter {
 

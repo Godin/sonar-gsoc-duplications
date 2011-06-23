@@ -1,4 +1,4 @@
-package org.sonar.duplications.api;
+package org.sonar.duplications.block;
 
 
 /**

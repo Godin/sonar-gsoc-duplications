@@ -1,8 +1,8 @@
 package org.sonar.duplications.java;
 
 import org.junit.Test;
-import org.sonar.duplications.api.Token;
 import org.sonar.duplications.java.JavaTokenProducer;
+import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenChunker;
 
 import static org.hamcrest.Matchers.*;

@@ -8,9 +8,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sonar.duplications.api.Block;
-import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.Statement;
+import org.sonar.duplications.DuplicationsException;
+import org.sonar.duplications.statement.Statement;
 
 /**
  * this class provides a list of blocks from a list of statements

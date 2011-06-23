@@ -22,8 +22,7 @@ package org.sonar.duplications.statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sonar.duplications.api.Statement;
-import org.sonar.duplications.api.Token;
+import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
 /**

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Queue;
 
 import org.sonar.channel.ChannelException;
-import org.sonar.duplications.api.Token;
 
 /**
  * class that maintains a queue of tokens, supports methods pop: returns head token and remove it from queue peek: returns head token

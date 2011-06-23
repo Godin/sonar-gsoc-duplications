@@ -1,4 +1,4 @@
-package org.sonar.duplications.java;
+package org.sonar.duplications.statement;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -8,7 +8,8 @@ import java.util.List;
 
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
-import org.sonar.duplications.api.Statement;
+import org.sonar.duplications.java.JavaTokenProducer;
+import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;

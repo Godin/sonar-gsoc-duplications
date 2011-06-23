@@ -20,7 +20,7 @@
  */
 package org.sonar.duplications.index;
 
-import org.sonar.duplications.api.Block;
+import org.sonar.duplications.block.Block;
 
 import java.util.Set;
 import java.util.SortedSet;

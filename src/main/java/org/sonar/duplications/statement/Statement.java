@@ -1,7 +1,9 @@
-package org.sonar.duplications.api;
+package org.sonar.duplications.statement;
 
 import java.io.Serializable;
 import java.util.List;
+
+import org.sonar.duplications.token.Token;
 
 
 

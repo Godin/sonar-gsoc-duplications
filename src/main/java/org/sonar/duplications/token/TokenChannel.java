@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
-import org.sonar.duplications.api.Token;
 
 class TokenChannel extends Channel<TokenQueue> {
 

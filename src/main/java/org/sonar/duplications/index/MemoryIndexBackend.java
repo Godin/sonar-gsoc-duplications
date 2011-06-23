@@ -18,15 +18,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.backend;
+package org.sonar.duplications.index;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.sonar.duplications.api.Block;
-import org.sonar.duplications.index.CloneIndexBackend;
+import org.sonar.duplications.block.Block;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.TreeMultimap;

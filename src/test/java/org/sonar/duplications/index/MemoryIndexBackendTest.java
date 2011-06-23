@@ -1,8 +1,8 @@
-package org.sonar.duplications.backend;
+package org.sonar.duplications.index;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.duplications.api.Block;
+import org.sonar.duplications.block.Block;
 import org.sonar.duplications.index.CloneIndexBackend;
 
 import java.util.SortedSet;

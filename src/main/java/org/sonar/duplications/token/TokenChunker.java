@@ -33,7 +33,7 @@ import org.sonar.channel.Channel;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.CodeReaderConfiguration;
-import org.sonar.duplications.api.DuplicationsException;
+import org.sonar.duplications.DuplicationsException;
 
 public final class TokenChunker {
 

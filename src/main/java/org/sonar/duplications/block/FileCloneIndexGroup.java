@@ -18,26 +18,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.index;
+package org.sonar.duplications.block;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.sonar.duplications.api.Block;
-import org.sonar.duplications.api.DuplicationsException;
+import org.sonar.duplications.DuplicationsException;
 
-public class FileBlockGroup {
+public class FileCloneIndexGroup {
 
   private final String fileResourceId;
   private final List<Block> fileBlocks = new ArrayList<Block>();
 
-  public FileBlockGroup(String fileResourceId) {
+  public FileCloneIndexGroup(String fileResourceId) {
     this.fileResourceId = fileResourceId;
   }
 
-  public FileBlockGroup(File sourceFile) {
+  public FileCloneIndexGroup(File sourceFile) {
     this.fileResourceId = sourceFile.getAbsolutePath();
   }
 

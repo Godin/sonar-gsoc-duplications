@@ -23,8 +23,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.Statement;
+import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.token.TokenQueue;
 
 /**

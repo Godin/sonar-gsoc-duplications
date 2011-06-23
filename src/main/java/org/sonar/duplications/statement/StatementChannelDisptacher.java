@@ -25,8 +25,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.duplications.api.Statement;
-import org.sonar.duplications.api.Token;
+import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
 public class StatementChannelDisptacher {

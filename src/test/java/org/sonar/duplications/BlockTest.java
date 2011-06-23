@@ -29,7 +29,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.sonar.duplications.api.Block;
+import org.sonar.duplications.block.Block;
 
 public class BlockTest {
 
