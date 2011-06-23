@@ -1,4 +1,4 @@
-package org.sonar.duplications.statement;
+package org.sonar.duplications.statement.matcher;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package org.sonar.duplications.statement;
+package org.sonar.duplications.statement.matcher;
 
 import java.util.List;
 
@@ -11,11 +11,17 @@ import org.sonar.duplications.token.TokenQueue;
  * @author sharif
  * 
  */
-public class ForgiveLastTokenMatcher extends TokenMatcher {
+public class OptTokenMatcher extends TokenMatcher {
+
+  private final TokenMatcher matcher;
+
+  public OptTokenMatcher(TokenMatcher matcher) {
+    this.matcher = matcher;
+  }
 
   @Override
   public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList) {
-    matchedTokenList.remove(matchedTokenList.size() - 1);
+    matcher.matchToken(tokenQueue, matchedTokenList);
     return true;
   }
 }

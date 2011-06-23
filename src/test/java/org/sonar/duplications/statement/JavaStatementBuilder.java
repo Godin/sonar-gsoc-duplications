@@ -19,11 +19,6 @@
  */
 package org.sonar.duplications.statement;
 
-import static org.sonar.duplications.statement.TokenMatcherFactory.anyToken;
-import static org.sonar.duplications.statement.TokenMatcherFactory.bridge;
-import static org.sonar.duplications.statement.TokenMatcherFactory.from;
-import static org.sonar.duplications.statement.TokenMatcherFactory.opt;
-import static org.sonar.duplications.statement.TokenMatcherFactory.to;
 import static org.sonar.duplications.statement.TokenMatcherFactory.*;
 
 public class JavaStatementBuilder {

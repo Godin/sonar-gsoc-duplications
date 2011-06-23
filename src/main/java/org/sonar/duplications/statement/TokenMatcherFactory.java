@@ -1,5 +1,14 @@
 package org.sonar.duplications.statement;
 
+import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
+import org.sonar.duplications.statement.matcher.BridgeTokenMatcher;
+import org.sonar.duplications.statement.matcher.ExactTokenMatcher;
+import org.sonar.duplications.statement.matcher.ForgiveLastTokenMatcher;
+import org.sonar.duplications.statement.matcher.OptTokenMatcher;
+import org.sonar.duplications.statement.matcher.TokenMatcher;
+import org.sonar.duplications.statement.matcher.UptoTokenMatcher;
+
+
 /**
  * returns instance of different token matcher
  * 

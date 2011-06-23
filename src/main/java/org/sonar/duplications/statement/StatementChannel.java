@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sonar.duplications.DuplicationsException;
+import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
