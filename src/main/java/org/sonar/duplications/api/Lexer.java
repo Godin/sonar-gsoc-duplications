@@ -17,16 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.lexer;
+package org.sonar.duplications.api;
 
 import org.apache.commons.io.IOUtils;
 import org.sonar.channel.Channel;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.CodeReaderConfiguration;
-import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.codeunit.Statement;
-import org.sonar.duplications.api.codeunit.Token;
 
 import java.io.*;
 import java.nio.charset.Charset;

@@ -1,9 +1,9 @@
 package org.sonar.duplications.java;
 
 import org.junit.Test;
-import org.sonar.duplications.api.codeunit.Token;
-import org.sonar.duplications.api.lexer.Lexer;
-import org.sonar.duplications.api.lexer.family.JavaLexer;
+import org.sonar.duplications.api.Lexer;
+import org.sonar.duplications.api.Token;
+import org.sonar.duplications.java.JavaLexer;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;

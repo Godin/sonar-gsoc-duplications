@@ -1,6 +1,5 @@
 /*
  * Sonar, open source software quality management tool.
- * Written (W) 2011 Andrew Tereskin
  * Copyright (C) 2008-2011 SonarSource
  * mailto:contact AT sonarsource DOT com
  *
@@ -18,16 +17,21 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api;
+package org.sonar.duplications;
 
+import java.io.File;
+import java.net.URISyntaxException;
 
-public class CloneIndexException extends RuntimeException {
+import junit.framework.AssertionFailedError;
 
-  public CloneIndexException(String message) {
-    super(message);
+public class DuplicationsTestUtil {
+
+  public static File findFile(String relativePathToFile) {
+    try {
+      return new File(DuplicationsTestUtil.class.getResource(relativePathToFile).toURI());
+    } catch (URISyntaxException e) {
+      throw new AssertionFailedError("Unable to find file from following relative path : '" + relativePathToFile + "'");
+    }
   }
 
-  public CloneIndexException(String message, Throwable cause) {
-    super(message, cause);
-  }
 }

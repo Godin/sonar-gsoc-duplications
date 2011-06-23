@@ -17,31 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.lexer.channel;
+package org.sonar.duplications.api.channel;
+
+import org.sonar.channel.RegexChannel;
+import org.sonar.duplications.api.Token;
 
 import java.util.List;
 
-import org.sonar.duplications.api.codeunit.Statement;
+public class BlackHoleLexerChannel extends RegexChannel<List<Token>> {
 
+  public BlackHoleLexerChannel(String regex) {
+    super(regex);
+  }
 
-/**
- * @author sharif
- *
- * @param <OUTPUT>
- */
-public abstract class Channel2<OUTPUT> {
-
-  /**
-   * Tries to consume the token stream at the current reading cursor position 
-   * (provided by the {@link org.sonar.duplications.api.lexer.channel.TokenReader}). If
-   * the token stream is consumed the method must return true and the OUTPUT object can be fed.
-   * 
-   * @param tokenReader
-   *          the handle on the input token stream
-   * @param output
-   *          the OUTPUT that can be optionally fed by the Channel
-   * @return false if the Channel doesn't want to consume the character stream, true otherwise.
-   */
-  public abstract boolean consume(TokenQueue tokenQueue, OUTPUT output);
+  @Override
+  protected void consume(CharSequence token, List<Token> output) {
+    // do nothing
+  }
 
 }

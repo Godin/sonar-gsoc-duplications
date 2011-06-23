@@ -18,14 +18,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.duplications.api.lexer.channel;
+package org.sonar.duplications.api.channel;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.duplications.api.codeunit.Token;
+import org.sonar.duplications.api.Token;
 
 public class StatementBuilderChannelDisptacher<OUTPUT> extends Channel2<OUTPUT> {
 

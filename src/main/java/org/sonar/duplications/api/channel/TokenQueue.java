@@ -17,14 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.lexer.channel;
+package org.sonar.duplications.api.channel;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 import org.sonar.channel.ChannelException;
-import org.sonar.duplications.api.codeunit.Token;
+import org.sonar.duplications.api.Token;
 
 /**
  * class that maintains a queue of tokens, supports methods 

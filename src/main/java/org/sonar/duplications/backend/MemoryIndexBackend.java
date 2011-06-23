@@ -25,7 +25,7 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.sonar.duplications.api.codeunit.Block;
+import org.sonar.duplications.api.Block;
 import org.sonar.duplications.api.index.CloneIndexBackend;
 
 import com.google.common.collect.HashMultimap;

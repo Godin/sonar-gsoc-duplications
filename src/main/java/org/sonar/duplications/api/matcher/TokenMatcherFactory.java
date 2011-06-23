@@ -1,4 +1,4 @@
-package org.sonar.duplications.api.lexer.matcher;
+package org.sonar.duplications.api.matcher;
 
 /**
  * returns instance of different token matcher

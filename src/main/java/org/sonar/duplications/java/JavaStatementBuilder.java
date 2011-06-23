@@ -17,12 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.lexer.family;
+package org.sonar.duplications.java;
 
-import org.sonar.duplications.api.lexer.StatementBuilder;
-import org.sonar.duplications.api.lexer.channel.BlackHoleStatementBuilderChannel;
-import org.sonar.duplications.api.lexer.channel.StatementBuilderChannel;
-import static org.sonar.duplications.api.lexer.matcher.TokenMatcherFactory.*;
+import org.sonar.duplications.api.StatementBuilder;
+import org.sonar.duplications.api.channel.BlackHoleStatementBuilderChannel;
+import org.sonar.duplications.api.channel.StatementBuilderChannel;
+
+import static org.sonar.duplications.api.matcher.TokenMatcherFactory.*;
 
 public class JavaStatementBuilder {
 

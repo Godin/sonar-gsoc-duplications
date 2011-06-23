@@ -17,18 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.lexer;
+package org.sonar.duplications.api;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.codeunit.Statement;
-import org.sonar.duplications.api.codeunit.Token;
-import org.sonar.duplications.api.lexer.channel.Channel2;
-import org.sonar.duplications.api.lexer.channel.StatementBuilderChannelDisptacher;
-import org.sonar.duplications.api.lexer.channel.TokenQueue;
+import org.sonar.duplications.api.channel.Channel2;
+import org.sonar.duplications.api.channel.StatementBuilderChannelDisptacher;
+import org.sonar.duplications.api.channel.TokenQueue;
 
 /**
  * This class is similar to lexer but takes list of token as input and provide

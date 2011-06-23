@@ -1,4 +1,4 @@
-package org.sonar.duplications.api.lexer;
+package org.sonar.duplications.api;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sonar.duplications.api.DuplicationsException;
-import org.sonar.duplications.api.codeunit.Block;
-import org.sonar.duplications.api.codeunit.Statement;
 
 /**
  * this class provides a list of blocks from a list of statements

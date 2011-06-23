@@ -1,4 +1,4 @@
-package org.sonar.duplications.api.codeunit;
+package org.sonar.duplications.api;
 
 import java.io.Serializable;
 import java.util.List;

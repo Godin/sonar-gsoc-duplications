@@ -17,11 +17,11 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.api.lexer.channel;
+package org.sonar.duplications.api.channel;
 
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
-import org.sonar.duplications.api.codeunit.Token;
+import org.sonar.duplications.api.Token;
 
 import java.util.List;
 import java.util.regex.Matcher;

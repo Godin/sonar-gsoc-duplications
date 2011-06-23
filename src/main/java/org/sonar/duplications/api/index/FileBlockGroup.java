@@ -25,56 +25,54 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.sonar.duplications.api.CloneIndexException;
-import org.sonar.duplications.api.codeunit.Block;
-import org.sonar.duplications.api.lexer.BlockBuilder;
-import org.sonar.duplications.api.lexer.Lexer;
-import org.sonar.duplications.api.lexer.StatementBuilder;
-import org.sonar.duplications.api.lexer.family.JavaLexer;
-import org.sonar.duplications.api.lexer.family.JavaStatementBuilder;
+import org.sonar.duplications.api.Block;
+import org.sonar.duplications.api.BlockBuilder;
+import org.sonar.duplications.api.DuplicationsException;
+import org.sonar.duplications.api.Lexer;
+import org.sonar.duplications.api.StatementBuilder;
+import org.sonar.duplications.java.JavaLexer;
+import org.sonar.duplications.java.JavaStatementBuilder;
 
 public class FileBlockGroup {
-	private final String fileResourceId;
-	private final List<Block> fileBlocks = new ArrayList<Block>();
 
-	public FileBlockGroup(String fileResourceId) {
-		this.fileResourceId = fileResourceId;
-		//init();
-	}
+  private final String fileResourceId;
+  private final List<Block> fileBlocks = new ArrayList<Block>();
 
-	public FileBlockGroup(File sourceFile) {
-		this.fileResourceId = sourceFile.getAbsolutePath();
-		//init();
-	}
+  public FileBlockGroup(String fileResourceId) {
+    this.fileResourceId = fileResourceId;
+    // init();
+  }
 
-	public void addBlock(Block block) {
-		if (!getFileResourceId().equals(block.getResourceId())) {
-			throw new CloneIndexException(
-					"Block resourceId not equals to FileBlockGroup resourceId");
-		}
-		fileBlocks.add(block);
-	}
+  public FileBlockGroup(File sourceFile) {
+    this.fileResourceId = sourceFile.getAbsolutePath();
+    // init();
+  }
 
-	public String getFileResourceId() {
-		return fileResourceId;
-	}
+  public void addBlock(Block block) {
+    if ( !getFileResourceId().equals(block.getResourceId())) {
+      throw new DuplicationsException("Block resourceId not equals to FileBlockGroup resourceId");
+    }
+    fileBlocks.add(block);
+  }
 
-	public List<Block> getBlockList() {
-		return Collections.unmodifiableList(fileBlocks);
-	}
+  public String getFileResourceId() {
+    return fileResourceId;
+  }
 
-	public void init() {
-		try {
-			Lexer lexer = JavaLexer.build();
-			StatementBuilder statementBuilder = JavaStatementBuilder.build();
-			BlockBuilder blockBuilder = new BlockBuilder(new File(
-					fileResourceId));
+  public List<Block> getBlockList() {
+    return Collections.unmodifiableList(fileBlocks);
+  }
 
-			fileBlocks.addAll(blockBuilder.build(statementBuilder.build(lexer
-					.lex(new File(fileResourceId)))));
-		} catch (Exception e) {
-			throw new CloneIndexException("Error in initialization", e);
-		}
-	}
+  public void init() {
+    try {
+      Lexer lexer = JavaLexer.build();
+      StatementBuilder statementBuilder = JavaStatementBuilder.build();
+      BlockBuilder blockBuilder = new BlockBuilder(new File(fileResourceId));
+
+      fileBlocks.addAll(blockBuilder.build(statementBuilder.build(lexer.lex(new File(fileResourceId)))));
+    } catch (Exception e) {
+      throw new DuplicationsException("Error in initialization", e);
+    }
+  }
 
 }

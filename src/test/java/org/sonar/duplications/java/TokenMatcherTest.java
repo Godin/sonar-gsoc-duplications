@@ -11,9 +11,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.sonar.channel.ChannelException;
-import org.sonar.duplications.api.codeunit.Token;
-import org.sonar.duplications.api.lexer.channel.TokenQueue;
-import org.sonar.duplications.api.lexer.matcher.TokenMatcherFactory;
+import org.sonar.duplications.api.Token;
+import org.sonar.duplications.api.channel.TokenQueue;
+import org.sonar.duplications.api.matcher.TokenMatcherFactory;
 
 public class TokenMatcherTest {
 	

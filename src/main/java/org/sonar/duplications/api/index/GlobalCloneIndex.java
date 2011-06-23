@@ -22,7 +22,7 @@ package org.sonar.duplications.api.index;
 
 import org.sonar.duplications.algorithm.Clone;
 import org.sonar.duplications.algorithm.CloneReporter;
-import org.sonar.duplications.api.codeunit.Block;
+import org.sonar.duplications.api.Block;
 
 import java.util.HashSet;
 import java.util.List;
