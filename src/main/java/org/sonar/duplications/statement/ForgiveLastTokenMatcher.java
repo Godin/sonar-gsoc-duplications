@@ -11,11 +11,11 @@ import org.sonar.duplications.token.TokenQueue;
  * @author sharif
  * 
  */
-public class AnyTokenMatcher extends TokenMatcher {
+public class ForgiveLastTokenMatcher extends TokenMatcher {
 
   @Override
   public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList) {
-    matchedTokenList.add(tokenQueue.poll());
+    matchedTokenList.remove(matchedTokenList.size() - 1);
     return true;
   }
 }

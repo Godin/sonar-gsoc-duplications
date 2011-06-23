@@ -19,7 +19,6 @@
  */
 package org.sonar.duplications.statement;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +56,6 @@ public final class StatementChunker {
   public static final class Builder {
 
     private List<StatementChannel> channels = new ArrayList<StatementChannel>();
-    private Charset charset = Charset.defaultCharset();
 
     private Builder() {
     }
@@ -66,25 +64,19 @@ public final class StatementChunker {
       return new StatementChunker(this);
     }
 
-    public Builder addChannel(StatementChannel channel) {
-      channels.add(channel);
+    public Builder addChannel(TokenMatcher... matchers) {
+      channels.add(StatementChannel.create(matchers));
       return this;
     }
 
-    public Builder addStextexChannel(StatementChannel channel) {
-      channels.add(channel);
+    public Builder addBlackHoleChannel(TokenMatcher... matchers) {
+      channels.add(StatementChannel.createBlackHole(matchers));
       return this;
     }
 
     private StatementChannelDisptacher getChannelDispatcher() {
       return new StatementChannelDisptacher(channels);
     }
-
-    public Builder setCharset(Charset charset) {
-      this.charset = charset;
-      return this;
-    }
-
   }
 
 }

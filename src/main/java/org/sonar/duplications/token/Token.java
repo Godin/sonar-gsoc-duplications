@@ -25,8 +25,6 @@ public class Token {
   private final int column;
   private final String value;
 
-  public static final Token EMPTY_TOKEN = new Token("", -1, -1);
-
   public Token(String value, int line, int column) {
     this.value = value;
     this.column = column;

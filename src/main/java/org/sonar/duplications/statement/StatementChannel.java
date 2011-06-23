@@ -22,6 +22,7 @@ package org.sonar.duplications.statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
@@ -33,32 +34,41 @@ import org.sonar.duplications.token.TokenQueue;
  */
 public class StatementChannel {
 
-  protected final TokenMatcher[] tokenMatchers;
-
-  protected final StringBuilder tmpBuilder = new StringBuilder();
+  private final TokenMatcher[] tokenMatchers;
+  private boolean blackHole = false;
 
   private static int indexInFile = 0;
 
-  public StatementChannel(TokenMatcher... tokenMatchers) {
+  private StatementChannel(TokenMatcher... tokenMatchers) {
     this.tokenMatchers = tokenMatchers;
+    if (tokenMatchers == null) {
+      throw new DuplicationsException("This is mandatory to provide at least one TokenMatcher");
+    }
+  }
+
+  public static StatementChannel createBlackHole(TokenMatcher... tokenMatchers) {
+    StatementChannel channel = new StatementChannel(tokenMatchers);
+    channel.blackHole = true;
+    return channel;
+  }
+
+  public static StatementChannel create(TokenMatcher... tokenMatchers) {
+    return new StatementChannel(tokenMatchers);
   }
 
   public boolean consume(TokenQueue tokenQueue, List<Statement> output) {
-
-    if (tokenMatchers != null) {
-      List<Token> matchedTokenList = new ArrayList<Token>();
-      for (TokenMatcher tokenMatcher : tokenMatchers) {
-        if ( !tokenMatcher.matchToken(tokenQueue, matchedTokenList)) {
-          // match unsuccessful, restore the consumed tokens by previous successful matchers
-          tokenQueue.restore(matchedTokenList);
-          return false;
-        }
+    List<Token> matchedTokenList = new ArrayList<Token>();
+    for (TokenMatcher tokenMatcher : tokenMatchers) {
+      if ( !tokenMatcher.matchToken(tokenQueue, matchedTokenList)) {
+        tokenQueue.pushBack(matchedTokenList);
+        return false;
       }
-
-      // all matchers were successful, so now build the statement
-      output.add(new Statement(matchedTokenList, indexInFile++));
-      return true;
     }
-    return false;
+
+    // all matchers were successful, so now build the statement
+    if ( !blackHole) {
+      output.add(new Statement(matchedTokenList, indexInFile++));
+    }
+    return true;
   }
 }

@@ -1,8 +1,6 @@
 package org.sonar.duplications.statement;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
@@ -15,63 +13,34 @@ import org.sonar.duplications.token.TokenQueue;
  */
 public class BridgeTokenMatcher extends TokenMatcher {
 
-  private String tokenBridgePair[];
-  private Map<String, Integer> tokenPairMap = new HashMap<String, Integer>();
+  private final String lToken;
+  private final String rToken;
+  private int stack = 0;
 
-  public BridgeTokenMatcher(String[] tokenBridgePair) {
-    super(false);
-    this.tokenBridgePair = tokenBridgePair;
-  }
-
-  public BridgeTokenMatcher(boolean isOptional, String[] tokenBridgePair) {
-    super(isOptional);
-    this.tokenBridgePair = tokenBridgePair;
+  public BridgeTokenMatcher(String lToken, String rToken) {
+    this.lToken = lToken;
+    this.rToken = rToken;
   }
 
   @Override
   public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList) {
-    int nextTokenIndex = 1;
-    Token nextToken = tokenQueue.lookAhead(nextTokenIndex);
-
-    // starting of the bridge not match
-    if ( !nextToken.getValue().equals(tokenBridgePair[0])) {
-      return false || isOptional;
+    if ( !tokenQueue.isNextTokenValue(lToken)) {
+      return false;
     }
-
-    while (nextToken != Token.EMPTY_TOKEN) {
-      if (tokenBridgePair != null && (tokenBridgePair[0].equals(nextToken.getValue()) || tokenBridgePair[1].equals(nextToken.getValue()))) {
-        int count = tokenPairMap.get(nextToken.getValue()) == null ? 0 : tokenPairMap.get(nextToken.getValue());
-        tokenPairMap.put(nextToken.getValue(), ++count);
-
-        if (isBridgeComplete()) {
-          // consumes the matched tokens
-          for (int i = 1; i <= nextTokenIndex; i++) {
-            Token token = tokenQueue.pop();
-            matchedTokenList.add(token);
-          }
-          return true;
-        }
+    matchedTokenList.add(tokenQueue.poll());
+    stack++;
+    do {
+      if (tokenQueue.isNextTokenValue(lToken)) {
+        stack++;
       }
-      nextToken = tokenQueue.lookAhead(++nextTokenIndex);
-    }
-
-    return false || isOptional;
-  }
-
-  private boolean isBridgeComplete() {
-    boolean bridgeComplete = true;
-    if ( !tokenPairMap.isEmpty()) {
-      if (tokenPairMap.containsKey(tokenBridgePair[0]) && tokenPairMap.containsKey(tokenBridgePair[1])) {
-        // pair is in map
-        if (tokenPairMap.get(tokenBridgePair[0]).intValue() != tokenPairMap.get(tokenBridgePair[1]).intValue()) {
-          bridgeComplete = false;
-        }
-      } else {
-        // only a single of the pair is in map
-        bridgeComplete = false;
+      if (tokenQueue.isNextTokenValue(rToken)) {
+        stack--;
       }
-    } else bridgeComplete = false;
-    return bridgeComplete;
+      matchedTokenList.add(tokenQueue.poll());
+      if (stack == 0) {
+        return true;
+      }
+    } while (tokenQueue.peek() != null);
+    return false;
   }
-
 }

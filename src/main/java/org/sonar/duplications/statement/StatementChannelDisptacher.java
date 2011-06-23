@@ -20,37 +20,23 @@
 
 package org.sonar.duplications.statement;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
 public class StatementChannelDisptacher {
 
-  private static final Logger logger = LoggerFactory.getLogger(StatementChannelDisptacher.class);
-  private final boolean failIfNoChannelToConsumeOneCharacter;
-
   private final StatementChannel[] channels;
 
   public StatementChannelDisptacher(List<StatementChannel> channels) {
-    this(channels, false);
-  }
-
-  public StatementChannelDisptacher(StatementChannel... channels) {
-    this(Arrays.asList(channels), false);
-  }
-
-  public StatementChannelDisptacher(List<StatementChannel> channels, boolean failIfNoChannelToConsumeOneCharacter) {
-    this.channels = channels.toArray(new StatementChannel[channels.size()]);
-    this.failIfNoChannelToConsumeOneCharacter = failIfNoChannelToConsumeOneCharacter;
+    this.channels = channels.toArray(new StatementChannel[0]);
   }
 
   public boolean consume(TokenQueue tokenQueue, List<Statement> statements) {
     Token nextToken = tokenQueue.peek();
-    while (nextToken != Token.EMPTY_TOKEN) {
+    while (nextToken != null) {
       boolean channelConsumed = false;
       for (StatementChannel channel : channels) {
         if (channel.consume(tokenQueue, statements)) {
@@ -59,12 +45,7 @@ public class StatementChannelDisptacher {
         }
       }
       if ( !channelConsumed) {
-        String message = "None of the channel has been able to handle token '" + tokenQueue.peek();
-        if (failIfNoChannelToConsumeOneCharacter) {
-          throw new IllegalStateException(message);
-        }
-        logger.debug(message);
-        tokenQueue.pop();
+        throw new DuplicationsException("None of the statement channel has been able to consume token '" + tokenQueue.peek());
       }
       nextToken = tokenQueue.peek();
     }

@@ -24,8 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.sonar.channel.ChannelException;
-
 /**
  * class that maintains a queue of tokens, supports methods pop: returns head token and remove it from queue peek: returns head token
  * without remove it from queue lookahead: returns a token from the queue with specified index starting from the head without removing any
@@ -37,95 +35,44 @@ import org.sonar.channel.ChannelException;
 public class TokenQueue implements Iterable<Token> {
 
   private Queue<Token> tokenQueue;
-  private final LinkedList<Token> lookaheadBuffer = new LinkedList<Token>();
-  private Token lastPoppedToken;
 
   public TokenQueue(List<Token> tokenList) {
     tokenQueue = new LinkedList<Token>(tokenList);
-    lastPoppedToken = null;
   }
 
   public TokenQueue() {
     tokenQueue = new LinkedList<Token>();
-    lastPoppedToken = null;
   }
 
-  /**
-   * Returns the next token without consume it.
-   */
   public Token peek() {
-    return lookAhead(1);
+    return tokenQueue.peek();
   }
 
-  /**
-   * Returns a token ahead of the current position, without consume it The first item to be looked ahead at has index 1.
-   */
-  public Token lookAhead(int index) {
-    if (index < 1)
-      throw new ChannelException("Index must be greater than 0");
-    while (index > lookaheadBuffer.size()) {
-      Token data = tokenQueue.poll();
-      if (data == null) {
-        return Token.EMPTY_TOKEN;
-      }
-      lookaheadBuffer.add(data);
-    }
-    return lookaheadBuffer.get(index - 1);
-  }
-
-  /**
-   * consumes and returns the next token
-   * 
-   */
-  public Token pop() {
-    if (lookaheadBuffer.size() > 0) {
-      return lastPoppedToken = lookaheadBuffer.poll();
-    }
-    if (tokenQueue.size() > 0) {
-      return lastPoppedToken = tokenQueue.poll();
-    }
-    return Token.EMPTY_TOKEN;
-  }
-
-  /**
-   * returns the last popped token
-   * 
-   * @return
-   */
-  public Token getLastPoppedToken() {
-    return lastPoppedToken;
-  }
-
-  /**
-   * restore consumed token
-   * 
-   * as a successful token matcher consumes token from token queue, this is required when a statement is build partially by some successful
-   * token matchers but eventually failed to build in full because of failure of some other token matchers
-   * 
-   * 
-   * @param matchedTokenList
-   */
-  public void restore(List<Token> matchedTokenList) {
-    if (matchedTokenList != null && !matchedTokenList.isEmpty())
-      lookaheadBuffer.addAll(0, matchedTokenList);
-  }
-
-  public void clear() {
-    lookaheadBuffer.clear();
-    tokenQueue.clear();
-    lastPoppedToken = null;
+  public Token poll() {
+    return tokenQueue.poll();
   }
 
   public int size() {
-    return lookaheadBuffer.size() + tokenQueue.size();
+    return tokenQueue.size();
   }
 
   public void add(Token token) {
     tokenQueue.add(token);
   }
 
+  public boolean isNextTokenValue(String expectedValue) {
+    Token nextToken = tokenQueue.peek();
+    if (nextToken == null) {
+      return false;
+    }
+    return nextToken.getValue().equals(expectedValue);
+  }
+
   public Iterator<Token> iterator() {
     return tokenQueue.iterator();
   }
 
+  public void pushBack(List<Token> matchedTokenList) {
+    tokenQueue.addAll(matchedTokenList);
+  }
 }

@@ -19,10 +19,11 @@
  */
 package org.sonar.duplications.statement;
 
-import org.sonar.duplications.statement.BlackHoleStatementBuilderChannel;
-import org.sonar.duplications.statement.StatementChunker;
-import org.sonar.duplications.statement.StatementChannel;
-
+import static org.sonar.duplications.statement.TokenMatcherFactory.anyToken;
+import static org.sonar.duplications.statement.TokenMatcherFactory.bridge;
+import static org.sonar.duplications.statement.TokenMatcherFactory.from;
+import static org.sonar.duplications.statement.TokenMatcherFactory.opt;
+import static org.sonar.duplications.statement.TokenMatcherFactory.to;
 import static org.sonar.duplications.statement.TokenMatcherFactory.*;
 
 public class JavaStatementBuilder {
@@ -31,23 +32,23 @@ public class JavaStatementBuilder {
   }
 
   public static final StatementChunker build() {
-	StatementChunker.Builder builder = StatementChunker.builder()
-		.addStextexChannel(new BlackHoleStatementBuilderChannel(from("import"), to(";")))
-		.addStextexChannel(new BlackHoleStatementBuilderChannel(from("package"), to(";")))
-		.addStextexChannel(new BlackHoleStatementBuilderChannel(nextThisToken("}")))
-		.addStextexChannel(new BlackHoleStatementBuilderChannel(nextThisToken("{")))
-		.addStextexChannel(new StatementChannel(from("@"), nextAnyToken(1), bridge(MATCH_IS_OPTIONAL, "(", ")")))
-		.addStextexChannel(new StatementChannel(from("do")))
-		.addStextexChannel(new StatementChannel(from("if"), bridge("(", ")")))
-		.addStextexChannel(new StatementChannel(from("else"), nextThisToken("if"), bridge("(", ")"))) //match else if
-		.addStextexChannel(new StatementChannel(from("else"))) //match else only
-		.addStextexChannel(new StatementChannel(from("for"), bridge("(", ")")))
-		.addStextexChannel(new StatementChannel(from("while"), bridge("(", ")"), nextThisToken(MATCH_IS_OPTIONAL,";")))
-		.addStextexChannel(new StatementChannel(from("case"), to(":")))
-		.addStextexChannel(new StatementChannel(from("default"), to(":")))
-		.addStextexChannel(new StatementChannel(to(";","!{","{","}")))  //!TOKEN means before token "TOKEN" i.e., !{ means before token "{"
-		;
-	
+    StatementChunker.Builder builder = StatementChunker
+        .builder()
+        .addBlackHoleChannel(from("import"), to(";"))
+        .addBlackHoleChannel(from("package"), to(";"))
+        .addBlackHoleChannel(token("}"))
+        .addBlackHoleChannel(token("{"))
+        .addChannel(from("@"), anyToken(), opt(bridge("(", ")")))
+        .addChannel(from("do"))
+        .addChannel(from("if"), bridge("(", ")"))
+        .addChannel(from("else"), token("if"), bridge("(", ")"))
+        .addChannel(from("else"))
+        .addChannel(from("for"), bridge("(", ")"))
+        .addChannel(from("while"), bridge("(", ")"), opt(token(";")))
+        .addChannel(from("case"), to(":"))
+        .addChannel(from("default"), to(":"))
+        .addChannel(to(";", "{", "}"), forgiveLastToken());
+
     return builder.build();
   }
- }
+}
