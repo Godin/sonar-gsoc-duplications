@@ -74,7 +74,7 @@ public class BlockChunker {
   private String buildBlockHash(List<Statement> statementList) {
     digest.reset();
     for (Statement statement : statementList) {
-      digest.update(statement.getNormalizedContent().getBytes());
+      digest.update(statement.getValue().getBytes());
     }
     byte messageDigest[] = digest.digest();
     BigInteger number = new BigInteger(1, messageDigest);
