@@ -51,6 +51,15 @@ public class Clone {
     this.cloneLength = cloneLength;
   }
 
+  public Clone(int cloneLength) {
+	this.cloneLength = cloneLength;
+  }
+
+  public void addPart(ClonePart part){
+	parts.add(part);
+	Collections.sort(parts, null);
+  }
+ 
   public List<ClonePart> getCloneParts() {
     return Collections.unmodifiableList(parts);
   }
@@ -64,15 +73,23 @@ public class Clone {
   }
 
   @Override
-  public boolean equals(Object object) {
-    if (object instanceof Clone) {
-      Clone another = (Clone) object;
-      return another.parts.get(0).equals(parts.get(0))
-          && another.parts.get(1).equals(parts.get(1))
-          && another.cloneLength == cloneLength;
-    }
-    return false;
-  }
+	public boolean equals(Object object) {
+		if (object instanceof Clone) {
+			Clone another = (Clone) object;
+
+			if (another.cloneLength != cloneLength
+					|| parts.size() != another.parts.size())
+				return false;
+
+			boolean result = true;
+			for (int i = 0; i < parts.size(); i++) {
+				result &= another.parts.get(i).equals(parts.get(i));
+			}
+
+			return result;
+		}
+		return false;
+	}
 
   @Override
   public int hashCode() {
