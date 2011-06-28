@@ -35,8 +35,8 @@ public class FileBlockGroupTest {
     try {
       TokenChunker lexer = JavaTokenProducer.build();
       StatementChunker statementBuilder = JavaStatementBuilder.build();
-      BlockChunker blockBuilder = new BlockChunker("MyFile", 5);
-      for (Block block : blockBuilder.chunk(statementBuilder.chunk(lexer.chunk(file)))) {
+      BlockChunker blockBuilder = new BlockChunker(5);
+      for (Block block : blockBuilder.chunk("MyFile",statementBuilder.chunk(lexer.chunk(file)))) {
         fci.addBlock(block);
       }
     } catch (Exception e) {

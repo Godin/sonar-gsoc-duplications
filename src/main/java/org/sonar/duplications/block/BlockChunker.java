@@ -17,15 +17,12 @@ import org.sonar.duplications.statement.Statement;
  */
 public class BlockChunker {
 
-  private String resourceId;
-
   private int blockSize;
 
   private final MessageDigest digest;
 
-  public BlockChunker(String resourceId, int blockSize) {
+  public BlockChunker(int blockSize) {
     this.blockSize = blockSize;
-    this.resourceId = resourceId;
     try {
       this.digest = MessageDigest.getInstance("MD5");
     } catch (NoSuchAlgorithmException e) {
@@ -33,7 +30,7 @@ public class BlockChunker {
     }
   }
 
-  public List<Block> chunk(List<Statement> statements) {
+  public List<Block> chunk(String resourceId, List<Statement> statements) {
     List<Statement> statementsForBlock = new LinkedList<Statement>();
     List<Block> blockList = new ArrayList<Block>();
 

@@ -19,12 +19,12 @@ public class BlockBuilderTest {
   TokenChunker lexer = JavaTokenProducer.build();
   StatementChunker statementBuilder = JavaStatementBuilder.build();
   int blockSize = 3;
-  BlockChunker blockBuilder = new BlockChunker("myFile", 5);
+  BlockChunker blockBuilder = new BlockChunker(5);
 
   @Test
   @Ignore
   public void shouldTokenizeSource() {
-    List<Block> blockList = blockBuilder.chunk(statementBuilder.chunk(lexer.chunk(testFile)));
+    List<Block> blockList = blockBuilder.chunk("myFile",statementBuilder.chunk(lexer.chunk(testFile)));
 
     Assert.assertEquals(0, blockList.get(0).getIndexInFile());
     Assert.assertEquals(3, blockList.get(0).getFirstLineNumber());
