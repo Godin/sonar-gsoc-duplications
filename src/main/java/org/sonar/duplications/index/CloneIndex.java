@@ -35,6 +35,7 @@ public interface CloneIndex {
    * Method performs search in index db. Parameter is full filename inside
    * project exactly the same as it was saved in db.
    * If file is moved inside project it should be removed and then added again.
+   * blocks in SortedSet are sorted by position in file
    *
    * @param resourceId - unique resourceId like file name
    * @return list of <tt>Block</tt> from index and empty list if nothing found
