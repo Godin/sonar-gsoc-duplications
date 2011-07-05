@@ -7,19 +7,18 @@ import org.sonar.duplications.statement.JavaStatementBuilder;
 
 /**
  * @author sharif
- *
  */
 public class JavaCloneFinder {
 
-	private JavaCloneFinder() {
-	}
+  private JavaCloneFinder() {
+  }
 
-	public static final CloneFinder build(CloneIndex cloneIndex) {
-		CloneFinder.Builder builder = CloneFinder.build()
-				.setTokenChunker(JavaTokenProducer.build()) 
-				.setStatementChunker(JavaStatementBuilder.build())
-				.setBlockChunker(new BlockChunker(5)) 
-				.setCloneIndex(cloneIndex);
-		return builder.build();
-	}
+  public static final CloneFinder build(CloneIndex cloneIndex) {
+    CloneFinder.Builder builder = CloneFinder.build()
+        .setTokenChunker(JavaTokenProducer.build())
+        .setStatementChunker(JavaStatementBuilder.build())
+        .setBlockChunker(new BlockChunker(5))
+        .setCloneIndex(cloneIndex);
+    return builder.build();
+  }
 }

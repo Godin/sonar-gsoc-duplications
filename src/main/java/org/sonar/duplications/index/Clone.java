@@ -22,7 +22,6 @@ package org.sonar.duplications.index;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class Clone {
@@ -52,14 +51,14 @@ public class Clone {
   }
 
   public Clone(int cloneLength) {
-	this.cloneLength = cloneLength;
+    this.cloneLength = cloneLength;
   }
 
-  public void addPart(ClonePart part){
-	parts.add(part);
-	Collections.sort(parts, null);
+  public void addPart(ClonePart part) {
+    parts.add(part);
+    Collections.sort(parts, null);
   }
- 
+
   public List<ClonePart> getCloneParts() {
     return Collections.unmodifiableList(parts);
   }
@@ -73,23 +72,23 @@ public class Clone {
   }
 
   @Override
-	public boolean equals(Object object) {
-		if (object instanceof Clone) {
-			Clone another = (Clone) object;
+  public boolean equals(Object object) {
+    if (object instanceof Clone) {
+      Clone another = (Clone) object;
 
-			if (another.cloneLength != cloneLength
-					|| parts.size() != another.parts.size())
-				return false;
+      if (another.cloneLength != cloneLength
+          || parts.size() != another.parts.size())
+        return false;
 
-			boolean result = true;
-			for (int i = 0; i < parts.size(); i++) {
-				result &= another.parts.get(i).equals(parts.get(i));
-			}
+      boolean result = true;
+      for (int i = 0; i < parts.size(); i++) {
+        result &= another.parts.get(i).equals(parts.get(i));
+      }
 
-			return result;
-		}
-		return false;
-	}
+      return result;
+    }
+    return false;
+  }
 
   @Override
   public int hashCode() {

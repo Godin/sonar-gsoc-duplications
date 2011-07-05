@@ -1,10 +1,6 @@
 package org.sonar.duplications.block;
 
-import java.io.File;
-import java.util.List;
-
 import junit.framework.Assert;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
@@ -12,6 +8,9 @@ import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.JavaStatementBuilder;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
+
+import java.io.File;
+import java.util.List;
 
 public class BlockBuilderTest {
 
@@ -24,7 +23,7 @@ public class BlockBuilderTest {
   @Test
   @Ignore
   public void shouldTokenizeSource() {
-    List<Block> blockList = blockBuilder.chunk("myFile",statementBuilder.chunk(lexer.chunk(testFile)));
+    List<Block> blockList = blockBuilder.chunk("myFile", statementBuilder.chunk(lexer.chunk(testFile)));
 
     Assert.assertEquals(0, blockList.get(0).getIndexInFile());
     Assert.assertEquals(3, blockList.get(0).getFirstLineNumber());
@@ -38,5 +37,4 @@ public class BlockBuilderTest {
     // new Block(filename, null, 0 , 1 , 4),
     // new Block(filename, null, 7 , 9 , 11)));
   }
-
 }
