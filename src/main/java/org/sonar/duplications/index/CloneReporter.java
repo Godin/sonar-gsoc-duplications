@@ -1,7 +1,7 @@
 /*
  * Sonar, open source software quality management tool.
- * Written (W) 2011 Andrew Tereskin
  * Copyright (C) 2008-2011 SonarSource
+ * Written (W) 2011 Andrew Tereskin
  * mailto:contact AT sonarsource DOT com
  *
  * Sonar is free software; you can redistribute it and/or
@@ -20,166 +20,135 @@
  */
 package org.sonar.duplications.index;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 import org.sonar.duplications.block.Block;
+
+import java.util.*;
 
 public class CloneReporter {
 
-  /**
-   * Use this comparator in TreeSet to intersect only by fileName
-   */
-  private static class ResourceIdBlockComparator implements Comparator<Block> {
+  private static class Key implements Comparable<Key> {
+    private String resourceId;
+    private int unitNum;
 
-    public int compare(Block o1, Block o2) {
-      return o1.getResourceId().compareTo(o2.getResourceId());
+    private Key(String resourceId, int unitNum) {
+      this.resourceId = resourceId;
+      this.unitNum = unitNum;
     }
 
-    public boolean equals(Object obj) {
-      return obj instanceof ResourceIdBlockComparator;
-    }
-  }
-
-  private static class BlockWrap implements Comparable<BlockWrap> {
-
-    private final Block block;
-
-    private boolean compareUnitMode;
-
-    private BlockWrap(Block block) {
-      this(block, false);
-    }
-
-    private BlockWrap(Block block, boolean compareUnitMode) {
-      this.block = block;
-      this.compareUnitMode = compareUnitMode;
-    }
-
-    public Block getBlock() {
-      return block;
-    }
-
-    public int compareTo(BlockWrap o) {
-      if ((compareUnitMode || o.compareUnitMode)
-          && block.getResourceId().equals(o.block.getResourceId())) {
-        return block.getIndexInFile() - o.block.getIndexInFile();
+    public int compareTo(Key o) {
+      if (this.resourceId.equals(o.resourceId)) {
+        return this.unitNum - o.unitNum;
       }
-      return block.getResourceId().compareTo(o.block.getResourceId());
+      return this.resourceId.compareTo(o.resourceId);
     }
   }
+
+  private static class TempClone {
+    private ClonePart origPart;
+    private ClonePart anotherPart;
+    private int cloneLength;
+
+    private TempClone(ClonePart origPart, ClonePart anotherPart, int cloneLength) {
+      this.origPart = origPart;
+      this.anotherPart = anotherPart;
+      this.cloneLength = cloneLength;
+    }
+
+    public ClonePart getOrigPart() {
+      return origPart;
+    }
+
+    public void setOrigPart(ClonePart origPart) {
+      this.origPart = origPart;
+    }
+
+    public ClonePart getAnotherPart() {
+      return anotherPart;
+    }
+
+    public void setAnotherPart(ClonePart anotherPart) {
+      this.anotherPart = anotherPart;
+    }
+
+    public int getCloneLength() {
+      return cloneLength;
+    }
+
+    public void setCloneLength(int cloneLength) {
+      this.cloneLength = cloneLength;
+    }
+  }
+
 
   public static List<Clone> reportClones(String filename, CloneIndex index) {
     SortedSet<Block> resourceSet = index.getByResourceId(filename);
+    ArrayList<Block> resourceBlocks = new ArrayList<Block>();
 
-    int totalSequences = resourceSet.size();
-    ArrayList<Set<BlockWrap>> tuplesC = new ArrayList<Set<BlockWrap>>(totalSequences);
-    ArrayList<Block> resourceBlocks = new ArrayList<Block>(totalSequences);
+    ArrayList<Clone> groupedClones = new ArrayList<Clone>();
 
-    ArrayList<Clone> clones = new ArrayList<Clone>();
+    ArrayList<Collection<Block>> foundBlockClones = new ArrayList<Collection<Block>>();
 
-    prepareSets(resourceSet, tuplesC, resourceBlocks, index);
+    for (Block block : resourceSet) {
+      List<Block> filteredList = new ArrayList<Block>();
 
-    for (int i = 0; i < totalSequences; i++) {
-      boolean containsInPrev = i > 0 && tuplesC.get(i - 1).containsAll(tuplesC.get(i));
-      if (tuplesC.get(i).size() < 2 || containsInPrev) {
-        continue;
-      }
-
-      Set<BlockWrap> current = createNewSet(tuplesC.get(i));
-      for (int j = i + 1; j < totalSequences + 1; j++) {
-        Set<BlockWrap> intersected = createNewSet(current);
-        //do intersection
-        intersected.retainAll(tuplesC.get(j));
-
-        //if intersection size is smaller than original
-        if (intersected.size() < current.size()) {
-          //report clones from tuplesC[i] to current
-          int cloneLength = j - i;
-          Set<BlockWrap> beginSet = tuplesC.get(i);
-          Set<BlockWrap> endSet = tuplesC.get(j - 1);
-          Set<BlockWrap> prebeginSet = createNewSet(null);
-          if (i > 0) {
-            prebeginSet = tuplesC.get(i - 1);
-          }
-          reportClone(resourceBlocks.get(i), resourceBlocks.get(j - 1), beginSet, endSet,
-              prebeginSet, intersected, cloneLength, clones);
-        }
-
-        current = intersected;
-        boolean inPrev = i > 0 && tuplesC.get(i - 1).containsAll(current);
-        if (current.size() < 2 || inPrev) {
-          break;
+      for (Block foundBlock : index.getBySequenceHash(block.getBlockHash())) {
+        //we process Block's clones from same file only if
+        // clone.getIndexInFile > original.getIndexInFile
+        if (!foundBlock.getResourceId().equals(block.getResourceId()) ||
+            foundBlock.getIndexInFile() > block.getIndexInFile()) {
+          filteredList.add(foundBlock);
         }
       }
+      foundBlockClones.add(filteredList);
+      resourceBlocks.add(block);
     }
-    return clones;
-  }
+    foundBlockClones.add(new ArrayList<Block>());
 
-  private static Set<BlockWrap> createNewSet(Set<BlockWrap> set) {
-    Set<BlockWrap> treeSet = new TreeSet<BlockWrap>();
-    if (set != null) {
-      treeSet.addAll(set);
-    }
-    return treeSet;
-  }
+    TreeMap<Key, TempClone> prevActiveMap = new TreeMap<Key, TempClone>();
 
-  private static void prepareSets(SortedSet<Block> fileSet, List<Set<BlockWrap>> tuplesC,
-                                  List<Block> fileBlocks, CloneIndex index) {
-    for (Block block : fileSet) {
-      Set<Block> set = index.getBySequenceHash(block.getBlockHash());
-      Set<BlockWrap> wrapSet = new TreeSet<BlockWrap>();
-      for (Block foundBlock : set) {
-        boolean compSameFile = foundBlock.getResourceId().equals(block.getResourceId());
-        compSameFile = compSameFile && !foundBlock.equals(block);
-        compSameFile = compSameFile && block.getIndexInFile() < foundBlock.getIndexInFile();
-        wrapSet.add(new BlockWrap(foundBlock, compSameFile));
+    for (int i = 0; i < foundBlockClones.size(); i++) {
+      TreeMap<Key, TempClone> nextActiveMap = new TreeMap<Key, TempClone>();
+
+      for (Block block : foundBlockClones.get(i)) {
+        Block origBlock = resourceBlocks.get(i);
+        processBlock(prevActiveMap, nextActiveMap, origBlock, block);
       }
-      fileBlocks.add(block);
-      tuplesC.add(wrapSet);
+
+      for (TempClone tempClone : prevActiveMap.values()) {
+        Clone clone = new Clone(tempClone.getOrigPart(), tempClone.getAnotherPart(), tempClone.getCloneLength());
+        groupedClones.add(clone);
+      }
+
+      prevActiveMap = nextActiveMap;
     }
-    //to fix last element bug
-    tuplesC.add(createNewSet(null));
+
+    return groupedClones;
   }
 
-  private static void reportClone(Block beginTuple, Block endTuple, Set<BlockWrap> beginSet, Set<BlockWrap> endSet,
-                                  Set<BlockWrap> prebeginSet, Set<BlockWrap> intersected, int cloneLength, List<Clone> clones) {
-    String firstFile = beginTuple.getResourceId();
-    int firstUnitIndex = beginTuple.getIndexInFile();
-    int firstLineStart = beginTuple.getFirstLineNumber();
-    int firstLineEnd = endTuple.getLastLineNumber();
-    TreeMap<BlockWrap, Block> map = new TreeMap<BlockWrap, Block>();
-    for (BlockWrap blockWrap : endSet) {
-      Block block = blockWrap.getBlock();
-      map.put(blockWrap, block);
+  private static void processBlock(TreeMap<Key, TempClone> prevActiveMap, TreeMap<Key, TempClone> nextActiveMap,
+                                   Block origBlock, Block block) {
+    ClonePart origPart = new ClonePart(origBlock);
+    ClonePart anotherPart = new ClonePart(block);
+    int cloneLength = 0;
+
+    Key curKey = new Key(block.getResourceId(), block.getIndexInFile());
+    if (prevActiveMap.containsKey(curKey)) {
+      TempClone prevPart = prevActiveMap.get(curKey);
+
+      origPart.setLineStart(prevPart.getOrigPart().getLineStart());
+      origPart.setUnitStart(prevPart.getOrigPart().getUnitStart());
+
+      anotherPart.setLineStart(prevPart.getAnotherPart().getLineStart());
+      anotherPart.setUnitStart(prevPart.getAnotherPart().getUnitStart());
+
+      cloneLength = prevPart.getCloneLength();
+
+      prevActiveMap.remove(curKey);
     }
 
-    //cycle in filenames in clone start position
-    for (BlockWrap secondStartBlockWrap : beginSet) {
-      // &&
-      Block secondStartBlock = secondStartBlockWrap.getBlock();
-      boolean condition = !firstFile.equals(secondStartBlock.getResourceId());
-      condition = condition || beginTuple.getIndexInFile() != secondStartBlock.getIndexInFile();
-      condition = condition && !intersected.contains(secondStartBlockWrap);
-      condition = condition && !prebeginSet.contains(secondStartBlockWrap);
-      if (condition) {
-        String secondFile = secondStartBlock.getResourceId();
-        int secondUnitIndex = secondStartBlock.getIndexInFile();
-        int secondLineStart = secondStartBlock.getFirstLineNumber();
-        Block secondEndBlock = map.get(secondStartBlockWrap);
-        int secondLineEnd = secondEndBlock.getLastLineNumber();
+    TempClone tempClone = new TempClone(origPart, anotherPart, cloneLength + 1);
 
-        ClonePart part1 = new ClonePart(firstFile, firstUnitIndex, firstLineStart, firstLineEnd);
-        ClonePart part2 = new ClonePart(secondFile, secondUnitIndex, secondLineStart, secondLineEnd);
-
-        Clone item = new Clone(part1, part2, cloneLength);
-        clones.add(item);
-      }
-    }
+    Key nextKey = new Key(block.getResourceId(), block.getIndexInFile() + 1);
+    nextActiveMap.put(nextKey, tempClone);
   }
 }

@@ -1,17 +1,14 @@
 package org.sonar.duplications.index;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.index.Clone;
-import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.CloneReporter;
+
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class CloneReporterTest {
 
@@ -25,7 +22,7 @@ public class CloneReporterTest {
   @Test
   public void testSimple() {
     for (int i = 0; i < 9; i++) {
-      indexBackend.insert(new Block("a", ""+i, i, i, i + 5));
+      indexBackend.insert(new Block("a", "" + i, i, i, i + 5));
     }
 
     indexBackend.insert(new Block("b", "3", 2, 2, 7));

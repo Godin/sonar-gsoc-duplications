@@ -20,7 +20,9 @@
  */
 package org.sonar.duplications.index;
 
-public class ClonePart implements Comparable<ClonePart>{
+import org.sonar.duplications.block.Block;
+
+public class ClonePart implements Comparable<ClonePart> {
 
   private String resourceId;
   private int unitStart;
@@ -28,6 +30,13 @@ public class ClonePart implements Comparable<ClonePart>{
   private int lineEnd;
 
   public ClonePart() {
+  }
+
+  public ClonePart(Block block) {
+    this.resourceId = block.getResourceId();
+    this.unitStart = block.getIndexInFile();
+    this.lineStart = block.getFirstLineNumber();
+    this.lineEnd = block.getLastLineNumber();
   }
 
   public ClonePart(String resourceId, int unitStart, int lineStart, int lineEnd) {
