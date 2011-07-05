@@ -92,11 +92,20 @@ public class Clone {
 
   @Override
   public int hashCode() {
-    return parts.get(0).hashCode() + 31 * parts.get(1).hashCode() + 413 * cloneLength;
+    int hashCode = 0;
+    for (ClonePart part : parts) {
+      hashCode = hashCode * 17 ^ part.hashCode();
+    }
+    hashCode = 443 * hashCode ^ cloneLength;
+    return hashCode;
   }
 
   @Override
   public String toString() {
-    return parts.get(0).toString() + " - " + parts.get(1).toString() + " " + cloneLength;
+    String res = "";
+    for (ClonePart part : parts) {
+      res = res + part.toString() + " - ";
+    }
+    return res + cloneLength;
   }
 }
