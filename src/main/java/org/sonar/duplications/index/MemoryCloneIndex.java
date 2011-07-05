@@ -20,53 +20,18 @@
  */
 package org.sonar.duplications.index;
 
-import java.util.Arrays;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.TreeMultimap;
+import org.sonar.duplications.block.Block;
+
 import java.util.Comparator;
 import java.util.Set;
 import java.util.SortedSet;
-
-import org.sonar.duplications.block.Block;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.TreeMultimap;
 
 public class MemoryCloneIndex implements CloneIndex {
 
   private final TreeMultimap<String, Block> filenameIndex;
   private final HashMultimap<String, Block> sequenceHashIndex;
-
- /**
- * block hashes are now stored in String, so this class is no longer needed
- */
-@Deprecated
-  private static final class ByteArrayWrap {
-
-    private final byte[] data;
-    private final int dataHashCode;
-
-    public static ByteArrayWrap create(byte[] data) {
-      return new ByteArrayWrap(data);
-    }
-
-    private ByteArrayWrap(byte[] data) {
-      if (data == null) {
-        throw new NullPointerException();
-      }
-      this.data = data;
-      this.dataHashCode = Arrays.hashCode(data);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-      return other instanceof ByteArrayWrap &&
-          Arrays.equals(data, ((ByteArrayWrap) other).data);
-    }
-
-    @Override
-    public int hashCode() {
-      return this.dataHashCode;
-    }
-  }
 
   private static final class ValueComparator implements Comparator<Block> {
 
@@ -74,7 +39,7 @@ public class MemoryCloneIndex implements CloneIndex {
       if (o2.getResourceId().equals(o1.getResourceId())) {
         return o1.getIndexInFile() - o2.getIndexInFile();
       }
-      return -1;
+      return o1.getResourceId().compareTo(o2.getResourceId());
     }
 
     public boolean equals(Object obj) {
@@ -116,7 +81,6 @@ public class MemoryCloneIndex implements CloneIndex {
 
   public void insert(Block tuple) {
     filenameIndex.put(tuple.getResourceId(), tuple);
-    //ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getBlockHash());
     sequenceHashIndex.put(tuple.getBlockHash(), tuple);
   }
 
@@ -124,14 +88,12 @@ public class MemoryCloneIndex implements CloneIndex {
     Set<Block> set = filenameIndex.get(fileName);
     filenameIndex.removeAll(fileName);
     for (Block tuple : set) {
-      //ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getBlockHash());
       sequenceHashIndex.remove(tuple.getBlockHash(), tuple);
     }
   }
 
   public void remove(Block tuple) {
     filenameIndex.remove(tuple.getResourceId(), tuple);
-    //ByteArrayWrap wrap = ByteArrayWrap.create(tuple.getBlockHash());
     sequenceHashIndex.remove(tuple.getBlockHash(), tuple);
   }
 
