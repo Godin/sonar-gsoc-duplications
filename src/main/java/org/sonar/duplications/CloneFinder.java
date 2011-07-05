@@ -29,10 +29,63 @@ import org.sonar.duplications.token.TokenChunker;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CloneFinder {
+
+  private static class Key implements Comparable<Key> {
+    private String resourceId;
+    private int unitNum;
+
+    private Key(String resourceId, int unitNum) {
+      this.resourceId = resourceId;
+      this.unitNum = unitNum;
+    }
+
+    public int compareTo(Key o) {
+      if (this.resourceId.equals(o.resourceId)) {
+        return this.unitNum - o.unitNum;
+      }
+      return this.resourceId.compareTo(o.resourceId);
+    }
+  }
+
+  private static class TempClone {
+    private ClonePart origPart;
+    private ClonePart anotherPart;
+    private int cloneLength;
+
+    private TempClone(ClonePart origPart, ClonePart anotherPart, int cloneLength) {
+      this.origPart = origPart;
+      this.anotherPart = anotherPart;
+      this.cloneLength = cloneLength;
+    }
+
+    public ClonePart getOrigPart() {
+      return origPart;
+    }
+
+    public void setOrigPart(ClonePart origPart) {
+      this.origPart = origPart;
+    }
+
+    public ClonePart getAnotherPart() {
+      return anotherPart;
+    }
+
+    public void setAnotherPart(ClonePart anotherPart) {
+      this.anotherPart = anotherPart;
+    }
+
+    public int getCloneLength() {
+      return cloneLength;
+    }
+
+    public void setCloneLength(int cloneLength) {
+      this.cloneLength = cloneLength;
+    }
+  }
+
 
   private TokenChunker tokenChunker;
   private StatementChunker stmtChunker;
@@ -96,7 +149,6 @@ public class CloneFinder {
     }
   }
 
-
   public void addSourceFileForDetection(String fileName) {
     File file;
     try {
@@ -133,8 +185,8 @@ public class CloneFinder {
       throw new DuplicationsException("No source file added");
 
     ArrayList<Clone> clones = new ArrayList<Clone>();
+    ArrayList<Block> resourceBlocks = new ArrayList<Block>();
 
-    //2: let f be the list of tuples corresponding to filename sorted by statement index either read from the index or calculated on the fly
     List<Block> candidateBlockList = new ArrayList<Block>();
 
     for (String sourceFile : sourceFilesForDetection) {
@@ -145,148 +197,109 @@ public class CloneFinder {
         register(new File(sourceFile));
       }
     }
-
-    //3: let c be a list with c(0) = ;
     List<List<Block>> sameHashBlockGroups = new ArrayList<List<Block>>();
 
-    //4: for i := 1 to length(f) do
-    //5: retrieve tuples with same sequence hash as f(i)
-    //6: store this set as c(i)
     for (Block block : candidateBlockList) {
-      //if(block.isProcessed) continue;
-
       List<Block> sameHashBlockGroup = new ArrayList<Block>();
       for (Block shBlock : cloneIndex.getBySequenceHash(block.getBlockHash())) {
-        //shBlock.isProcessed = true;
-        sameHashBlockGroup.add(shBlock);
+        if (!shBlock.getResourceId().equals(block.getResourceId()) ||
+            shBlock.getIndexInFile() > block.getIndexInFile()) {
+          sameHashBlockGroup.add(shBlock);
+        }
       }
-      //sameHashBlockGroup.addAll(cloneIndex.getBySequenceHash(block.getBlockHash()));
-
-      //if(!sameHashBlockGroup.isEmpty())
       sameHashBlockGroups.add(sameHashBlockGroup);
+      resourceBlocks.add(block);
     }
 
     //an empty list is needed a the end to report clone at the end of file
-    //this just makes the condition at line 13 true at the last iteration
     sameHashBlockGroups.add(new ArrayList<Block>());
 
-    //7: for i := 1 to length(c) do
-    for (int i = 0; i < sameHashBlockGroups.size(); i++) {
-      List<Block> currentBlockGroup = sameHashBlockGroups.get(i);
-      //8: if |c(i)| < 2 or c(i) subsumedby c(i - 1) then
-      if (currentBlockGroup.size() < 2 ||
-          (i > 0 && subsumedBy(currentBlockGroup, sameHashBlockGroups.get(i - 1))))
-        //9: continue with next loop iteration
-        continue;
-      //10: let a := c(i)
+    TreeMap<Key, TempClone> prevActiveMap = new TreeMap<Key, TempClone>();
 
-      //11: for j := i + 1 to length(c) do
-      for (int j = i + 1; j < sameHashBlockGroups.size(); j++) {
-        //12: let a0 := a intersect c(j)
-        List<Block> intersectedBlockGroup = intersect(currentBlockGroup, sameHashBlockGroups.get(j));
-        //13: if |a0| < |a| then
-        if (intersectedBlockGroup.size() < currentBlockGroup.size()) {
-          //14: report clones from c(i) to a (see text)
-          reportClone(sameHashBlockGroups.get(i), currentBlockGroup, j - i, clones);
-        }
-        //15: a := a0
-        currentBlockGroup = intersectedBlockGroup;
-        //16: if |a| < 2 or a subsumedby c(i -1) then
-        if (currentBlockGroup.size() < 2 ||
-            (i > 0 && subsumedBy(currentBlockGroup, sameHashBlockGroups.get(i - 1))))
-          //17: break inner loop
-          break;
+    for (int i = 0; i < sameHashBlockGroups.size(); i++) {
+      TreeMap<Key, TempClone> nextActiveMap = new TreeMap<Key, TempClone>();
+
+      for (Block block : sameHashBlockGroups.get(i)) {
+        Block origBlock = resourceBlocks.get(i);
+        processBlock(prevActiveMap, nextActiveMap, origBlock, block);
       }
+      //sort elements of prevActiveMap by getOrigPart.getUnitStart()
+      ArrayList<TempClone> sortedArr = new ArrayList<TempClone>(prevActiveMap.values());
+      Collections.sort(sortedArr, new Comparator<TempClone>() {
+        public int compare(TempClone o1, TempClone o2) {
+          return o1.getOrigPart().getUnitStart() - o2.getOrigPart().getUnitStart();
+        }
+      });
+
+      clones.addAll(reportClones(sortedArr));
+
+      prevActiveMap = nextActiveMap;
     }
 
     return clones;
   }
 
   /**
-   * reports a clone group
-   *
-   * @param beginSet
-   * @param endSet
-   * @param cloneLength
-   * @param clones
+   * @param sortedArr, array of TempClone sorted by getOrigPart().getUnitStart()
+   * @return list of reported clones
    */
-  private static void reportClone(List<Block> beginSet, List<Block> endSet,
-                                  int cloneLength, List<Clone> clones) {
-
-    Clone clone = new Clone(cloneLength);
-    for (Block beginBlock : beginSet) {
-
-      for (Block endBlock : endSet) {
-        if (beginBlock.getResourceId().equals(endBlock.getResourceId())
-            || beginBlock.getIndexInFile() + cloneLength - 1 == endBlock
-            .getIndexInFile()) {
-
-          ClonePart part = new ClonePart(beginBlock.getResourceId(),
-              beginBlock.getIndexInFile(),
-              beginBlock.getFirstLineNumber(),
-              endBlock.getLastLineNumber());
-          clone.addPart(part);
-          break;
-        }
+  private static List<Clone> reportClones(List<TempClone> sortedArr) {
+    List<Clone> res = new ArrayList<Clone>();
+    Clone curClone = null;
+    int prevUnitStart = -1;
+    for (int j = 0; j < sortedArr.size(); j++) {
+      TempClone tempClone = sortedArr.get(j);
+      int curUnitStart = tempClone.getOrigPart().getUnitStart();
+      //if current sequence matches with different sequence in original file
+      if (curUnitStart != prevUnitStart) {
+        curClone = new Clone(tempClone.getCloneLength());
+        curClone.addPart(tempClone.getOrigPart());
+        curClone.addPart(tempClone.getAnotherPart());
+        res.add(curClone);
+      } else {
+        curClone.addPart(tempClone.getAnotherPart());
       }
-
+      prevUnitStart = curUnitStart;
     }
-
-    if (!clones.contains(clone))
-      clones.add(clone);
+    return res;
   }
 
   /**
-   * implementation of the special subset operator used in the algorithm in text
+   * processes curren block - checks if current block continues one of block sequences
+   * or creates new block sequence. sequences (<tt>TempClone</tt>) are put to
+   * <tt>nextActiveMap</tt>
    *
-   * @param list1
-   * @param list2
-   * @return
+   * @param prevActiveMap, map with active block sequences from previous cycle iteration
+   * @param nextActiveMap, map with active block sequences after current cycle iteration
+   * @param origBlock,     block of original file
+   * @param block,         one of blocks with same hash as <tt>origBlock</tt>
    */
-  private boolean subsumedBy(List<Block> list1, List<Block> list2) {
-    boolean finalResult = true;
-    boolean partialResult;
-    for (Block block1 : list1) {
-      //search for a block2 to cover block1
-      partialResult = false;
-      for (Block block2 : list2) {
-        if (block1.getResourceId().equals(block2.getResourceId())
-            && (block1.getIndexInFile() - 1) == block2.getIndexInFile()) {
-          //block1 is covered by block2
-          partialResult = true;
-          break;
-        }
-      }
+  private static void processBlock(TreeMap<Key, TempClone> prevActiveMap,
+                                   TreeMap<Key, TempClone> nextActiveMap,
+                                   Block origBlock, Block block) {
+    ClonePart origPart = new ClonePart(origBlock);
+    ClonePart anotherPart = new ClonePart(block);
+    int cloneLength = 0;
 
-      if (!partialResult) {
-        //block1 is not covered by any block2
-        finalResult = false;
-        break;
-      }
+    Key curKey = new Key(block.getResourceId(), block.getIndexInFile());
+    if (prevActiveMap.containsKey(curKey)) {
+      TempClone prevPart = prevActiveMap.get(curKey);
+
+      origPart.setLineStart(prevPart.getOrigPart().getLineStart());
+      origPart.setUnitStart(prevPart.getOrigPart().getUnitStart());
+
+      anotherPart.setLineStart(prevPart.getAnotherPart().getLineStart());
+      anotherPart.setUnitStart(prevPart.getAnotherPart().getUnitStart());
+
+      cloneLength = prevPart.getCloneLength();
+
+      prevActiveMap.remove(curKey);
     }
 
-    return finalResult;
-  }
+    TempClone tempClone = new TempClone(origPart, anotherPart, cloneLength + 1);
 
-  /**
-   * implementation of the special intersect operator used in the algorithm in text
-   *
-   * @param list1
-   * @param list2
-   * @return
-   */
-  private List<Block> intersect(List<Block> list1, List<Block> list2) {
-    List<Block> result = new ArrayList<Block>();
-    for (Block block1 : list1) {
-      for (Block block2 : list2) {
-        if (block1.getResourceId().equals(block2.getResourceId())
-            && block1.getIndexInFile() + 1 == block2.getIndexInFile()) {
-          result.add(block2);
-          break;
-        }
-      }
-    }
-    return result;
+    Key nextKey = new Key(block.getResourceId(), block.getIndexInFile() + 1);
+    nextActiveMap.put(nextKey, tempClone);
   }
 
   /**
