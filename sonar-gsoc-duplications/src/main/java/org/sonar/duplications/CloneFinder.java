@@ -24,8 +24,10 @@ import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
+import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
+import org.sonar.duplications.token.TokenQueue;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,7 +109,15 @@ public class CloneFinder {
   }
 
   public void register(File sourceFile) {
-    List<Block> blocks = blockChunker.chunk(sourceFile.getAbsolutePath(), stmtChunker.chunk(tokenChunker.chunk(sourceFile)));
+    List<Block> blocks;
+    String absolutePath = sourceFile.getAbsolutePath();
+    try {
+      TokenQueue tokenQueue = tokenChunker.chunk(sourceFile);
+      List<Statement> statements = stmtChunker.chunk(tokenQueue);
+      blocks = blockChunker.chunk(absolutePath, statements);
+    } catch (Exception e) {
+      throw new DuplicationsException("Exception during registering file: " + absolutePath, e);
+    }
 
     for (Block block : blocks)
       cloneIndex.insert(block);
