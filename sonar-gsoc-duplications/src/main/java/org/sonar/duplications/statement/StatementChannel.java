@@ -38,7 +38,7 @@ public class StatementChannel {
   private final TokenMatcher[] tokenMatchers;
   private boolean blackHole = false;
 
-  private static int indexInFile = 0;
+  private int indexInFile = 0;
 
   private StatementChannel(TokenMatcher... tokenMatchers) {
     this.tokenMatchers = tokenMatchers;
