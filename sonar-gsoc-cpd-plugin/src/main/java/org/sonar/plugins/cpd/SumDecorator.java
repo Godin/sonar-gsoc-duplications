@@ -19,15 +19,37 @@
  */
 package org.sonar.plugins.cpd;
 
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.batch.AbstractSumChildrenDecorator;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class CpdPlugin extends SonarPlugin {
+public class SumDecorator extends AbstractSumChildrenDecorator {
 
-  public List getExtensions() {
-    return Arrays.asList(CpdSensor.class, SumDecorator.class);
+  @Override
+  @DependedUpon
+  public List<Metric> generatesMetrics() {
+    return Arrays.asList(CoreMetrics.DUPLICATED_BLOCKS, CoreMetrics.DUPLICATED_FILES, CoreMetrics.DUPLICATED_LINES);
   }
 
+  @Override
+  protected boolean shouldSaveZeroIfNoChildMeasures() {
+    return true;
+  }
+
+  @Override
+  public boolean shouldExecuteOnProject(Project project) {
+    return true;
+  }
+
+  @Override
+  public boolean shouldDecorateResource(Resource resource) {
+    return !ResourceUtils.isUnitTestClass(resource);
+  }
 }
