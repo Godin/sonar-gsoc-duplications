@@ -19,22 +19,18 @@
  */
 package org.sonar.duplications.token;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * class that maintains a queue of tokens, supports methods pop: returns head token and remove it from queue peek: returns head token
  * without remove it from queue lookahead: returns a token from the queue with specified index starting from the head without removing any
  * token
- * 
+ *
  * @author sharif
- * 
  */
 public class TokenQueue implements Iterable<Token> {
 
-  private Queue<Token> tokenQueue;
+  private Deque<Token> tokenQueue;
 
   public TokenQueue(List<Token> tokenList) {
     tokenQueue = new LinkedList<Token>(tokenList);
@@ -45,11 +41,11 @@ public class TokenQueue implements Iterable<Token> {
   }
 
   public Token peek() {
-    return tokenQueue.peek();
+    return tokenQueue.peekFirst();
   }
 
   public Token poll() {
-    return tokenQueue.poll();
+    return tokenQueue.pollFirst();
   }
 
   public int size() {
@@ -57,11 +53,11 @@ public class TokenQueue implements Iterable<Token> {
   }
 
   public void add(Token token) {
-    tokenQueue.add(token);
+    tokenQueue.addLast(token);
   }
 
   public boolean isNextTokenValue(String expectedValue) {
-    Token nextToken = tokenQueue.peek();
+    Token nextToken = tokenQueue.peekFirst();
     if (nextToken == null) {
       return false;
     }
@@ -72,7 +68,10 @@ public class TokenQueue implements Iterable<Token> {
     return tokenQueue.iterator();
   }
 
-  public void pushBack(List<Token> matchedTokenList) {
-    tokenQueue.addAll(matchedTokenList);
+  public void pushForward(List<Token> matchedTokenList) {
+    ListIterator<Token> iter = matchedTokenList.listIterator(matchedTokenList.size());
+    while (iter.hasPrevious()) {
+      tokenQueue.addFirst(iter.previous());
+    }
   }
 }

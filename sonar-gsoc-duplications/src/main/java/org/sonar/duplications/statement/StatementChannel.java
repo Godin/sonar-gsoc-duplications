@@ -19,19 +19,18 @@
  */
 package org.sonar.duplications.statement;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * channel that consumes tokens if a statement can be build using those tokens as per given rule the statement is added to the output
- * 
+ *
  * @author sharif
- * 
  */
 public class StatementChannel {
 
@@ -60,14 +59,14 @@ public class StatementChannel {
   public boolean consume(TokenQueue tokenQueue, List<Statement> output) {
     List<Token> matchedTokenList = new ArrayList<Token>();
     for (TokenMatcher tokenMatcher : tokenMatchers) {
-      if ( !tokenMatcher.matchToken(tokenQueue, matchedTokenList)) {
-        tokenQueue.pushBack(matchedTokenList);
+      if (!tokenMatcher.matchToken(tokenQueue, matchedTokenList)) {
+        tokenQueue.pushForward(matchedTokenList);
         return false;
       }
     }
 
     // all matchers were successful, so now build the statement
-    if ( !blackHole) {
+    if (!blackHole) {
       output.add(new Statement(matchedTokenList, indexInFile++));
     }
     return true;
