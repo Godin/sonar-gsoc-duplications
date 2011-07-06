@@ -28,7 +28,7 @@ public class Clone {
 
   private final List<ClonePart> parts = new ArrayList<ClonePart>();
 
-  //clone length in units (not lines)
+  // clone length in units (not lines)
   private int cloneLength;
 
   public Clone(String resourceId1, int unitIndex1, int lineStart1, int lineEnd1,
@@ -54,9 +54,10 @@ public class Clone {
     this.cloneLength = cloneLength;
   }
 
-  public void addPart(ClonePart part) {
+  public Clone addPart(ClonePart part) {
     parts.add(part);
     Collections.sort(parts, null);
+    return this;
   }
 
   public List<ClonePart> getCloneParts() {
