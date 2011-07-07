@@ -19,7 +19,10 @@
  */
 package org.sonar.duplications.token;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * class that maintains a queue of tokens, supports methods pop: returns head token and remove it from queue peek: returns head token
@@ -30,7 +33,7 @@ import java.util.*;
  */
 public class TokenQueue implements Iterable<Token> {
 
-  private Deque<Token> tokenQueue;
+  private LinkedList<Token> tokenQueue;
 
   public TokenQueue(List<Token> tokenList) {
     tokenQueue = new LinkedList<Token>(tokenList);
