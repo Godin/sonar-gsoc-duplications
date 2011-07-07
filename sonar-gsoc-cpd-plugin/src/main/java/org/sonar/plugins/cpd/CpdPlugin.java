@@ -19,15 +19,30 @@
  */
 package org.sonar.plugins.cpd;
 
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
+import org.sonar.plugins.cpd.decorators.DuplicationDensityDecorator;
+import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
 
 import java.util.Arrays;
 import java.util.List;
 
+@Properties({
+    @Property(
+        key = "sonar.newcpd.skip",
+        defaultValue = "false",
+        name = "Skip detection of duplicated code",
+        description = "Skip detection of duplicated code",
+        project = true,
+        module = true,
+        global = true
+    )
+})
 public class CpdPlugin extends SonarPlugin {
 
   public List getExtensions() {
-    return Arrays.asList(CpdSensor.class, SumDecorator.class);
+    return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class);
   }
 
 }

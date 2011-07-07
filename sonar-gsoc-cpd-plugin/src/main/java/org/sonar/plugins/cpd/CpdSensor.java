@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.cpd;
 
+import org.apache.commons.configuration.Configuration;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.InputFile;
@@ -45,7 +47,21 @@ public class CpdSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return Java.INSTANCE.equals(project.getLanguage());
+    if (!Java.INSTANCE.equals(project.getLanguage())) {
+      LoggerFactory.getLogger(getClass()).info("Detection of duplication code is not supported for {}.", project.getLanguage());
+      return false;
+    }
+    if (isSkipped(project)) {
+      LoggerFactory.getLogger(getClass()).info("Detection of duplicated code is skipped");
+      return false;
+    }
+    return true;
+  }
+
+  boolean isSkipped(Project project) {
+    Configuration conf = project.getConfiguration();
+    return conf.getBoolean("sonar.newcpd." + project.getLanguageKey() + ".skip",
+        conf.getBoolean("sonar.newcpd.skip", false));
   }
 
   public void analyse(Project project, SensorContext context) {
