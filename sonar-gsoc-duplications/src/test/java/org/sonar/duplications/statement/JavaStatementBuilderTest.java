@@ -1,17 +1,18 @@
 package org.sonar.duplications.statement;
 
-import java.io.File;
-import java.util.List;
-
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
+import org.sonar.duplications.block.Block;
 import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
 
-import static org.junit.Assert.assertThat;
+import java.io.File;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
 
 public class JavaStatementBuilderTest {
 
@@ -138,5 +139,25 @@ public class JavaStatementBuilderTest {
     assertThat(statementList.get(9).getValue(), is("break"));
     assertThat(statementList.get(10).getValue(), is("default:"));
     assertThat(statementList.get(11).getValue(), is("monthString=LITERAL"));
+  }
+
+  @Test
+  public void tokenQueueInsertOrderBug() {
+    File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/special/MessageResources.java");
+
+    TokenQueue tokens = lexer.chunk(testFile);
+    List<Statement> statementList = stmtBldr.chunk(tokens);
+
+    assertThat(statementList.size(), greaterThan(0));
+  }
+
+  @Test
+  public void emptyTokenListTest2() {
+    File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/special/RequestUtils.java");
+
+    TokenQueue tokens = lexer.chunk(testFile);
+    List<Statement> statementList = stmtBldr.chunk(tokens);
+
+    assertThat(statementList.size(), greaterThan(0));
   }
 }
