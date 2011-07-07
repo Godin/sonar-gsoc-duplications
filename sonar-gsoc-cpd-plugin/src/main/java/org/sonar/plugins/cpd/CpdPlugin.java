@@ -22,13 +22,19 @@ package org.sonar.plugins.cpd;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.cpd.decorators.DuplicationDensityDecorator;
-import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Properties({
+    @Property(
+        key = "sonar.newcpd.blockSize",
+        defaultValue = "" + CpdPlugin.CPD_BLOCK_SIZE_DEFAULT_VALUE,
+        name = "Block size",
+        description = "The number of duplicate statements above which a block is considered as a duplication.",
+        project = true,
+        module = true,
+        global = true),
     @Property(
         key = "sonar.newcpd.skip",
         defaultValue = "false",
@@ -41,8 +47,11 @@ import java.util.List;
 })
 public class CpdPlugin extends SonarPlugin {
 
+  public static final int CPD_BLOCK_SIZE_DEFAULT_VALUE = 5;
+
   public List getExtensions() {
-    return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class);
+//    return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class);
+    return Arrays.asList(CpdSensor.class);
   }
 
 }

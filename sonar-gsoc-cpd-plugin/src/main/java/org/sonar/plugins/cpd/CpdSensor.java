@@ -65,7 +65,7 @@ public class CpdSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    CloneFinder cf = getCloneFinder(new MemoryCloneIndex());
+    CloneFinder cf = getCloneFinder(new MemoryCloneIndex(), project);
 
     List<InputFile> inputFiles = project.getFileSystem().mainFiles(project.getLanguageKey());
     if (inputFiles.size() == 0) {
@@ -133,11 +133,17 @@ public class CpdSensor implements Sensor {
     return builder.build();
   }
 
-  private CloneFinder getCloneFinder(CloneIndex cloneIndex) {
+  int getBlockSize(Project project) {
+    Configuration conf = project.getConfiguration();
+    return conf.getInt("sonar.newcpd." + project.getLanguageKey() + ".blockSize",
+        conf.getInt("sonar.newcpd.blockSize", CpdPlugin.CPD_BLOCK_SIZE_DEFAULT_VALUE));
+  }
+
+  private CloneFinder getCloneFinder(CloneIndex cloneIndex, Project project) {
     CloneFinder.Builder builder = CloneFinder.build()
         .setTokenChunker(getTokenChunker())
         .setStatementChunker(getStatementChunker())
-        .setBlockChunker(new BlockChunker(5))
+        .setBlockChunker(new BlockChunker(getBlockSize(project)))
         .setCloneIndex(cloneIndex);
     return builder.build();
   }
