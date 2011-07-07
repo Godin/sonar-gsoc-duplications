@@ -113,9 +113,10 @@ public class CpdAnalyser {
 
     protected void cumulate(Resource targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
       StringBuilder xml = new StringBuilder();
+      context.index(targetResource);
       xml.append("<duplication lines=\"").append(duplicatedLines).append("\" start=\"").append(duplicationStartLine)
           .append("\" target-start=\"").append(targetDuplicationStartLine).append("\" target-resource=\"")
-          .append(context.index(targetResource)).append("\"/>");
+          .append(targetResource.getEffectiveKey()).append("\"/>");
 
       duplicationXMLEntries.add(xml);
 
