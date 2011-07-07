@@ -52,6 +52,9 @@ public class CpdSensor implements Sensor {
     CloneFinder cf = getCloneFinder(new MemoryCloneIndex());
 
     List<InputFile> inputFiles = project.getFileSystem().mainFiles(project.getLanguageKey());
+    if (inputFiles.size() == 0) {
+      return;
+    }
     for (InputFile inputFile : inputFiles) {
       cf.register(inputFile.getFile());
       cf.addSourceFileForDetection(inputFile.getFile().getAbsolutePath());
