@@ -44,11 +44,11 @@ public class TokenQueue implements Iterable<Token> {
   }
 
   public Token peek() {
-    return tokenQueue.peekFirst();
+    return tokenQueue.peek();
   }
 
   public Token poll() {
-    return tokenQueue.pollFirst();
+    return tokenQueue.poll();
   }
 
   public int size() {
@@ -60,7 +60,7 @@ public class TokenQueue implements Iterable<Token> {
   }
 
   public boolean isNextTokenValue(String expectedValue) {
-    Token nextToken = tokenQueue.peekFirst();
+    Token nextToken = tokenQueue.peek();
     if (nextToken == null) {
       return false;
     }
