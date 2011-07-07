@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.cpd;
+package org.sonar.plugins.cpd.decorators;
 
 import org.sonar.api.batch.AbstractSumChildrenDecorator;
 import org.sonar.api.batch.DependedUpon;
@@ -30,7 +30,7 @@ import org.sonar.api.resources.ResourceUtils;
 import java.util.Arrays;
 import java.util.List;
 
-public class SumDecorator extends AbstractSumChildrenDecorator {
+public class SumDuplicationsDecorator extends AbstractSumChildrenDecorator {
 
   @Override
   @DependedUpon
