@@ -142,6 +142,16 @@ public class JavaStatementBuilderTest {
   }
 
   @Test
+  public void testArrayStatement() {
+    File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/Array.java");
+
+    TokenQueue tokens = lexer.chunk(testFile);
+    List<Statement> statementList = stmtBldr.chunk(tokens);
+
+    assertThat(statementList.size(), greaterThan(0));
+  }
+
+  @Test
   public void tokenQueueInsertOrderBug() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/special/MessageResources.java");
 

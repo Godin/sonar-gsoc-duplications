@@ -66,7 +66,8 @@ public class StatementChannel {
     }
 
     // all matchers were successful, so now build the statement
-    if (!blackHole) {
+    // matchedTokenList.size() check is for case with ForgiveLastTokenMatcher
+    if (!blackHole && matchedTokenList.size() > 0) {
       output.add(new Statement(matchedTokenList, indexInFile++));
     }
     return true;

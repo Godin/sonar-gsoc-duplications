@@ -20,11 +20,11 @@
 
 package org.sonar.duplications.statement;
 
-import java.util.List;
-
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
+
+import java.util.List;
 
 public class StatementChannelDisptacher {
 
@@ -44,7 +44,7 @@ public class StatementChannelDisptacher {
           break;
         }
       }
-      if ( !channelConsumed) {
+      if (!channelConsumed) {
         throw new DuplicationsException("None of the statement channel has been able to consume token '" + tokenQueue.peek());
       }
       nextToken = tokenQueue.peek();
