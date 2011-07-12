@@ -74,6 +74,7 @@ public class GlobalCloneIndexTest {
     index.addOrUpdateFileCloneIndex(fileC);
 
     Set<Clone> items = index.getClones();
+    // TODO: fix this situation: should report clone with 3 parts instead of two clones
     assertThat(items.size(), is(2));
 
     assertThat(items, hasItem(new Clone("a", 1, 1, 8, "b", 1, 1, 8, 3)));
