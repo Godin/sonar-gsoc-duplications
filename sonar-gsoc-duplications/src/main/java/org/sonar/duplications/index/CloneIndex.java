@@ -22,12 +22,11 @@ package org.sonar.duplications.index;
 
 import org.sonar.duplications.block.Block;
 
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.Collection;
 
 public interface CloneIndex {
 
-  public Set<String> getAllUniqueResourceId();
+  public Collection<String> getAllUniqueResourceId();
 
   public boolean containsResourceId(String resourceId);
 
@@ -40,7 +39,7 @@ public interface CloneIndex {
    * @param resourceId - unique resourceId like file name
    * @return list of <tt>Block</tt> from index and empty list if nothing found
    */
-  public SortedSet<Block> getByResourceId(String resourceId);
+  public Collection<Block> getByResourceId(String resourceId);
 
   /**
    * Search by sequence hash.
@@ -48,23 +47,23 @@ public interface CloneIndex {
    * @param sequenceHash - hash of statement sequence
    * @return set of <tt>Block</tt> from index and empty list if nothing found
    */
-  public Set<Block> getBySequenceHash(String sequenceHash);
+  public Collection<Block> getBySequenceHash(String sequenceHash);
 
-  public void insert(Block tuple);
-
-  /**
-   * Remove all <tt>Block</tt> from index with <tt>fileName</tt>
-   *
-   * @param fileName - full path of file in project with filename
-   */
-  public void remove(String fileName);
+  public void insert(Block block);
 
   /**
-   * Remove all elements from index that are equals to <tt>tuple</tt>
+   * Remove all <tt>Block</tt> from index with <tt>resourceId</tt>
    *
-   * @param tuple - tuple to be removed from index
+   * @param resourceId full path of file in project with filename
    */
-  public void remove(Block tuple);
+  public void remove(String resourceId);
+
+  /**
+   * Remove all elements from index that are equals to <tt>block</tt>
+   *
+   * @param block block to be removed from index
+   */
+  public void remove(Block block);
 
   /**
    * Empty hash index - remove all tuples
@@ -72,7 +71,7 @@ public interface CloneIndex {
   public void removeAll();
 
   /**
-   * Total number of tuples in index
+   * Total number of blocks in index
    *
    * @return size of index
    */

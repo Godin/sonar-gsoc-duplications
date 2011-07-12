@@ -23,10 +23,7 @@ package org.sonar.duplications.index;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileCloneIndex;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GlobalCloneIndex {
 
@@ -50,7 +47,7 @@ public class GlobalCloneIndex {
   }
 
   public Set<Clone> getClones() {
-    Set<String> resourceIds = backend.getAllUniqueResourceId();
+    Collection<String> resourceIds = backend.getAllUniqueResourceId();
     Set<Clone> clones = new HashSet<Clone>();
     for (String resourceId : resourceIds) {
       List<Block> blocks = new ArrayList<Block>(backend.getByResourceId("a"));

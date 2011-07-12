@@ -3,9 +3,8 @@ package org.sonar.duplications.index;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.index.CloneIndex;
 
-import java.util.SortedSet;
+import java.util.Collection;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -104,7 +103,7 @@ public class MemoryIndexBackendTest {
     assertThat(memBack.getByResourceId("a").size(), is(10));
     assertThat(memBack.getBySequenceHash("1").size(), is(10));
 
-    SortedSet<Block> set = memBack.getByResourceId("a");
+    Collection<Block> set = memBack.getByResourceId("a");
     int prevStatementIndex = 0;
     for (Block tuple : set) {
       assertTrue(tuple.getIndexInFile() > prevStatementIndex);
