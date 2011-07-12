@@ -1,9 +1,9 @@
 package org.sonar.duplications.statement;
 
-import java.util.List;
-
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.token.Token;
+
+import java.util.List;
 
 /**
  * @author sharif
@@ -16,9 +16,9 @@ public class Statement {
 
   private final String value;
 
-  private final int indexInFile;
+  private int indexInFile;
 
-  public Statement(List<Token> tokenList, int indexInFile) {
+  public Statement(List<Token> tokenList) {
     if (tokenList == null || tokenList.size() == 0) {
       throw new DuplicationsException("A statement can't be initialized with an empty list of token");
     }
@@ -31,7 +31,6 @@ public class Statement {
     this.startLine = fromLine;
     this.endLine = toLine;
     this.value = tmpValue.toString();
-    this.indexInFile = indexInFile;
   }
 
   public int getStartLine() {
@@ -44,6 +43,10 @@ public class Statement {
 
   public int getIndexInFile() {
     return indexInFile;
+  }
+
+  public void setIndexInFile(int indexInFile) {
+    this.indexInFile = indexInFile;
   }
 
   public String getValue() {
