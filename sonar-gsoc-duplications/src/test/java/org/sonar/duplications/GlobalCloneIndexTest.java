@@ -65,19 +65,18 @@ public class GlobalCloneIndexTest {
     fileB.addBlock(new Block("b", "3", 3, 3, 8));
 
     FileCloneIndex fileC = new FileCloneIndex("c");
-    fileC.addBlock(new Block("c", "1", 1, 1, 6));
-    fileC.addBlock(new Block("c", "2", 2, 2, 7));
-    fileC.addBlock(new Block("c", "3", 3, 3, 8));
+    fileC.addBlock(new Block("c", "2", 1, 1, 6));
+    fileC.addBlock(new Block("c", "3", 2, 2, 7));
+    fileC.addBlock(new Block("c", "4", 3, 3, 8));
 
     index.addOrUpdateFileCloneIndex(fileA);
     index.addOrUpdateFileCloneIndex(fileB);
     index.addOrUpdateFileCloneIndex(fileC);
 
     Set<Clone> items = index.getClones();
-    assertThat(items, hasItem(new Clone("a", 1, 1, 8, "b", 1, 1, 8, 3)));
-    assertThat(items, hasItem(new Clone("b", 1, 1, 8, "c", 1, 1, 8, 3)));
-    assertThat(items, hasItem(new Clone("c", 1, 1, 8, "a", 1, 1, 8, 3)));
+    assertThat(items.size(), is(2));
 
-    assertThat(items.size(), is(3));
+    assertThat(items, hasItem(new Clone("a", 1, 1, 8, "b", 1, 1, 8, 3)));
+    assertThat(items, hasItem(new Clone("a", 2, 2, 9, "c", 1, 1, 8, 3)));
   }
 }
