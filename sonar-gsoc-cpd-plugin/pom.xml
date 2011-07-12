@@ -37,12 +37,6 @@
   </dependencies>
 
   <build>
-    <testResources>
-      <testResource>
-        <directory>${basedir}/src/test/resources</directory>
-        <targetPath>${basedir}/target/tmp</targetPath>
-      </testResource>
-    </testResources>
     <plugins>
       <plugin>
         <groupId>org.codehaus.sonar</groupId>

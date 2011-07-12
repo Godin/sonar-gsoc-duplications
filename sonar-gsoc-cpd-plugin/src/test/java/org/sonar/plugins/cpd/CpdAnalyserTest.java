@@ -34,12 +34,12 @@ public class CpdAnalyserTest {
   @Test
   public void testFlat3Map() {
 
-    File file = new File("target/tmp/Flat3Map.java");
-    InputFile inputFile = InputFileUtils.create(new File("target/tmp/"), file);
+    File file = new File("src/test/files/Flat3Map.java");
+    InputFile inputFile = InputFileUtils.create(new File("src/test/files/"), file);
 
     ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
 
-    when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("target/tmp/")));
+    when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("src/test/files/")));
     when(fileSystem.mainFiles(Java.KEY)).thenReturn(Arrays.asList(inputFile));
 
     Resource resource1 = JavaFile.fromIOFile(file, fileSystem.getSourceDirs(), false);
