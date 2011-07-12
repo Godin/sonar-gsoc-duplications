@@ -22,6 +22,7 @@ package org.sonar.plugins.cpd;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.*;
 
@@ -55,9 +56,9 @@ public class CpdAnalyserTest {
 
     when(context.saveResource(resource1)).thenReturn("key1");
 
-    CpdSensor sensor = new CpdSensor();
+    DatabaseSession session = mock(DatabaseSession.class);
+    CpdSensor sensor = new CpdSensor(session);
     sensor.analyse(project, context);
-
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context, atLeastOnce()).saveResource(resource1);
   }

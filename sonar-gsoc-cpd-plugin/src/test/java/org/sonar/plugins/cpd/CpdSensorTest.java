@@ -21,10 +21,12 @@ package org.sonar.plugins.cpd;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class CpdSensorTest {
 
@@ -34,8 +36,9 @@ public class CpdSensorTest {
     conf.setProperty("sonar.newcpd.skip", "true");
 
     Project project = createJavaProject().setConfiguration(conf);
+    DatabaseSession session = mock(DatabaseSession.class);
 
-    CpdSensor sensor = new CpdSensor();
+    CpdSensor sensor = new CpdSensor(session);
     assertTrue(sensor.isSkipped(project));
   }
 
@@ -43,7 +46,9 @@ public class CpdSensorTest {
   public void doNotSkipByDefault() {
     Project project = createJavaProject().setConfiguration(new PropertiesConfiguration());
 
-    CpdSensor sensor = new CpdSensor();
+    DatabaseSession session = mock(DatabaseSession.class);
+
+    CpdSensor sensor = new CpdSensor(session);
     assertFalse(sensor.isSkipped(project));
   }
 
@@ -56,7 +61,9 @@ public class CpdSensorTest {
     Project phpProject = createPhpProject().setConfiguration(conf);
     Project javaProject = createJavaProject().setConfiguration(conf);
 
-    CpdSensor sensor = new CpdSensor();
+    DatabaseSession session = mock(DatabaseSession.class);
+
+    CpdSensor sensor = new CpdSensor(session);
     assertTrue(sensor.isSkipped(phpProject));
     assertFalse(sensor.isSkipped(javaProject));
   }
