@@ -29,6 +29,7 @@ import org.sonar.api.resources.*;
 import java.io.File;
 import java.util.Arrays;
 
+import static org.mockito.AdditionalMatchers.gt;
 import static org.mockito.Mockito.*;
 
 public class CpdAnalyserTest {
@@ -58,7 +59,11 @@ public class CpdAnalyserTest {
     DatabaseSession session = mock(DatabaseSession.class);
     CpdSensor sensor = new CpdSensor(session);
     sensor.analyse(project, context);
-    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
+
+
+    verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_FILES), eq(1d));
+    verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_LINES), gt(1d));
+
     verify(context, atLeastOnce()).saveResource(resource1);
   }
 
@@ -86,16 +91,20 @@ public class CpdAnalyserTest {
 
     SensorContext context = mock(SensorContext.class);
 
-
     when(context.saveResource(resource1)).thenReturn("key1");
 
     DatabaseSession session = mock(DatabaseSession.class);
     CpdSensor sensor = new CpdSensor(session);
     sensor.analyse(project, context);
-    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
-    verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_FILES, 1d);
-    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 1d);
-    verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_BLOCKS, 1d);
+
+    verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_FILES), eq(1d));
+    verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_BLOCKS), eq(1d));
+    verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_LINES), gt(1d));
+
+    verify(context).saveMeasure(eq(resource2), eq(CoreMetrics.DUPLICATED_FILES), eq(1d));
+    verify(context).saveMeasure(eq(resource2), eq(CoreMetrics.DUPLICATED_BLOCKS), eq(1d));
+    verify(context).saveMeasure(eq(resource2), eq(CoreMetrics.DUPLICATED_LINES), gt(1d));
+
     verify(context).saveResource(resource1);
     verify(context).saveResource(resource2);
   }
