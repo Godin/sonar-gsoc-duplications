@@ -1,9 +1,5 @@
 package org.sonar.duplications;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.index.Clone;
@@ -12,10 +8,11 @@ import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class DuplicationTest {
 
@@ -41,9 +38,9 @@ public class DuplicationTest {
 
     List<Clone> cloneList = cf.findClones();
 
-    Clone expected = new Clone(3)
+    Clone expected = new Clone(5)
         .addPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 11))
-        .addPart(new ClonePart(file2.getAbsolutePath(), 18, 28, 33));
+        .addPart(new ClonePart(file2.getAbsolutePath(), 9, 28, 33));
     assertThat(cloneList, hasItem(expected));
     assertThat(cloneList.size(), is(1));
   }
@@ -54,33 +51,20 @@ public class DuplicationTest {
 
     cf.addSourceDirectoryForDetection(dir.getAbsolutePath());
 
-    List<Clone> rawCloneList = cf.findClones();
-    List<Clone> cloneList = new ArrayList<Clone>();
-    Set<Clone> cloneSet = new HashSet<Clone>();
-    for (Clone clone : rawCloneList) {
-      if (!cloneSet.contains(clone)) {
-        cloneSet.add(clone);
-        cloneList.add(clone);
-      }
-    }
+    List<Clone> cloneList = cf.findClones();
 
-    Clone expected1 = new Clone(1)
-        .addPart(new ClonePart(file1.getAbsolutePath(), 0, 6, 8))
-        .addPart(new ClonePart(file2.getAbsolutePath(), 2, 28, 30))
-        .addPart(new ClonePart(file3.getAbsolutePath(), 4, 28, 30));
+    assertThat(cloneList.size(), is(8));
+
+    Clone expected1 = new Clone(2)
+        .addPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 9))
+        .addPart(new ClonePart(file3.getAbsolutePath(), 9, 28, 31));
     assertThat(cloneList, hasItem(expected1));
 
-    Clone expected2 = new Clone(1)
-        .addPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 9))
-        .addPart(new ClonePart(file3.getAbsolutePath(), 39, 28, 31));
+    Clone expected2 = new Clone(3)
+        .addPart(new ClonePart(file2.getAbsolutePath(), 17, 33, 47))
+        .addPart(new ClonePart(file3.getAbsolutePath(), 14, 31, 45));
     assertThat(cloneList, hasItem(expected2));
 
-    Clone expected3 = new Clone(3)
-        .addPart(new ClonePart(file2.getAbsolutePath(), 23, 33, 47))
-        .addPart(new ClonePart(file3.getAbsolutePath(), 42, 31, 45));
-    assertThat(cloneList, hasItem(expected3));
-
-    assertThat(cloneList.size(), is(7));
   }
 
   private void initTestData(File... files) {

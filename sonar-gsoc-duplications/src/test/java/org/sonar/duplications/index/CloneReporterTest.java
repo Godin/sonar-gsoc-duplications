@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasItem;
@@ -33,8 +34,8 @@ public class CloneReporterTest {
     indexBackend.insert(new Block("c", "5", 1, 1, 6));
     indexBackend.insert(new Block("c", "6", 2, 2, 7));
     indexBackend.insert(new Block("c", "7", 3, 3, 8));
-
-    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
+    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
+    List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(2));
     assertThat(items, hasItem(new Clone("a", 3, 3, 11, "b", 2, 2, 10, 4)));
     assertThat(items, hasItem(new Clone("a", 5, 5, 12, "c", 1, 1, 8, 3)));
@@ -56,10 +57,14 @@ public class CloneReporterTest {
     indexBackend.insert(new Block("c", "2", 2, 2, 7));
     indexBackend.insert(new Block("c", "3", 3, 3, 8));
 
-    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
-    assertThat(items.size(), is(2));
-    assertThat(items, hasItem(new Clone("a", 1, 1, 8, "b", 1, 1, 8, 3)));
-    assertThat(items, hasItem(new Clone("a", 1, 1, 8, "c", 1, 1, 8, 3)));
+    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
+    List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
+    assertThat(items.size(), is(1));
+    Clone clone = new Clone(3);
+    clone.addPart(new ClonePart("a", 1, 1, 8));
+    clone.addPart(new ClonePart("b", 1, 1, 8));
+    clone.addPart(new ClonePart("c", 1, 1, 8));
+    assertThat(items, hasItem(clone));
   }
 
   @Test
@@ -71,7 +76,8 @@ public class CloneReporterTest {
     indexBackend.insert(new Block("b", "0", 0, 0, 5));
     indexBackend.insert(new Block("b", "1", 1, 1, 6));
 
-    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
+    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
+    List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(1));
     assertThat(items, hasItem(new Clone("a", 0, 0, 6, "b", 0, 0, 6, 2)));
   }
@@ -85,7 +91,8 @@ public class CloneReporterTest {
     indexBackend.insert(new Block("b", "1", 1, 1, 6));
     indexBackend.insert(new Block("b", "2", 2, 2, 7));
 
-    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
+    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
+    List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(1));
     assertThat(items, hasItem(new Clone("a", 1, 1, 7, "b", 1, 1, 7, 2)));
   }
@@ -100,7 +107,8 @@ public class CloneReporterTest {
     indexBackend.insert(new Block("a", "1", 4, 4, 9));
     indexBackend.insert(new Block("a", "4", 5, 5, 10));
 
-    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
+    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
+    List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(1));
     assertThat(items, hasItem(new Clone("a", 1, 1, 6, "a", 4, 4, 9, 1)));
   }
@@ -115,7 +123,8 @@ public class CloneReporterTest {
     indexBackend.insert(new Block("a", "4", 4, 4, 9));
     indexBackend.insert(new Block("a", "0", 5, 5, 10));
 
-    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
+    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
+    List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(1));
     assertThat(items, hasItem(new Clone("a", 5, 5, 10, "a", 0, 0, 5, 1)));
   }
@@ -134,10 +143,13 @@ public class CloneReporterTest {
     indexBackend.insert(new Block("a", "1", 7, 7, 12));
     indexBackend.insert(new Block("a", "6", 8, 8, 13));
 
-    List<Clone> items = CloneReporter.reportClones("a", indexBackend);
-    assertThat(items.size(), is(3));
-    assertThat(items, hasItem(new Clone("a", 1, 1, 6, "a", 4, 4, 9, 1)));
-    assertThat(items, hasItem(new Clone("a", 1, 1, 6, "a", 7, 7, 12, 1)));
-    assertThat(items, hasItem(new Clone("a", 7, 7, 12, "a", 4, 4, 9, 1)));
+    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
+    List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
+    assertThat(items.size(), is(2));
+    Clone expected = new Clone(1)
+        .addPart(new ClonePart("a", 1, 1, 6))
+        .addPart(new ClonePart("a", 4, 4, 9))
+        .addPart(new ClonePart("a", 7, 7, 12));
+    assertThat(items, hasItem(expected));
   }
 }

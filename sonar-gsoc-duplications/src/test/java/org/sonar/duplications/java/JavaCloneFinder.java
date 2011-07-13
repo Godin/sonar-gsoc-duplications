@@ -13,11 +13,15 @@ public class JavaCloneFinder {
   private JavaCloneFinder() {
   }
 
-  public static final CloneFinder build(CloneIndex cloneIndex) {
+  public static CloneFinder build(CloneIndex cloneIndex) {
+    return JavaCloneFinder.build(cloneIndex, 5);
+  }
+
+  public static CloneFinder build(CloneIndex cloneIndex, int blockSize) {
     CloneFinder.Builder builder = CloneFinder.build()
         .setTokenChunker(JavaTokenProducer.build())
         .setStatementChunker(JavaStatementBuilder.build())
-        .setBlockChunker(new BlockChunker(5))
+        .setBlockChunker(new BlockChunker(blockSize))
         .setCloneIndex(cloneIndex);
     return builder.build();
   }

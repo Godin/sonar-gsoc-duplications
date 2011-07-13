@@ -24,9 +24,9 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.TreeMultimap;
 import org.sonar.duplications.block.Block;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
-import java.util.SortedSet;
 
 public class MemoryCloneIndex implements CloneIndex {
 
@@ -63,7 +63,7 @@ public class MemoryCloneIndex implements CloneIndex {
     sequenceHashIndex = HashMultimap.create();
   }
 
-  public Set<String> getAllUniqueResourceId() {
+  public Collection<String> getAllUniqueResourceId() {
     return filenameIndex.keySet();
   }
 
@@ -71,11 +71,11 @@ public class MemoryCloneIndex implements CloneIndex {
     return filenameIndex.containsKey(resourceId);
   }
 
-  public SortedSet<Block> getByResourceId(String fileName) {
+  public Collection<Block> getByResourceId(String fileName) {
     return filenameIndex.get(fileName);
   }
 
-  public Set<Block> getBySequenceHash(String sequenceHash) {
+  public Collection<Block> getBySequenceHash(String sequenceHash) {
     return sequenceHashIndex.get(sequenceHash);
   }
 

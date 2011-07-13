@@ -23,27 +23,27 @@ import org.apache.commons.configuration.Configuration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.block.BlockChunker;
-import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.sonar.duplications.statement.TokenMatcherFactory.*;
 
 public class CpdSensor implements Sensor {
 
-  public CpdSensor() {
+  private final DatabaseSession session;
+
+  public CpdSensor(DatabaseSession session) {
+    this.session = session;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -76,27 +76,13 @@ public class CpdSensor implements Sensor {
       cf.addSourceFileForDetection(inputFile.getFile().getAbsolutePath());
     }
 
-    List<Clone> cloneList = removeDuplicateClones(cf.findClones());
-
     CpdAnalyser analyser = new CpdAnalyser(project, context);
-    analyser.analyse(removeDuplicateClones(cloneList));
+    analyser.analyse(cf.findClones());
   }
 
   @Override
   public String toString() {
     return getClass().getSimpleName();
-  }
-
-  private List<Clone> removeDuplicateClones(List<Clone> clones) {
-    List<Clone> cloneList = new ArrayList<Clone>();
-    Set<Clone> cloneSet = new HashSet<Clone>();
-    for (Clone clone : clones) {
-      if (!cloneSet.contains(clone)) {
-        cloneSet.add(clone);
-        cloneList.add(clone);
-      }
-    }
-    return cloneList;
   }
 
   private TokenChunker getTokenChunker() {

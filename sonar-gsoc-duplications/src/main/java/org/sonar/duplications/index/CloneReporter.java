@@ -58,74 +58,76 @@ public class CloneReporter {
       return origPart;
     }
 
-    public void setOrigPart(ClonePart origPart) {
-      this.origPart = origPart;
-    }
-
     public ClonePart getAnotherPart() {
       return anotherPart;
-    }
-
-    public void setAnotherPart(ClonePart anotherPart) {
-      this.anotherPart = anotherPart;
     }
 
     public int getCloneLength() {
       return cloneLength;
     }
 
-    public void setCloneLength(int cloneLength) {
-      this.cloneLength = cloneLength;
-    }
   }
 
 
-  public static List<Clone> reportClones(String filename, CloneIndex index) {
-    SortedSet<Block> resourceSet = index.getByResourceId(filename);
-    ArrayList<Block> resourceBlocks = new ArrayList<Block>();
+  public static List<Clone> reportClones(List<Block> candidateBlocks, CloneIndex index) {
+    ArrayList<Clone> clones = new ArrayList<Clone>();
 
-    ArrayList<Clone> groupedClones = new ArrayList<Clone>();
+    ArrayList<Block> resourceBlocks = new ArrayList<Block>(candidateBlocks);
 
-    ArrayList<Collection<Block>> foundBlockClones = new ArrayList<Collection<Block>>();
+    ArrayList<List<Block>> sameHashBlockGroups = new ArrayList<List<Block>>();
 
-    for (Block block : resourceSet) {
-      List<Block> filteredList = new ArrayList<Block>();
-
-      for (Block foundBlock : index.getBySequenceHash(block.getBlockHash())) {
-        //we process Block's clones from same file only if
-        // clone.getIndexInFile > original.getIndexInFile
-        if (!foundBlock.getResourceId().equals(block.getResourceId()) ||
-            foundBlock.getIndexInFile() > block.getIndexInFile()) {
-          filteredList.add(foundBlock);
+    for (Block block : candidateBlocks) {
+      List<Block> sameHashBlockGroup = new ArrayList<Block>();
+      for (Block shBlock : index.getBySequenceHash(block.getBlockHash())) {
+        if (!shBlock.getResourceId().equals(block.getResourceId()) ||
+            shBlock.getIndexInFile() > block.getIndexInFile()) {
+          sameHashBlockGroup.add(shBlock);
         }
       }
-      foundBlockClones.add(filteredList);
-      resourceBlocks.add(block);
+      sameHashBlockGroups.add(sameHashBlockGroup);
     }
-    foundBlockClones.add(new ArrayList<Block>());
+
+    //an empty list is needed a the end to report clone at the end of file
+    sameHashBlockGroups.add(new ArrayList<Block>());
 
     TreeMap<Key, TempClone> prevActiveMap = new TreeMap<Key, TempClone>();
 
-    for (int i = 0; i < foundBlockClones.size(); i++) {
+    for (int i = 0; i < sameHashBlockGroups.size(); i++) {
       TreeMap<Key, TempClone> nextActiveMap = new TreeMap<Key, TempClone>();
 
-      for (Block block : foundBlockClones.get(i)) {
+      for (Block block : sameHashBlockGroups.get(i)) {
         Block origBlock = resourceBlocks.get(i);
         processBlock(prevActiveMap, nextActiveMap, origBlock, block);
       }
 
-      for (TempClone tempClone : prevActiveMap.values()) {
-        Clone clone = new Clone(tempClone.getOrigPart(), tempClone.getAnotherPart(), tempClone.getCloneLength());
-        groupedClones.add(clone);
-      }
+      //sort elements of prevActiveMap by getOrigPart.getUnitStart()
+      ArrayList<TempClone> sortedArr = new ArrayList<TempClone>(prevActiveMap.values());
+      Collections.sort(sortedArr, new Comparator<TempClone>() {
+        public int compare(TempClone o1, TempClone o2) {
+          return o1.getOrigPart().getUnitStart() - o2.getOrigPart().getUnitStart();
+        }
+      });
+
+      clones.addAll(reportClones(sortedArr));
 
       prevActiveMap = nextActiveMap;
     }
 
-    return groupedClones;
+    return clones;
   }
 
-  private static void processBlock(TreeMap<Key, TempClone> prevActiveMap, TreeMap<Key, TempClone> nextActiveMap,
+  /**
+   * processes curren block - checks if current block continues one of block sequences
+   * or creates new block sequence. sequences (<tt>TempClone</tt>) are put to
+   * <tt>nextActiveMap</tt>
+   *
+   * @param prevActiveMap, map with active block sequences from previous cycle iteration
+   * @param nextActiveMap, map with active block sequences after current cycle iteration
+   * @param origBlock,     block of original file
+   * @param block,         one of blocks with same hash as <tt>origBlock</tt>
+   */
+  private static void processBlock(TreeMap<Key, TempClone> prevActiveMap,
+                                   TreeMap<Key, TempClone> nextActiveMap,
                                    Block origBlock, Block block) {
     ClonePart origPart = new ClonePart(origBlock);
     ClonePart anotherPart = new ClonePart(block);
@@ -133,15 +135,17 @@ public class CloneReporter {
 
     Key curKey = new Key(block.getResourceId(), block.getIndexInFile());
     if (prevActiveMap.containsKey(curKey)) {
-      TempClone prevPart = prevActiveMap.get(curKey);
+      TempClone prevTmp = prevActiveMap.get(curKey);
 
-      origPart.setLineStart(prevPart.getOrigPart().getLineStart());
-      origPart.setUnitStart(prevPart.getOrigPart().getUnitStart());
+      ClonePart prevOrigPart = prevTmp.getOrigPart();
+      origPart.setLineStart(prevOrigPart.getLineStart());
+      origPart.setUnitStart(prevOrigPart.getUnitStart());
 
-      anotherPart.setLineStart(prevPart.getAnotherPart().getLineStart());
-      anotherPart.setUnitStart(prevPart.getAnotherPart().getUnitStart());
+      ClonePart prevAnotherPart = prevTmp.getAnotherPart();
+      anotherPart.setLineStart(prevAnotherPart.getLineStart());
+      anotherPart.setUnitStart(prevAnotherPart.getUnitStart());
 
-      cloneLength = prevPart.getCloneLength();
+      cloneLength = prevTmp.getCloneLength();
 
       prevActiveMap.remove(curKey);
     }
@@ -151,4 +155,31 @@ public class CloneReporter {
     Key nextKey = new Key(block.getResourceId(), block.getIndexInFile() + 1);
     nextActiveMap.put(nextKey, tempClone);
   }
+
+
+  /**
+   * @param sortedArr, array of TempClone sorted by getOrigPart().getUnitStart()
+   * @return list of reported clones
+   */
+  private static List<Clone> reportClones(List<TempClone> sortedArr) {
+    List<Clone> res = new ArrayList<Clone>();
+    Clone curClone = null;
+    int prevUnitStart = -1;
+    for (int j = 0; j < sortedArr.size(); j++) {
+      TempClone tempClone = sortedArr.get(j);
+      int curUnitStart = tempClone.getOrigPart().getUnitStart();
+      //if current sequence matches with different sequence in original file
+      if (curUnitStart != prevUnitStart) {
+        curClone = new Clone(tempClone.getCloneLength());
+        curClone.addPart(tempClone.getOrigPart());
+        curClone.addPart(tempClone.getAnotherPart());
+        res.add(curClone);
+      } else {
+        curClone.addPart(tempClone.getAnotherPart());
+      }
+      prevUnitStart = curUnitStart;
+    }
+    return res;
+  }
+
 }

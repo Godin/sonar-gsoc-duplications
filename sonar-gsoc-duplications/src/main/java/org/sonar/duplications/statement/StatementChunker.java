@@ -19,18 +19,17 @@
  */
 package org.sonar.duplications.statement;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.TokenQueue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class is similar to lexer but takes list of token as input and provide list of statement as output
- * 
+ *
  * @author sharif
- * 
  */
 public final class StatementChunker {
 
@@ -46,8 +45,13 @@ public final class StatementChunker {
 
   public List<Statement> chunk(TokenQueue tokenQueue) {
     List<Statement> statements = new ArrayList<Statement>();
+    int statementIndex = 0;
     try {
       channelDispatcher.consume(tokenQueue, statements);
+      //TODO: fix statement index
+      for (Statement statement : statements) {
+        statement.setIndexInFile(statementIndex++);
+      }
       return statements;
     } catch (Exception e) {
     	if(tokenQueue != null)
