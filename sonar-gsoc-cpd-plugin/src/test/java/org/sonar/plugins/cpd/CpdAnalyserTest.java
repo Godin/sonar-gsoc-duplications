@@ -92,6 +92,7 @@ public class CpdAnalyserTest {
     SensorContext context = mock(SensorContext.class);
 
     when(context.saveResource(resource1)).thenReturn("key1");
+    when(context.saveResource(resource2)).thenReturn("key2");
 
     DatabaseSession session = mock(DatabaseSession.class);
     CpdSensor sensor = new CpdSensor(session);
