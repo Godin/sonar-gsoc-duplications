@@ -50,7 +50,10 @@ public final class StatementChunker {
       channelDispatcher.consume(tokenQueue, statements);
       return statements;
     } catch (Exception e) {
-      throw new DuplicationsException("Unable to build statement from token : " + tokenQueue.peek(), e);
+    	if(tokenQueue != null)
+    		throw new DuplicationsException("Unable to build statement from token : " + tokenQueue.peek(), e);
+    	else
+    		throw new DuplicationsException("Token queue is null", e);
     }
   }
 
