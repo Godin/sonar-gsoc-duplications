@@ -12,6 +12,10 @@
 
   <name>Sonar :: GSoC :: Duplications</name>
 
+  <properties>
+    <sonar.version>2.8</sonar.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
