@@ -25,6 +25,8 @@ public class Token {
   private final int column;
   private final String value;
 
+  private int hash;
+
   public Token(String value, int line, int column) {
     this.value = value;
     this.column = column;
@@ -54,7 +56,14 @@ public class Token {
 
   @Override
   public int hashCode() {
-    return value.hashCode() + line + column;
+    int h = hash;
+    if (h == 0) {
+      h = value.hashCode();
+      h = 31 * h + line;
+      h = 31 * h + column;
+      hash = h;
+    }
+    return h;
   }
 
   @Override

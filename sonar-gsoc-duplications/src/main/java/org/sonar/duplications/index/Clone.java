@@ -31,6 +31,8 @@ public class Clone {
   // clone length in units (not lines)
   private int cloneLength;
 
+  private int hash;
+
   public Clone(String resourceId1, int unitIndex1, int lineStart1, int lineEnd1,
                String resourceId2, int unitIndex2, int lineStart2, int lineEnd2,
                int cloneLength) {
@@ -93,12 +95,15 @@ public class Clone {
 
   @Override
   public int hashCode() {
-    int hashCode = 0;
-    for (ClonePart part : parts) {
-      hashCode = hashCode * 17 ^ part.hashCode();
+    int h = hash;
+    if (h == 0 && cloneLength != 0) {
+      for (ClonePart part : parts) {
+        h = 31 * h + part.hashCode();
+      }
+      h = 31 * h + cloneLength;
+      hash = h;
     }
-    hashCode = 443 * hashCode ^ cloneLength;
-    return hashCode;
+    return h;
   }
 
   @Override

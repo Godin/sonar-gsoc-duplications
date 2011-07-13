@@ -11,12 +11,11 @@ import java.util.List;
 public class Statement {
 
   private final int startLine;
-
   private final int endLine;
-
   private final String value;
-
   private int indexInFile;
+
+  private int hash;
 
   public Statement(List<Token> tokenList) {
     if (tokenList == null || tokenList.size() == 0) {
@@ -55,7 +54,15 @@ public class Statement {
 
   @Override
   public int hashCode() {
-    return value.hashCode() + startLine + endLine + indexInFile;
+    int h = hash;
+    if (h == 0) {
+      h = value.hashCode();
+      h = 31 * h + startLine;
+      h = 31 * h + endLine;
+      h = 31 * h + indexInFile;
+      hash = h;
+    }
+    return h;
   }
 
   @Override

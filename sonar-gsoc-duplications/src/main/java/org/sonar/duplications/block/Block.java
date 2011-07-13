@@ -6,14 +6,12 @@ package org.sonar.duplications.block;
 public class Block {
 
   private final String resourceId;
-
   private final String blockHash;
-
   private final int indexInFile;
-
   private final int firstLineNumber;
-
   private final int lastLineNumber;
+
+  private int hash;
 
   public Block(String resourceId, String blockHash, int indexInFile, int firstLineNumber, int lastLineNumber) {
     this.resourceId = resourceId;
@@ -45,7 +43,7 @@ public class Block {
 
   @Override
   public boolean equals(Object obj) {
-    if ( !(obj instanceof Block)) {
+    if (!(obj instanceof Block)) {
       return false;
     }
     Block other = (Block) obj;
@@ -55,7 +53,16 @@ public class Block {
 
   @Override
   public int hashCode() {
-    return resourceId.hashCode() + blockHash.hashCode() + 413 * indexInFile;
+    int h = hash;
+    if (h == 0) {
+      h = resourceId.hashCode();
+      h = 31 * h + blockHash.hashCode();
+      h = 31 * h + indexInFile;
+      h = 31 * h + firstLineNumber;
+      h = 31 * h + lastLineNumber;
+      hash = h;
+    }
+    return h;
   }
 
   @Override

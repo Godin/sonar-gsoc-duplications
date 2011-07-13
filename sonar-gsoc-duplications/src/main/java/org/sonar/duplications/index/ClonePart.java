@@ -29,6 +29,8 @@ public class ClonePart implements Comparable<ClonePart> {
   private int lineStart;
   private int lineEnd;
 
+  private int hash;
+
   public ClonePart() {
   }
 
@@ -92,7 +94,15 @@ public class ClonePart implements Comparable<ClonePart> {
 
   @Override
   public int hashCode() {
-    return resourceId.hashCode() + 13 * lineStart + 31 * lineEnd + 413 * unitStart;
+    int h = hash;
+    if (h == 0) {
+      h = resourceId.hashCode();
+      h = 31 * h + lineStart;
+      h = 31 * h + lineEnd;
+      h = 31 * h + unitStart;
+      hash = h;
+    }
+    return h;
   }
 
   @Override
