@@ -11,7 +11,9 @@
   <name>Sonar :: GSoC</name>
 
   <modules>
+    <!--
     <module>sonar-gsoc-cpd-plugin</module>
+    -->
     <module>sonar-gsoc-duplications</module>
   </modules>
 
@@ -23,8 +25,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <sonar.version>2.8-SNAPSHOT</sonar.version>
   </properties>
 
   <build>
