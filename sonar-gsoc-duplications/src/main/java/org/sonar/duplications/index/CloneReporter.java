@@ -113,7 +113,13 @@ public class CloneReporter {
       prevActiveMap = nextActiveMap;
     }
 
-    return clones;
+    return removeDuplicates(clones);
+  }
+
+  private static List<Clone> removeDuplicates(List<Clone> clones) {
+    HashSet<Clone> set = new HashSet<Clone>(clones);
+    List<Clone> result = new ArrayList<Clone>(set);
+    return result;
   }
 
   /**

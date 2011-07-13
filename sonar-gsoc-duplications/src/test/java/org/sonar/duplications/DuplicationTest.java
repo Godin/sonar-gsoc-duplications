@@ -53,7 +53,7 @@ public class DuplicationTest {
 
     List<Clone> cloneList = cf.findClones();
 
-    assertThat(cloneList.size(), is(8));
+    assertThat(cloneList.size(), is(4));
 
     Clone expected1 = new Clone(2)
         .addPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 9))

@@ -53,7 +53,6 @@ public class CpdAnalyserTest {
 
     SensorContext context = mock(SensorContext.class);
 
-
     when(context.saveResource(resource1)).thenReturn("key1");
 
     DatabaseSession session = mock(DatabaseSession.class);
@@ -61,5 +60,43 @@ public class CpdAnalyserTest {
     sensor.analyse(project, context);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context, atLeastOnce()).saveResource(resource1);
+  }
+
+  @Test
+  public void testUnmodifiableMap() {
+
+    File file1 = new File("src/test/files/UnmodifiableMap.java");
+    File file2 = new File("src/test/files/UnmodifiableSortedMap.java");
+    InputFile inputFile1 = InputFileUtils.create(new File("src/test/files/"), file1);
+    InputFile inputFile2 = InputFileUtils.create(new File("src/test/files/"), file2);
+
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
+
+    when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("src/test/files/")));
+    when(fileSystem.mainFiles(Java.KEY)).thenReturn(Arrays.asList(inputFile1, inputFile2));
+
+    Resource resource1 = JavaFile.fromIOFile(file1, fileSystem.getSourceDirs(), false);
+    Resource resource2 = JavaFile.fromIOFile(file2, fileSystem.getSourceDirs(), false);
+
+    Project project = new Project("key").setFileSystem(fileSystem);
+    project.setLanguageKey(Java.KEY);
+    BaseConfiguration conf = new BaseConfiguration();
+    conf.setProperty("sonar.newcpd.blockSize", "20");
+    project.setConfiguration(conf);
+
+    SensorContext context = mock(SensorContext.class);
+
+
+    when(context.saveResource(resource1)).thenReturn("key1");
+
+    DatabaseSession session = mock(DatabaseSession.class);
+    CpdSensor sensor = new CpdSensor(session);
+    sensor.analyse(project, context);
+    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
+    verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_FILES, 1d);
+    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 1d);
+    verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_BLOCKS, 1d);
+    verify(context).saveResource(resource1);
+    verify(context).saveResource(resource2);
   }
 }
