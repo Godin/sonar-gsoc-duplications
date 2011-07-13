@@ -17,7 +17,6 @@ public class BlockBuilderTest {
   File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
   TokenChunker lexer = JavaTokenProducer.build();
   StatementChunker statementBuilder = JavaStatementBuilder.build();
-  int blockSize = 3;
   BlockChunker blockBuilder = new BlockChunker(5);
 
   @Test

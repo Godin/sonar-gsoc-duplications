@@ -1,24 +1,29 @@
 package org.sonar.duplications.statement;
 
-import org.junit.Test;
-import org.sonar.duplications.DuplicationsTestUtil;
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.java.JavaTokenProducer;
-import org.sonar.duplications.token.TokenChunker;
-import org.sonar.duplications.token.TokenQueue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import org.sonar.duplications.DuplicationsException;
+import org.sonar.duplications.DuplicationsTestUtil;
+import org.sonar.duplications.java.JavaTokenProducer;
+import org.sonar.duplications.token.TokenChunker;
+import org.sonar.duplications.token.TokenQueue;
 
 public class JavaStatementBuilderTest {
 
   TokenChunker lexer = JavaTokenProducer.build();
   StatementChunker stmtBldr = JavaStatementBuilder.build();
 
+  @Test (expected = DuplicationsException.class)
+  public void shouldThroughException() {
+	  stmtBldr.chunk(null);
+  }
+  
   @Test
   public void shouldIgnoreImportStatement() {
     File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/StatementTest/Import.java");

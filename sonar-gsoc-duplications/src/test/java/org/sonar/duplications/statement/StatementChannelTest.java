@@ -23,30 +23,47 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
-import org.sonar.duplications.token.Token;
-import org.sonar.duplications.token.TokenQueue;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Test;
+import org.sonar.duplications.statement.matcher.TokenMatcher;
+import org.sonar.duplications.token.Token;
+import org.sonar.duplications.token.TokenQueue;
+
 public class StatementChannelTest {
 
+  TokenQueue tokenQueue;
+    
+  @Test
+  public void shouldConsumeTokenFromTokenQueue(){
+	  List<Statement> output = consume(TokenMatcherFactory.anyToken());
+	  assertThat(tokenQueue.size(), is(0));
+	  assertThat(output.size(), is(1));
+  }
+  
+  @Test
+  public void shouldNotConsumeTokenFromTokenQueue(){
+	  List<Statement> output = consume(TokenMatcherFactory.from("b"));
+	  assertThat(tokenQueue.size(), is(1));
+	  assertThat(output.size(), is(0));
+  }
+  
   @Test
   public void outputShouldNotDependOnAmountOfInvocations() {
-    List<Statement> output = consume();
-    List<Statement> secondOutput = consume();
+    List<Statement> output = consume(TokenMatcherFactory.anyToken());
+    List<Statement> secondOutput = consume(TokenMatcherFactory.anyToken());
 
     assertThat(output.size(), is(1));
     assertThat(output.get(0).getIndexInFile(), is(0));
     assertEquals(output, secondOutput);
   }
 
-  private List<Statement> consume() {
-    StatementChannel channel = StatementChannel.create(TokenMatcherFactory.anyToken());
-    TokenQueue tokenQueue = new TokenQueue();
-    tokenQueue.add(new Token("a", 1, 1));
+  private List<Statement> consume(TokenMatcher tokenMatcher) {
+    StatementChannel channel = StatementChannel.create(tokenMatcher);
     ArrayList<Statement> output = new ArrayList<Statement>();
+	tokenQueue = new TokenQueue();
+	tokenQueue.add(new Token("a", 1, 1));
     channel.consume(tokenQueue, output);
     return output;
   }
