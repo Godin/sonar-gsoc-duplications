@@ -104,7 +104,7 @@ public class CpdAnalyser {
     protected double duplicatedBlocks = 0;
     protected Resource resource;
     private SensorContext context;
-    private List<StringBuilder> duplicationXMLEntries = new ArrayList<StringBuilder>();
+    private TreeMap<Integer, StringBuilder> duplicationXMLEntries = new TreeMap<Integer, StringBuilder>();
 
     private DuplicationsData(Resource resource, SensorContext context) {
       this.context = context;
@@ -117,7 +117,7 @@ public class CpdAnalyser {
           .append("\" target-start=\"").append(targetDuplicationStartLine).append("\" target-resource=\"")
           .append(context.saveResource(targetResource)).append("\"/>");
 
-      duplicationXMLEntries.add(xml);
+      duplicationXMLEntries.put(duplicationStartLine, xml);
 
       for (int duplicatedLine = duplicationStartLine; duplicatedLine < duplicationStartLine + duplicatedLines; duplicatedLine++) {
         this.duplicatedLines.add(duplicatedLine);
@@ -137,7 +137,7 @@ public class CpdAnalyser {
 
     private String getDuplicationXMLData() {
       StringBuilder duplicationXML = new StringBuilder("<duplications>");
-      for (StringBuilder xmlEntry : duplicationXMLEntries) {
+      for (StringBuilder xmlEntry : duplicationXMLEntries.values()) {
         duplicationXML.append(xmlEntry);
       }
       duplicationXML.append("</duplications>");
