@@ -72,7 +72,8 @@ public class CpdSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     CloneIndex index;
-    if (useMemoryIndex(project)) {
+    boolean useMemory = useMemoryIndex(project);
+    if (useMemory) {
       index = new MemoryCloneIndex();
     } else {
       index = new DBCloneIndex(session);
@@ -88,6 +89,7 @@ public class CpdSensor implements Sensor {
     CpdAnalyser analyser = new CpdAnalyser(project, context);
 
     for (InputFile inputFile : inputFiles) {
+      index.remove(inputFile.getFile().getAbsolutePath());
       cf.register(inputFile.getFile());
     }
 
