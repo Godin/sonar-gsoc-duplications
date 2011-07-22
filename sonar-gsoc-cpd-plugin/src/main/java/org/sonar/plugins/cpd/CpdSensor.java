@@ -65,19 +65,24 @@ public class CpdSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    CloneFinder cf = getCloneFinder(new MemoryCloneIndex(), project);
-
     List<InputFile> inputFiles = project.getFileSystem().mainFiles(project.getLanguageKey());
     if (inputFiles.size() == 0) {
       return;
     }
+
+    MemoryCloneIndex index = new MemoryCloneIndex();
+    CloneFinder cf = getCloneFinder(index, project);
+    CpdAnalyser analyser = new CpdAnalyser(project, context);
+
     for (InputFile inputFile : inputFiles) {
       cf.register(inputFile.getFile());
-      cf.addSourceFileForDetection(inputFile.getFile().getAbsolutePath());
     }
 
-    CpdAnalyser analyser = new CpdAnalyser(project, context);
-    analyser.analyse(cf.findClones());
+    for (InputFile inputFile : inputFiles) {
+      cf.clearSourceFilesForDetection();
+      cf.addSourceFileForDetection(inputFile.getFile().getAbsolutePath());
+      analyser.analyse(cf.findClones());
+    }
   }
 
   @Override

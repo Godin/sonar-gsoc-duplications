@@ -49,34 +49,35 @@ public class CpdAnalyser {
     Map<Resource, DuplicationsData> duplicationsData = new HashMap<Resource, DuplicationsData>();
 
     for (Clone clone : clones) {
-      for (ClonePart firstPart : clone.getCloneParts()) {
-        String firstAbsolutePath = firstPart.getResourceId();
-        int firstLine = firstPart.getLineStart();
-        int firstEnd = firstPart.getLineEnd();
+      ClonePart originPart = clone.getOriginPart();
+      String firstAbsolutePath = originPart.getResourceId();
+      int firstLineStart = originPart.getLineStart();
+      int firstLineEnd = originPart.getLineEnd();
+      int firstCloneLength = firstLineEnd - firstLineStart + 1;
 
-        Resource firstFile = getResource(new File(firstAbsolutePath));
-        if (firstFile == null) {
-          LOG.warn("CPD - File not found : {}", firstAbsolutePath);
+      Resource firstFile = getResource(new File(firstAbsolutePath));
+      if (firstFile == null) {
+        LOG.warn("CPD - File not found : {}", firstAbsolutePath);
+        continue;
+      }
+
+      DuplicationsData firstFileData = getDuplicationsData(duplicationsData, firstFile);
+      firstFileData.incrementDuplicatedBlock();
+
+      for (ClonePart secondPart : clone.getCloneParts()) {
+        if (secondPart.equals(originPart)) {
           continue;
         }
+        String secondAbsolutePath = secondPart.getResourceId();
 
-        DuplicationsData firstFileData = getDuplicationsData(duplicationsData, firstFile);
-        firstFileData.incrementDuplicatedBlock();
+        int secondLineStart = secondPart.getLineStart();
 
-        for (ClonePart clonePart : clone.getCloneParts()) {
-          String secondAbsolutePath = clonePart.getResourceId();
-
-          int secondLine = clonePart.getLineStart();
-          if (secondAbsolutePath.equals(firstAbsolutePath) && firstLine == secondLine) {
-            continue;
-          }
-          Resource secondFile = getResource(new File(secondAbsolutePath));
-          if (secondFile == null) {
-            LOG.warn("CPD - File not found : {}", secondAbsolutePath);
-            continue;
-          }
-          firstFileData.cumulate(secondFile, secondLine, firstLine, firstEnd - firstLine + 1);
+        Resource secondFile = getResource(new File(secondAbsolutePath));
+        if (secondFile == null) {
+          LOG.warn("CPD - File not found : {}", secondAbsolutePath);
+          continue;
         }
+        firstFileData.cumulate(secondFile, secondLineStart, firstLineStart, firstCloneLength);
       }
     }
 
@@ -104,7 +105,19 @@ public class CpdAnalyser {
     protected double duplicatedBlocks = 0;
     protected Resource resource;
     private SensorContext context;
-    private TreeMap<Integer, StringBuilder> duplicationXMLEntries = new TreeMap<Integer, StringBuilder>();
+    private List<XmlEntry> duplicationXMLEntries = new ArrayList<XmlEntry>();
+
+    private static final class XmlEntry {
+      protected StringBuilder xml;
+      protected int startLine;
+      protected int lines;
+
+      private XmlEntry(int startLine, int lines, StringBuilder xml) {
+        this.xml = xml;
+        this.startLine = startLine;
+        this.lines = lines;
+      }
+    }
 
     private DuplicationsData(Resource resource, SensorContext context) {
       this.context = context;
@@ -117,7 +130,7 @@ public class CpdAnalyser {
           .append("\" target-start=\"").append(targetDuplicationStartLine).append("\" target-resource=\"")
           .append(context.saveResource(targetResource)).append("\"/>");
 
-      duplicationXMLEntries.put(duplicationStartLine, xml);
+      duplicationXMLEntries.add(new XmlEntry(duplicationStartLine, duplicatedLines, xml));
 
       for (int duplicatedLine = duplicationStartLine; duplicatedLine < duplicationStartLine + duplicatedLines; duplicatedLine++) {
         this.duplicatedLines.add(duplicatedLine);
@@ -137,8 +150,19 @@ public class CpdAnalyser {
 
     private String getDuplicationXMLData() {
       StringBuilder duplicationXML = new StringBuilder("<duplications>");
-      for (StringBuilder xmlEntry : duplicationXMLEntries.values()) {
-        duplicationXML.append(xmlEntry);
+
+      Comparator<XmlEntry> comp = new Comparator<XmlEntry>() {
+        public int compare(XmlEntry o1, XmlEntry o2) {
+          if (o1.startLine == o2.startLine) {
+            return o2.lines - o1.lines;
+          }
+          return o1.startLine - o2.startLine;
+        }
+      };
+      Collections.sort(duplicationXMLEntries, comp);
+
+      for (XmlEntry xmlEntry : duplicationXMLEntries) {
+        duplicationXML.append(xmlEntry.xml);
       }
       duplicationXML.append("</duplications>");
       return duplicationXML.toString();
