@@ -119,6 +119,10 @@ public class CloneFinder {
     sourceFilesForDetection.add(file.getAbsolutePath());
   }
 
+  public void clearSourceFilesForDetection() {
+    sourceFilesForDetection.clear();
+  }
+
   public void addSourceDirectoryForDetection(String dirName) {
     File file;
     try {

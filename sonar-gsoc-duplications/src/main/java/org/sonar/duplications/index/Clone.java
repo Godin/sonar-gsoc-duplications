@@ -28,6 +28,8 @@ public class Clone {
 
   private final List<ClonePart> parts = new ArrayList<ClonePart>();
 
+  private ClonePart originPart;
+
   // clone length in units (not lines)
   private int cloneLength;
 
@@ -36,24 +38,22 @@ public class Clone {
   public Clone(String resourceId1, int unitIndex1, int lineStart1, int lineEnd1,
                String resourceId2, int unitIndex2, int lineStart2, int lineEnd2,
                int cloneLength) {
-    parts.add(new ClonePart(resourceId1, unitIndex1, lineStart1, lineEnd1));
-    parts.add(new ClonePart(resourceId2, unitIndex2, lineStart2, lineEnd2));
-
-    Collections.sort(parts, null);
-
-    this.cloneLength = cloneLength;
-  }
-
-  public Clone(ClonePart part1, ClonePart part2, int cloneLength) {
-    parts.add(part1);
-    parts.add(part2);
-    Collections.sort(parts, null);
+    addPart(new ClonePart(resourceId1, unitIndex1, lineStart1, lineEnd1));
+    addPart(new ClonePart(resourceId2, unitIndex2, lineStart2, lineEnd2));
 
     this.cloneLength = cloneLength;
   }
 
   public Clone(int cloneLength) {
     this.cloneLength = cloneLength;
+  }
+
+  public void setOriginPart(ClonePart originPart) {
+    this.originPart = originPart;
+  }
+
+  public ClonePart getOriginPart() {
+    return originPart;
   }
 
   public Clone addPart(ClonePart part) {

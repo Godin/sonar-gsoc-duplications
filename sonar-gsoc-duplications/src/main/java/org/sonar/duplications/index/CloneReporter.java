@@ -177,6 +177,7 @@ public class CloneReporter {
       //if current sequence matches with different sequence in original file
       if (curUnitStart != prevUnitStart) {
         curClone = new Clone(tempClone.getCloneLength());
+        curClone.setOriginPart(tempClone.getOrigPart());
         curClone.addPart(tempClone.getOrigPart());
         curClone.addPart(tempClone.getAnotherPart());
         res.add(curClone);
