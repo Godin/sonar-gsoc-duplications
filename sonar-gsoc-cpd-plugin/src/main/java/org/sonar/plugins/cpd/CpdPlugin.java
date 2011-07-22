@@ -43,6 +43,15 @@ import java.util.List;
         project = true,
         module = true,
         global = true
+    ),
+    @Property(
+        key = "sonar.newcpd.memory",
+        defaultValue = "false",
+        name = "Use memory index for clone detection",
+        description = "Use memory index for clone detection",
+        project = true,
+        module = true,
+        global = true
     )
 })
 public class CpdPlugin extends SonarPlugin {

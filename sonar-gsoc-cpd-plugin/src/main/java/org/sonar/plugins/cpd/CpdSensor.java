@@ -42,8 +42,6 @@ public class CpdSensor implements Sensor {
 
   private final DatabaseSession session;
 
-  private final MemoryCloneIndex index = new MemoryCloneIndex();
-
   public CpdSensor(DatabaseSession session) {
     this.session = session;
   }
@@ -66,7 +64,21 @@ public class CpdSensor implements Sensor {
         conf.getBoolean("sonar.newcpd.skip", false));
   }
 
+  boolean useMemoryIndex(Project project) {
+    Configuration conf = project.getConfiguration();
+    return conf.getBoolean("sonar.newcpd." + project.getLanguageKey() + ".memory",
+        conf.getBoolean("sonar.newcpd.memory", false));
+  }
+
   public void analyse(Project project, SensorContext context) {
+    CloneIndex index;
+    if (useMemoryIndex(project)) {
+      index = new MemoryCloneIndex();
+    } else {
+      index = new DBCloneIndex(session);
+    }
+
+
     List<InputFile> inputFiles = project.getFileSystem().mainFiles(project.getLanguageKey());
     if (inputFiles.size() == 0) {
       return;

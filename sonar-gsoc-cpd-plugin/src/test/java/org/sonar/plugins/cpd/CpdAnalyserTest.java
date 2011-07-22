@@ -53,6 +53,7 @@ public class CpdAnalyserTest {
     project.setLanguageKey(Java.KEY);
     BaseConfiguration conf = new BaseConfiguration();
     conf.setProperty("sonar.newcpd.blockSize", "15");
+    conf.setProperty("sonar.newcpd.memory", true);
     project.setConfiguration(conf);
 
     SensorContext context = mock(SensorContext.class);
@@ -90,6 +91,7 @@ public class CpdAnalyserTest {
     project.setLanguageKey(Java.KEY);
     BaseConfiguration conf = new BaseConfiguration();
     conf.setProperty("sonar.newcpd.blockSize", "20");
+    conf.setProperty("sonar.newcpd.memory", true);
     project.setConfiguration(conf);
 
     SensorContext context = mock(SensorContext.class);
@@ -138,6 +140,7 @@ public class CpdAnalyserTest {
     project.setLanguageKey(Java.KEY);
     BaseConfiguration conf = new BaseConfiguration();
     conf.setProperty("sonar.newcpd.blockSize", "20");
+    conf.setProperty("sonar.newcpd.memory", true);
     project.setConfiguration(conf);
 
     SensorContext context = mock(SensorContext.class);
