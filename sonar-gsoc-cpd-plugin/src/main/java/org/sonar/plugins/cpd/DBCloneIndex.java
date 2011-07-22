@@ -57,7 +57,7 @@ public class DBCloneIndex implements CloneIndex {
 
   public Collection<Block> getByResourceId(String resourceId) {
     String hql = "SELECT d FROM IndexBlock d WHERE resource_id=:resource_id";
-    hql += " ORDER_BY index_in_file ASC";
+    hql += " ORDER BY index_in_file ASC";
     List<IndexBlock> list = session.createQuery(hql)
         .setParameter("resource_id", resourceId)
         .getResultList();
