@@ -22,9 +22,10 @@ package org.sonar.plugins.cpd;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.*;
+import org.sonar.plugins.cpd.backends.CpdIndexBackend;
+import org.sonar.plugins.cpd.backends.MemoryIndexBackend;
 
 import java.io.File;
 import java.util.Arrays;
@@ -53,22 +54,21 @@ public class CpdAnalyserTest {
     project.setLanguageKey(Java.KEY);
     BaseConfiguration conf = new BaseConfiguration();
     conf.setProperty("sonar.newcpd.blockSize", "15");
-    conf.setProperty("sonar.newcpd.memory", true);
+    conf.setProperty("sonar.newcpd.backend", "memory");
     project.setConfiguration(conf);
 
     SensorContext context = mock(SensorContext.class);
 
     when(context.saveResource(resource1)).thenReturn("key1");
 
-    DatabaseSession session = mock(DatabaseSession.class);
-    CpdSensor sensor = new CpdSensor(session);
+    CpdIndexBackend[] backends = new CpdIndexBackend[1];
+    backends[0] = new MemoryIndexBackend();
+    CpdSensor sensor = new CpdSensor(backends);
     sensor.analyse(project, context);
 
 
     verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_FILES), eq(1d));
     verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_LINES), gt(1d));
-
-    verify(context, atLeastOnce()).saveResource(resource1);
   }
 
   @Test
@@ -91,7 +91,7 @@ public class CpdAnalyserTest {
     project.setLanguageKey(Java.KEY);
     BaseConfiguration conf = new BaseConfiguration();
     conf.setProperty("sonar.newcpd.blockSize", "20");
-    conf.setProperty("sonar.newcpd.memory", true);
+    conf.setProperty("sonar.newcpd.backend", "memory");
     project.setConfiguration(conf);
 
     SensorContext context = mock(SensorContext.class);
@@ -99,8 +99,9 @@ public class CpdAnalyserTest {
     when(context.saveResource(resource1)).thenReturn("key1");
     when(context.saveResource(resource2)).thenReturn("key2");
 
-    DatabaseSession session = mock(DatabaseSession.class);
-    CpdSensor sensor = new CpdSensor(session);
+    CpdIndexBackend[] backends = new CpdIndexBackend[1];
+    backends[0] = new MemoryIndexBackend();
+    CpdSensor sensor = new CpdSensor(backends);
     sensor.analyse(project, context);
 
     verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_FILES), eq(1d));
@@ -110,9 +111,6 @@ public class CpdAnalyserTest {
     verify(context).saveMeasure(eq(resource2), eq(CoreMetrics.DUPLICATED_FILES), eq(1d));
     verify(context).saveMeasure(eq(resource2), eq(CoreMetrics.DUPLICATED_BLOCKS), eq(1d));
     verify(context).saveMeasure(eq(resource2), eq(CoreMetrics.DUPLICATED_LINES), gt(1d));
-
-    verify(context).saveResource(resource1);
-    verify(context).saveResource(resource2);
   }
 
   @Test
@@ -140,7 +138,7 @@ public class CpdAnalyserTest {
     project.setLanguageKey(Java.KEY);
     BaseConfiguration conf = new BaseConfiguration();
     conf.setProperty("sonar.newcpd.blockSize", "20");
-    conf.setProperty("sonar.newcpd.memory", true);
+    conf.setProperty("sonar.newcpd.backend", "memory");
     project.setConfiguration(conf);
 
     SensorContext context = mock(SensorContext.class);
@@ -149,8 +147,9 @@ public class CpdAnalyserTest {
     when(context.saveResource(resource2)).thenReturn("key2");
     when(context.saveResource(resource3)).thenReturn("key3");
 
-    DatabaseSession session = mock(DatabaseSession.class);
-    CpdSensor sensor = new CpdSensor(session);
+    CpdIndexBackend[] backends = new CpdIndexBackend[1];
+    backends[0] = new MemoryIndexBackend();
+    CpdSensor sensor = new CpdSensor(backends);
     sensor.analyse(project, context);
 
     verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_FILES), eq(1d));
@@ -164,10 +163,6 @@ public class CpdAnalyserTest {
     verify(context).saveMeasure(eq(resource3), eq(CoreMetrics.DUPLICATED_FILES), eq(1d));
     verify(context).saveMeasure(eq(resource3), eq(CoreMetrics.DUPLICATED_BLOCKS), eq(2d));
     verify(context).saveMeasure(eq(resource3), eq(CoreMetrics.DUPLICATED_LINES), gt(1d));
-
-    verify(context, times(2)).saveResource(resource1);
-    verify(context, times(2)).saveResource(resource2);
-    verify(context, times(2)).saveResource(resource3);
   }
 
 }

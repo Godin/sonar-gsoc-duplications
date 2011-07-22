@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.cpd;
+package org.sonar.plugins.cpd.backends;
 
 import org.sonar.api.cpd.IndexBlock;
 import org.sonar.api.database.DatabaseSession;
@@ -28,11 +28,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DBCloneIndex implements CloneIndex {
+public class DbCloneIndex implements CloneIndex {
 
   private final DatabaseSession session;
 
-  public DBCloneIndex(DatabaseSession session) {
+  public DbCloneIndex(DatabaseSession session) {
     this.session = session;
   }
 

@@ -22,6 +22,8 @@ package org.sonar.plugins.cpd;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
+import org.sonar.plugins.cpd.backends.DbIndexBackend;
+import org.sonar.plugins.cpd.backends.MemoryIndexBackend;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,10 +47,10 @@ import java.util.List;
         global = true
     ),
     @Property(
-        key = "sonar.newcpd.memory",
-        defaultValue = "false",
-        name = "Use memory index for clone detection",
-        description = "Use memory index for clone detection",
+        key = "sonar.newcpd.backend",
+        defaultValue = MemoryIndexBackend.BACKEND_KEY,
+        name = "Clone index backend key",
+        description = "Clone index backend key",
         project = true,
         module = true,
         global = true
@@ -59,8 +61,7 @@ public class CpdPlugin extends SonarPlugin {
   public static final int CPD_BLOCK_SIZE_DEFAULT_VALUE = 5;
 
   public List getExtensions() {
-//    return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class);
-    return Arrays.asList(CpdSensor.class);
+    return Arrays.asList(CpdSensor.class, DbIndexBackend.class, MemoryIndexBackend.class);
   }
 
 }

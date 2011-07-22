@@ -23,16 +23,16 @@ import org.apache.commons.configuration.Configuration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
+import org.sonar.plugins.cpd.backends.CpdIndexBackend;
+import org.sonar.plugins.cpd.backends.MemoryIndexBackend;
 
 import java.util.List;
 
@@ -40,10 +40,10 @@ import static org.sonar.duplications.statement.TokenMatcherFactory.*;
 
 public class CpdSensor implements Sensor {
 
-  private final DatabaseSession session;
+  private final CpdIndexBackend[] backends;
 
-  public CpdSensor(DatabaseSession session) {
-    this.session = session;
+  public CpdSensor(CpdIndexBackend[] backends) {
+    this.backends = backends;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -64,21 +64,24 @@ public class CpdSensor implements Sensor {
         conf.getBoolean("sonar.newcpd.skip", false));
   }
 
-  boolean useMemoryIndex(Project project) {
+  String getBackendKey(Project project) {
     Configuration conf = project.getConfiguration();
-    return conf.getBoolean("sonar.newcpd." + project.getLanguageKey() + ".memory",
-        conf.getBoolean("sonar.newcpd.memory", false));
+    String key = conf.getString("sonar.newcpd." + project.getLanguageKey() + ".backend",
+        conf.getString("sonar.newcpd.backend", MemoryIndexBackend.BACKEND_KEY));
+    return key;
+  }
+
+  CloneIndex getCloneIndex(String key) {
+    for (CpdIndexBackend backend : backends) {
+      if (key.equals(backend.getBackendKey())) {
+        return backend.getCloneIndex();
+      }
+    }
+    return null;
   }
 
   public void analyse(Project project, SensorContext context) {
-    CloneIndex index;
-    boolean useMemory = useMemoryIndex(project);
-    if (useMemory) {
-      index = new MemoryCloneIndex();
-    } else {
-      index = new DBCloneIndex(session);
-    }
-
+    CloneIndex index = getCloneIndex(getBackendKey(project));
 
     List<InputFile> inputFiles = project.getFileSystem().mainFiles(project.getLanguageKey());
     if (inputFiles.size() == 0) {

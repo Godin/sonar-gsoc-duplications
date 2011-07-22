@@ -50,14 +50,14 @@ public class CpdAnalyser {
 
     for (Clone clone : clones) {
       ClonePart originPart = clone.getOriginPart();
-      String firstAbsolutePath = originPart.getResourceId();
+      String firstResourceId = originPart.getResourceId();
       int firstLineStart = originPart.getLineStart();
       int firstLineEnd = originPart.getLineEnd();
       int firstCloneLength = firstLineEnd - firstLineStart + 1;
 
-      Resource firstFile = getResource(new File(firstAbsolutePath));
+      Resource firstFile = getResource(new File(firstResourceId));
       if (firstFile == null) {
-        LOG.warn("CPD - File not found : {}", firstAbsolutePath);
+        LOG.warn("CPD - File not found : {}", firstResourceId);
         continue;
       }
 
@@ -68,16 +68,11 @@ public class CpdAnalyser {
         if (secondPart.equals(originPart)) {
           continue;
         }
-        String secondAbsolutePath = secondPart.getResourceId();
+        String secondResourceId = secondPart.getResourceId();
 
         int secondLineStart = secondPart.getLineStart();
 
-        Resource secondFile = getResource(new File(secondAbsolutePath));
-        if (secondFile == null) {
-          LOG.warn("CPD - File not found : {}", secondAbsolutePath);
-          continue;
-        }
-        firstFileData.cumulate(secondFile, secondLineStart, firstLineStart, firstCloneLength);
+        firstFileData.cumulate(secondResourceId, secondLineStart, firstLineStart, firstCloneLength);
       }
     }
 
@@ -124,11 +119,11 @@ public class CpdAnalyser {
       this.resource = resource;
     }
 
-    protected void cumulate(Resource targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
+    protected void cumulate(String targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
       StringBuilder xml = new StringBuilder();
       xml.append("<duplication lines=\"").append(duplicatedLines).append("\" start=\"").append(duplicationStartLine)
           .append("\" target-start=\"").append(targetDuplicationStartLine).append("\" target-resource=\"")
-          .append(context.saveResource(targetResource)).append("\"/>");
+          .append(targetResource).append("\"/>");
 
       duplicationXMLEntries.add(new XmlEntry(duplicationStartLine, duplicatedLines, xml));
 
