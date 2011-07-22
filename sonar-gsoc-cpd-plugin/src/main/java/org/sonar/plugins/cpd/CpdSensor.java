@@ -42,6 +42,8 @@ public class CpdSensor implements Sensor {
 
   private final DatabaseSession session;
 
+  private final MemoryCloneIndex index = new MemoryCloneIndex();
+
   public CpdSensor(DatabaseSession session) {
     this.session = session;
   }
@@ -70,7 +72,6 @@ public class CpdSensor implements Sensor {
       return;
     }
 
-    MemoryCloneIndex index = new MemoryCloneIndex();
     CloneFinder cf = getCloneFinder(index, project);
     CpdAnalyser analyser = new CpdAnalyser(project, context);
 
