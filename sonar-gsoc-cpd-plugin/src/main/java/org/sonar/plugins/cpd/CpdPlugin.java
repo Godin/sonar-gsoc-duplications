@@ -54,11 +54,22 @@ import java.util.List;
         project = true,
         module = true,
         global = true
+    ),
+    @Property(
+        key = "sonar.newcpd.cloneGroup",
+        defaultValue = CpdPlugin.CPD_DEFAULT_CLONE_GROUP,
+        name = "Key to group projects for CPD",
+        description = "Key to group projects for CPD",
+        project = true,
+        module = true,
+        global = true
     )
 })
 public class CpdPlugin extends SonarPlugin {
 
   public static final int CPD_BLOCK_SIZE_DEFAULT_VALUE = 5;
+
+  public static final String CPD_DEFAULT_CLONE_GROUP = "DEFAULT";
 
   public List getExtensions() {
     return Arrays.asList(CpdSensor.class, DbIndexBackend.class, MemoryIndexBackend.class);

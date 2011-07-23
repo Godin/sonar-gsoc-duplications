@@ -31,14 +31,19 @@ import java.util.List;
 public class DbCloneIndex implements CloneIndex {
 
   private final DatabaseSession session;
+  private final String cloneGroup;
 
-  public DbCloneIndex(DatabaseSession session) {
+  public DbCloneIndex(DatabaseSession session, String cloneGroup) {
     this.session = session;
+    this.cloneGroup = cloneGroup;
   }
 
   public Collection<String> getAllUniqueResourceId() {
-    String hql = "SELECT d FROM IndexBlock d WHERE index_in_file = 0 GROUP BY resource_id";
-    List<IndexBlock> list = session.createQuery(hql).getResultList();
+    String hql = "SELECT d FROM IndexBlock d WHERE index_in_file=0 AND clone_group=:clone_group";
+    hql += " GROUP BY resource_id";
+    List<IndexBlock> list = session.createQuery(hql)
+        .setParameter("clone_group", cloneGroup)
+        .getResultList();
     List<String> resources = new ArrayList<String>();
     for (IndexBlock indexBlock : list) {
       resources.add(indexBlock.getResourceId());
@@ -48,18 +53,20 @@ public class DbCloneIndex implements CloneIndex {
 
   public boolean containsResourceId(String resourceId) {
     String hql = "SELECT d FROM IndexBlock d WHERE resource_id=:resource_id";
-    hql += " AND index_in_file = 0";
+    hql += " AND index_in_file=0 AND clone_group=:clone_group";
     List<IndexBlock> list = session.createQuery(hql)
         .setParameter("resource_id", resourceId)
+        .setParameter("clone_group", cloneGroup)
         .getResultList();
     return !list.isEmpty();
   }
 
   public Collection<Block> getByResourceId(String resourceId) {
     String hql = "SELECT d FROM IndexBlock d WHERE resource_id=:resource_id";
-    hql += " ORDER BY index_in_file ASC";
+    hql += " AND clone_group=:clone_group ORDER BY index_in_file ASC";
     List<IndexBlock> list = session.createQuery(hql)
         .setParameter("resource_id", resourceId)
+        .setParameter("clone_group", cloneGroup)
         .getResultList();
     List<Block> blocks = new ArrayList<Block>(list.size());
     for (IndexBlock indexBlock : list) {
@@ -73,8 +80,10 @@ public class DbCloneIndex implements CloneIndex {
 
   public Collection<Block> getBySequenceHash(String blockHash) {
     String hql = "SELECT d FROM IndexBlock d WHERE block_hash=:block_hash";
+    hql += " AND clone_group=:clone_group";
     List<IndexBlock> list = session.createQuery(hql)
         .setParameter("block_hash", blockHash)
+        .setParameter("clone_group", cloneGroup)
         .getResultList();
     List<Block> blocks = new ArrayList<Block>(list.size());
     for (IndexBlock indexBlock : list) {
@@ -90,6 +99,7 @@ public class DbCloneIndex implements CloneIndex {
     IndexBlock indexBlock = new IndexBlock(block.getResourceId(),
         block.getBlockHash(), block.getIndexInFile(),
         block.getFirstLineNumber(), block.getLastLineNumber());
+    indexBlock.setCloneGroup(cloneGroup);
     session.save(indexBlock);
     session.commit();
   }

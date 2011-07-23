@@ -20,12 +20,13 @@
 package org.sonar.plugins.cpd.backends;
 
 import org.sonar.api.BatchExtension;
+import org.sonar.api.resources.Project;
 import org.sonar.duplications.index.CloneIndex;
 
 public interface CpdIndexBackend extends BatchExtension {
 
   String getBackendKey();
 
-  CloneIndex getCloneIndex();
+  CloneIndex getCloneIndex(Project project);
 
 }
