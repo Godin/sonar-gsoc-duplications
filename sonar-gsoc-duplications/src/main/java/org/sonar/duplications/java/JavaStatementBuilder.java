@@ -17,7 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.statement;
+package org.sonar.duplications.java;
+
+import org.sonar.duplications.statement.StatementChunker;
 
 import static org.sonar.duplications.statement.TokenMatcherFactory.*;
 
