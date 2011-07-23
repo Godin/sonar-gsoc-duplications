@@ -73,6 +73,17 @@ public class CpdAnalyser {
         int secondLineStart = secondPart.getLineStart();
 
         firstFileData.cumulate(secondResourceId, secondLineStart, firstLineStart, firstCloneLength);
+
+        // report symmetric clone in same file
+        // need to do this because same file is separate case
+        if (secondResourceId.equals(firstResourceId)) {
+          int secondLineEnd = secondPart.getLineEnd();
+          int secondCloneLength = secondLineEnd - secondLineStart + 1;
+
+          // firstFileData == secondFileData as it is same Resource
+          firstFileData.incrementDuplicatedBlock();
+          firstFileData.cumulate(firstResourceId, firstLineStart, secondLineStart, secondCloneLength);
+        }
       }
     }
 
