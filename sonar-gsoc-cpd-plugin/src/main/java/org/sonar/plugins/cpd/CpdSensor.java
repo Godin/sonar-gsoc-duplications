@@ -27,16 +27,12 @@ import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.duplications.CloneFinder;
-import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.statement.StatementChunker;
-import org.sonar.duplications.token.TokenChunker;
+import org.sonar.duplications.java.JavaCloneFinder;
 import org.sonar.plugins.cpd.backends.CpdIndexBackend;
 import org.sonar.plugins.cpd.backends.MemoryIndexBackend;
 
 import java.util.List;
-
-import static org.sonar.duplications.statement.TokenMatcherFactory.*;
 
 public class CpdSensor implements Sensor {
 
@@ -88,7 +84,7 @@ public class CpdSensor implements Sensor {
       return;
     }
 
-    CloneFinder cf = getCloneFinder(index, project);
+    CloneFinder cf = JavaCloneFinder.build(index, getBlockSize(project));
     CpdAnalyser analyser = new CpdAnalyser(project, context);
 
     for (InputFile inputFile : inputFiles) {
@@ -108,53 +104,10 @@ public class CpdSensor implements Sensor {
     return getClass().getSimpleName();
   }
 
-  private TokenChunker getTokenChunker() {
-    TokenChunker.Builder builder = TokenChunker
-        .builder()
-        .addBlackHoleChannel("\\s")
-        .addBlackHoleChannel("//[^\\n\\r]*+")
-        .addBlackHoleChannel("/\\*[\\s\\S]*?\\*/")
-        .addChannel("\".*?\"", "LITERAL")
-        .addChannel("[a-zA-Z_]++")
-        .addChannel("[0-9]++", "INTEGER")
-        .addChannel(".");
-    return builder.build();
-  }
-
-  private StatementChunker getStatementChunker() {
-    StatementChunker.Builder builder = StatementChunker
-        .builder()
-        .addBlackHoleChannel(from("import"), to(";"))
-        .addBlackHoleChannel(from("package"), to(";"))
-        .addBlackHoleChannel(token("}"))
-        .addBlackHoleChannel(token("{"))
-        .addChannel(from("@"), anyToken(), opt(bridge("(", ")")))
-        .addChannel(from("do"))
-        .addChannel(from("if"), bridge("(", ")"))
-        .addChannel(from("else"), token("if"), bridge("(", ")"))
-        .addChannel(from("else"))
-        .addChannel(from("for"), bridge("(", ")"))
-        .addChannel(from("while"), bridge("(", ")"), opt(token(";")))
-        .addChannel(from("case"), to(":"))
-        .addChannel(from("default"), to(":"))
-        .addChannel(to(";", "{", "}"), forgiveLastToken());
-
-    return builder.build();
-  }
-
   int getBlockSize(Project project) {
     Configuration conf = project.getConfiguration();
     return conf.getInt("sonar.newcpd." + project.getLanguageKey() + ".blockSize",
         conf.getInt("sonar.newcpd.blockSize", CpdPlugin.CPD_BLOCK_SIZE_DEFAULT_VALUE));
-  }
-
-  private CloneFinder getCloneFinder(CloneIndex cloneIndex, Project project) {
-    CloneFinder.Builder builder = CloneFinder.build()
-        .setTokenChunker(getTokenChunker())
-        .setStatementChunker(getStatementChunker())
-        .setBlockChunker(new BlockChunker(getBlockSize(project)))
-        .setCloneIndex(cloneIndex);
-    return builder.build();
   }
 
 }
