@@ -4,6 +4,13 @@ public class  DirListing{
 		public static void main(String[] args){
 		switch(args.length){
 			case 0: System.out.println("Directory has not mentioned.");
+			System.out.println("Directory has not mentioned.");
+			System.out.println("Directory has not mentioned.");
+			System.out.println("Directory has not mentioned.");
+			System.out.println("Directory has not mentioned.");
+			System.out.println("Directory has not mentioned.");
+			System.out.println("Directory has not mentioned.");
+			System.out.println("Directory has not mentioned.");
 					System.exit(0);
 			case 1: dirlist(args[0]);
 					System.exit(0);
