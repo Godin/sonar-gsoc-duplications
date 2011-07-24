@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.DuplicationsTestUtil;
+
 import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;

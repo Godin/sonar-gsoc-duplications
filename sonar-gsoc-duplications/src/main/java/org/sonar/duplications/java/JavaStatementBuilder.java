@@ -19,9 +19,15 @@
  */
 package org.sonar.duplications.java;
 
-import org.sonar.duplications.statement.StatementChunker;
+import static org.sonar.duplications.statement.TokenMatcherFactory.anyToken;
+import static org.sonar.duplications.statement.TokenMatcherFactory.bridge;
+import static org.sonar.duplications.statement.TokenMatcherFactory.forgiveLastToken;
+import static org.sonar.duplications.statement.TokenMatcherFactory.from;
+import static org.sonar.duplications.statement.TokenMatcherFactory.opt;
+import static org.sonar.duplications.statement.TokenMatcherFactory.to;
+import static org.sonar.duplications.statement.TokenMatcherFactory.token;
 
-import static org.sonar.duplications.statement.TokenMatcherFactory.*;
+import org.sonar.duplications.statement.StatementChunker;
 
 public class JavaStatementBuilder {
 

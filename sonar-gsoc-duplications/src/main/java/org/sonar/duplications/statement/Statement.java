@@ -17,7 +17,15 @@ public class Statement {
 
   private int hash;
 
-  public Statement(List<Token> tokenList) {
+  public Statement(int startLine, int endLine, String value, int indexInFile) {
+	super();
+	this.startLine = startLine;
+	this.endLine = endLine;
+	this.value = value;
+	this.indexInFile = indexInFile;
+  }
+
+public Statement(List<Token> tokenList) {
     if (tokenList == null || tokenList.size() == 0) {
       throw new DuplicationsException("A statement can't be initialized with an empty list of token");
     }
