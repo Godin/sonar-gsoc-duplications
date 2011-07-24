@@ -27,7 +27,7 @@ public class FileBlockGroupTest {
 
   @Test
   public void shouldGroupBlock() {
-    assertThat(fci.getBlockList().size(), is(8));
+    assertThat(fci.getBlockList().size(), is(12));
   }
 
   @Test

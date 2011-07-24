@@ -25,14 +25,14 @@ public class BlockBuilderTest {
   public void shouldBuildBlockFromSource() {
     List<Block> blockList = blockBuilder.chunk(testFile.getPath(), statementBuilder.chunk(lexer.chunk(testFile)));
 
-    assertThat(blockList.size(), is(8));
-
+    assertThat(blockList.size(), is(12));
+    
     Assert.assertEquals(0, blockList.get(0).getIndexInFile());
     Assert.assertEquals(3, blockList.get(0).getFirstLineNumber());
     Assert.assertEquals(6, blockList.get(0).getLastLineNumber());
 
-    Assert.assertEquals(7, blockList.get(blockList.size() - 1).getIndexInFile());
-    Assert.assertEquals(8, blockList.get(blockList.size() - 1).getFirstLineNumber());
-    Assert.assertEquals(11, blockList.get(blockList.size() - 1).getLastLineNumber());
+    Assert.assertEquals(11, blockList.get(blockList.size() - 1).getIndexInFile());
+    Assert.assertEquals(11, blockList.get(blockList.size() - 1).getFirstLineNumber());
+    Assert.assertEquals(18, blockList.get(blockList.size() - 1).getLastLineNumber());
   }
 }

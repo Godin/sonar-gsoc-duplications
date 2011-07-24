@@ -41,6 +41,8 @@ public class JavaTokenProducerTest {
   public void shouldLexIdentifier() {
     assertThat(lexer.chunk("my identifier"), hasItem(new Token("identifier", 1, 3)));
     assertThat(lexer.chunk("my "+newline+" identifier"), hasItem(new Token("identifier", 2, 1)));
+    assertThat(lexer.chunk("int id1 = 0"), hasItem(new Token("id1", 1, 4)));
+    assertThat(lexer.chunk("int id1qw = 0"), hasItem(new Token("id1qw", 1, 4)));
   }
 
   @Test
