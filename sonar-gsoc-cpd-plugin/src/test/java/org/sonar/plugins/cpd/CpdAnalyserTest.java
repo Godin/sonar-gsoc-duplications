@@ -59,8 +59,6 @@ public class CpdAnalyserTest {
 
     SensorContext context = mock(SensorContext.class);
 
-    when(context.saveResource(resource1)).thenReturn("key1");
-
     CpdIndexBackend[] backends = new CpdIndexBackend[1];
     backends[0] = new MemoryIndexBackend();
     CpdSensor sensor = new CpdSensor(backends);
@@ -96,9 +94,6 @@ public class CpdAnalyserTest {
 
     SensorContext context = mock(SensorContext.class);
 
-    when(context.saveResource(resource1)).thenReturn("key1");
-    when(context.saveResource(resource2)).thenReturn("key2");
-
     CpdIndexBackend[] backends = new CpdIndexBackend[1];
     backends[0] = new MemoryIndexBackend();
     CpdSensor sensor = new CpdSensor(backends);
@@ -112,6 +107,39 @@ public class CpdAnalyserTest {
     verify(context).saveMeasure(eq(resource2), eq(CoreMetrics.DUPLICATED_BLOCKS), eq(1d));
     verify(context).saveMeasure(eq(resource2), eq(CoreMetrics.DUPLICATED_LINES), gt(1d));
   }
+
+  @Test
+  public void testExample3() {
+
+    File file = new File(fileDir, "ELImgTagBeanInfo.java");
+    InputFile inputFile = InputFileUtils.create(fileDir, file);
+
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
+
+    when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(fileDir));
+    when(fileSystem.mainFiles(Java.KEY)).thenReturn(Arrays.asList(inputFile));
+
+    Resource resource1 = JavaFile.fromIOFile(file, fileSystem.getSourceDirs(), false);
+
+    Project project = new Project("key").setFileSystem(fileSystem);
+    project.setLanguageKey(Java.KEY);
+    BaseConfiguration conf = new BaseConfiguration();
+    conf.setProperty("sonar.newcpd.blockSize", "15");
+    conf.setProperty("sonar.newcpd.backend", "memory");
+    project.setConfiguration(conf);
+
+    SensorContext context = mock(SensorContext.class);
+
+    CpdIndexBackend[] backends = new CpdIndexBackend[1];
+    backends[0] = new MemoryIndexBackend();
+    CpdSensor sensor = new CpdSensor(backends);
+    sensor.analyse(project, context);
+
+    verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_FILES), eq(1d));
+    verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_BLOCKS), gt(1d));
+    verify(context).saveMeasure(eq(resource1), eq(CoreMetrics.DUPLICATED_LINES), gt(1d));
+  }
+
 
   @Test
   public void testTriangle() {
@@ -142,10 +170,6 @@ public class CpdAnalyserTest {
     project.setConfiguration(conf);
 
     SensorContext context = mock(SensorContext.class);
-
-    when(context.saveResource(resource1)).thenReturn("key1");
-    when(context.saveResource(resource2)).thenReturn("key2");
-    when(context.saveResource(resource3)).thenReturn("key3");
 
     CpdIndexBackend[] backends = new CpdIndexBackend[1];
     backends[0] = new MemoryIndexBackend();
