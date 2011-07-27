@@ -26,6 +26,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
@@ -87,16 +88,21 @@ public class CpdSensor implements Sensor {
     CloneFinder cf = JavaCloneFinder.build(index, getBlockSize(project));
     CpdAnalyser analyser = new CpdAnalyser(project, context);
 
+    TimeProfiler profiler = new TimeProfiler();
+    profiler.start("CPD :: tokenize and update index");
     for (InputFile inputFile : inputFiles) {
       index.remove(inputFile.getFile().getAbsolutePath());
       cf.register(inputFile.getFile());
     }
+    profiler.stop();
 
+    profiler.start("CPD :: find and report duplicates");
     for (InputFile inputFile : inputFiles) {
       cf.clearSourceFilesForDetection();
       cf.addSourceFileForDetection(inputFile.getFile().getAbsolutePath());
       analyser.analyse(cf.findClones());
     }
+    profiler.stop();
   }
 
   @Override
