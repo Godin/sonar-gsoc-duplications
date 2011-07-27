@@ -67,17 +67,17 @@ public class CpdSensor implements Sensor {
     return key;
   }
 
-  CloneIndex getCloneIndex(String key, Project project) {
+  CloneIndex getCloneIndex(String key) {
     for (CpdIndexBackend backend : backends) {
       if (key.equals(backend.getBackendKey())) {
-        return backend.getCloneIndex(project);
+        return backend.getCloneIndex();
       }
     }
     return null;
   }
 
   public void analyse(Project project, SensorContext context) {
-    CloneIndex index = getCloneIndex(getBackendKey(project), project);
+    CloneIndex index = getCloneIndex(getBackendKey(project));
 
     List<InputFile> inputFiles = project.getFileSystem().mainFiles(project.getLanguageKey());
     if (inputFiles.size() == 0) {

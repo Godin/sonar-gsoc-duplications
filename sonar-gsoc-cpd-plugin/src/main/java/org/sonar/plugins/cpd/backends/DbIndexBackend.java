@@ -19,11 +19,8 @@
  */
 package org.sonar.plugins.cpd.backends;
 
-import org.apache.commons.configuration.Configuration;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.resources.Project;
 import org.sonar.duplications.index.CloneIndex;
-import org.sonar.plugins.cpd.CpdPlugin;
 
 public class DbIndexBackend implements CpdIndexBackend {
 
@@ -39,10 +36,8 @@ public class DbIndexBackend implements CpdIndexBackend {
     return BACKEND_KEY;
   }
 
-  public CloneIndex getCloneIndex(Project project) {
-    Configuration conf = project.getConfiguration();
-    String key = conf.getString("sonar.newcpd.cloneGroup", CpdPlugin.CPD_DEFAULT_CLONE_GROUP);
-    return new DbCloneIndex(session, key);
+  public CloneIndex getCloneIndex() {
+    return new DbCloneIndex(session);
   }
 
 }

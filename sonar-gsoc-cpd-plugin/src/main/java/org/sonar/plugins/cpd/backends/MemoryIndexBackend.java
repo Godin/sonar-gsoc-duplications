@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.cpd.backends;
 
-import org.sonar.api.resources.Project;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.MemoryCloneIndex;
 
@@ -31,7 +30,7 @@ public class MemoryIndexBackend implements CpdIndexBackend {
     return BACKEND_KEY;
   }
 
-  public CloneIndex getCloneIndex(Project project) {
+  public CloneIndex getCloneIndex() {
     return new MemoryCloneIndex();
   }
 }
