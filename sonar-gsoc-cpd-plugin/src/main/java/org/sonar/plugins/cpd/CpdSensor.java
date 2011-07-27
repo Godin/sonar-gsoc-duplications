@@ -20,6 +20,7 @@
 package org.sonar.plugins.cpd;
 
 import org.apache.commons.configuration.Configuration;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -28,6 +29,7 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.duplications.CloneFinder;
+import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 import org.sonar.plugins.cpd.backends.CpdIndexBackend;
@@ -37,6 +39,8 @@ import java.util.List;
 
 public class CpdSensor implements Sensor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(CpdSensor.class);
+
   private final CpdIndexBackend[] backends;
 
   public CpdSensor(CpdIndexBackend[] backends) {
@@ -45,11 +49,11 @@ public class CpdSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     if (!Java.INSTANCE.equals(project.getLanguage())) {
-      LoggerFactory.getLogger(getClass()).info("Detection of duplication code is not supported for {}.", project.getLanguage());
+      LOG.info("Detection of duplication code is not supported for {}.", project.getLanguage());
       return false;
     }
     if (isSkipped(project)) {
-      LoggerFactory.getLogger(getClass()).info("Detection of duplicated code is skipped");
+      LOG.info("Detection of duplicated code is skipped");
       return false;
     }
     return true;
@@ -88,7 +92,9 @@ public class CpdSensor implements Sensor {
     CloneFinder cf = JavaCloneFinder.build(index, getBlockSize(project));
     CpdAnalyser analyser = new CpdAnalyser(project, context);
 
-    TimeProfiler profiler = new TimeProfiler();
+    LOG.info("CPD :: project {}, total files {}", project.getName(), inputFiles.size());
+
+    TimeProfiler profiler = new TimeProfiler(LOG);
     profiler.start("CPD :: tokenize and update index");
     for (InputFile inputFile : inputFiles) {
       index.remove(inputFile.getFile().getAbsolutePath());
@@ -97,12 +103,19 @@ public class CpdSensor implements Sensor {
     profiler.stop();
 
     profiler.start("CPD :: find and report duplicates");
+    long totalTimeFindClones = 0;
     for (InputFile inputFile : inputFiles) {
       cf.clearSourceFilesForDetection();
       cf.addSourceFileForDetection(inputFile.getFile().getAbsolutePath());
-      analyser.analyse(cf.findClones());
+
+      long start = System.currentTimeMillis();
+      List<Clone> clones = cf.findClones();
+      totalTimeFindClones += System.currentTimeMillis() - start;
+
+      analyser.analyse(clones);
     }
     profiler.stop();
+    LOG.info("CPD :: time for findClones(): {} ms", totalTimeFindClones);
   }
 
   @Override
