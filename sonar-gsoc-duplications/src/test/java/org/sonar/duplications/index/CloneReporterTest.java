@@ -145,7 +145,7 @@ public class CloneReporterTest {
 
     List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
     List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
-    assertThat(items.size(), is(2));
+    assertThat(items.size(), is(1));
     Clone expected = new Clone(1)
         .addPart(new ClonePart("a", 1, 1, 6))
         .addPart(new ClonePart("a", 4, 4, 9))

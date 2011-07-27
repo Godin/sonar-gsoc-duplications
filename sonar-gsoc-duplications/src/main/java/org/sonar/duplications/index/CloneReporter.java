@@ -68,6 +68,12 @@ public class CloneReporter {
 
   }
 
+  private static class TempCloneComparator implements Comparator<TempClone> {
+
+    public int compare(TempClone o1, TempClone o2) {
+      return o1.getOrigPart().getUnitStart() - o2.getOrigPart().getUnitStart();
+    }
+  }
 
   public static List<Clone> reportClones(List<Block> candidateBlocks, CloneIndex index) {
     ArrayList<Clone> clones = new ArrayList<Clone>();
@@ -102,11 +108,8 @@ public class CloneReporter {
 
       //sort elements of prevActiveMap by getOrigPart.getUnitStart()
       ArrayList<TempClone> sortedArr = new ArrayList<TempClone>(prevActiveMap.values());
-      Collections.sort(sortedArr, new Comparator<TempClone>() {
-        public int compare(TempClone o1, TempClone o2) {
-          return o1.getOrigPart().getUnitStart() - o2.getOrigPart().getUnitStart();
-        }
-      });
+
+      Collections.sort(sortedArr, new TempCloneComparator());
 
       clones.addAll(reportClones(sortedArr));
 
@@ -116,10 +119,65 @@ public class CloneReporter {
     return removeDuplicates(clones);
   }
 
+  /**
+   * Checks if first Clone is contained in second Clone. Clone A is contained in another
+   * Clone B if every ClonePart pA from A has ClonePart pB in B which satisfy the conditions
+   * pA.resourceId == pB.resourceId and pA.unitStart >= pB.unitStart and pA.unitEnd <= pb.unitEnd
+   *
+   * @param first  Clone to check contains
+   * @param second Clone where to check contains
+   * @return
+   */
+  private static boolean containsIn(Clone first, Clone second) {
+    if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
+      return false;
+    }
+    for (int i = 0; i < first.getCloneParts().size(); i++) {
+      ClonePart firstPart = first.getCloneParts().get(i);
+      int firstUnitEnd = firstPart.getUnitStart() + first.getCloneLength();
+      boolean found = false;
+
+      for (int j = 0; j < second.getCloneParts().size(); j++) {
+        ClonePart secondPart = second.getCloneParts().get(j);
+        int secondUnitEnd = secondPart.getUnitStart() + second.getCloneLength();
+        if (firstPart.getResourceId().equals(secondPart.getResourceId()) &&
+            firstPart.getUnitStart() >= secondPart.getUnitStart() &&
+            firstUnitEnd <= secondUnitEnd) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private static List<Clone> removeDuplicates(List<Clone> clones) {
     HashSet<Clone> set = new HashSet<Clone>(clones);
     List<Clone> result = new ArrayList<Clone>(set);
-    return result;
+
+    //O(n^2) filter for clones fully covered by another clones
+    List<Clone> filtered = new ArrayList<Clone>();
+    for (int i = 0; i < result.size(); i++) {
+      Clone first = result.get(i);
+      boolean covered = false;
+      for (int j = 0; j < result.size(); j++) {
+        if (i == j) {
+          continue;
+        }
+        Clone second = result.get(j);
+        covered |= containsIn(first, second);
+        if (covered)
+          break;
+      }
+      if (!covered) {
+        filtered.add(first);
+      }
+    }
+
+    return filtered;
   }
 
   /**
@@ -130,16 +188,16 @@ public class CloneReporter {
    * @param prevActiveMap, map with active block sequences from previous cycle iteration
    * @param nextActiveMap, map with active block sequences after current cycle iteration
    * @param origBlock,     block of original file
-   * @param block,         one of blocks with same hash as <tt>origBlock</tt>
+   * @param anotherBlock,  one of blocks with same hash as <tt>origBlock</tt>
    */
   private static void processBlock(TreeMap<Key, TempClone> prevActiveMap,
                                    TreeMap<Key, TempClone> nextActiveMap,
-                                   Block origBlock, Block block) {
+                                   Block origBlock, Block anotherBlock) {
     ClonePart origPart = new ClonePart(origBlock);
-    ClonePart anotherPart = new ClonePart(block);
+    ClonePart anotherPart = new ClonePart(anotherBlock);
     int cloneLength = 0;
 
-    Key curKey = new Key(block.getResourceId(), block.getIndexInFile());
+    Key curKey = new Key(anotherBlock.getResourceId(), anotherBlock.getIndexInFile());
     if (prevActiveMap.containsKey(curKey)) {
       TempClone prevTmp = prevActiveMap.get(curKey);
 
@@ -158,7 +216,7 @@ public class CloneReporter {
 
     TempClone tempClone = new TempClone(origPart, anotherPart, cloneLength + 1);
 
-    Key nextKey = new Key(block.getResourceId(), block.getIndexInFile() + 1);
+    Key nextKey = new Key(anotherBlock.getResourceId(), anotherBlock.getIndexInFile() + 1);
     nextActiveMap.put(nextKey, tempClone);
   }
 
