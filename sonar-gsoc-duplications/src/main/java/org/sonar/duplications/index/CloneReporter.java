@@ -154,20 +154,17 @@ public class CloneReporter {
     return true;
   }
 
-  private static List<Clone> removeDuplicates(List<Clone> clones) {
-    HashSet<Clone> set = new HashSet<Clone>(clones);
-    List<Clone> result = new ArrayList<Clone>(set);
-
+  private static List<Clone> filterCovered(List<Clone> clones) {
     //O(n^2) filter for clones fully covered by another clones
     List<Clone> filtered = new ArrayList<Clone>();
-    for (int i = 0; i < result.size(); i++) {
-      Clone first = result.get(i);
+    for (int i = 0; i < clones.size(); i++) {
+      Clone first = clones.get(i);
       boolean covered = false;
-      for (int j = 0; j < result.size(); j++) {
+      for (int j = 0; j < clones.size(); j++) {
         if (i == j) {
           continue;
         }
-        Clone second = result.get(j);
+        Clone second = clones.get(j);
         covered |= containsIn(first, second);
         if (covered)
           break;
@@ -178,6 +175,13 @@ public class CloneReporter {
     }
 
     return filtered;
+  }
+
+  private static List<Clone> removeDuplicates(List<Clone> clones) {
+    HashSet<Clone> set = new HashSet<Clone>(clones);
+    List<Clone> result = new ArrayList<Clone>(set);
+
+    return filterCovered(result);
   }
 
   /**
