@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.List;
 
 import org.sonar.duplications.CloneFinder;
+import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 
@@ -38,6 +39,10 @@ public class NewCpdBenchmark extends Benchmark {
 
   @Override
   public void runRound() throws Exception {
+    singleRun(files, blockSize);
+  }
+
+  public static List<Clone> singleRun(List<File> files, int blockSize) {
     MemoryCloneIndex mci = new MemoryCloneIndex();
     CloneFinder cf = JavaCloneFinder.build(mci, blockSize);
     for (File file : files) {
@@ -46,7 +51,7 @@ public class NewCpdBenchmark extends Benchmark {
     for (File file : files) {
       cf.register(file);
     }
-    cf.findClones();
+    return cf.findClones();
   }
 
 }

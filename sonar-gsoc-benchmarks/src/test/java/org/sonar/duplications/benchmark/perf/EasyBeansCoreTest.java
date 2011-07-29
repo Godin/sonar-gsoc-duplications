@@ -17,15 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.benchmark;
+package org.sonar.duplications.benchmark.perf;
 
 import org.junit.Test;
 
-public class StrutsTest extends AbstractCompare {
+public class EasyBeansCoreTest extends AbstractCompare {
 
   @Test
   public void test() {
-    compare("struts-el-1.2.9");
+    compare("easybeans-core-1.2.1");
   }
 
 }

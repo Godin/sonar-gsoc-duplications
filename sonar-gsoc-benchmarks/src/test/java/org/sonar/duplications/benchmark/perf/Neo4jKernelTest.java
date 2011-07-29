@@ -17,34 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.benchmark;
+package org.sonar.duplications.benchmark.perf;
 
-public final class Average {
+import org.junit.Test;
 
-  /**
-   * Average.
-   */
-  public final double avg;
+public class Neo4jKernelTest extends AbstractCompare {
 
-  /**
-   * Standard deviation.
-   */
-  public final double stddev;
-
-  private Average(double avg, double stddev) {
-    this.avg = avg;
-    this.stddev = stddev;
-  }
-
-  public static Average from(long[] values) {
-    long sum = 0;
-    long sumSquares = 0;
-    for (long l : values) {
-      sum += l;
-      sumSquares += l * l;
-    }
-    double avg = sum / (double) values.length;
-    return new Average(avg, Math.sqrt(sumSquares / (double) values.length - avg * avg));
+  @Test
+  public void test() {
+    compare("neo4j-kernel-1.4");
   }
 
 }

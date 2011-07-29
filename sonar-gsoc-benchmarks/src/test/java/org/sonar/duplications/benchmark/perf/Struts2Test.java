@@ -17,15 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.benchmark;
+package org.sonar.duplications.benchmark.perf;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-public class ActiveMqTest extends AbstractCompare {
+public class Struts2Test extends AbstractCompare {
 
+  @Ignore("Never ends")
   @Test
   public void test() {
-    compare("activemq-core-5.5.0", 30);
+    compare("struts2-embeddedjsp-plugin-2.2.3");
   }
 
 }

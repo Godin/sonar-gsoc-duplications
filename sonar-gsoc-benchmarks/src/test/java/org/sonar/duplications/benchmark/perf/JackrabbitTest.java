@@ -17,15 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.benchmark;
+package org.sonar.duplications.benchmark.perf;
 
 import org.junit.Test;
 
-public class CommonsCollectionsTest extends AbstractCompare {
+public class JackrabbitTest extends AbstractCompare {
 
   @Test
   public void test() {
-    compare("commons-collections-3.2");
+    compare("jackrabbit-jcr-tests-2.2.7");
   }
 
 }

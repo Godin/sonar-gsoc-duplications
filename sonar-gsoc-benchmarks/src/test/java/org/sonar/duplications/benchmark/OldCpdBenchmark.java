@@ -20,6 +20,7 @@
 package org.sonar.duplications.benchmark;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -45,23 +46,8 @@ public class OldCpdBenchmark extends Benchmark {
 
   @Override
   public void runRound() throws Exception {
-    TokenEntry.clearImages();
-
-    JavaTokenizer tokenizer = new JavaTokenizer();
-    tokenizer.setIgnoreLiterals(IGNORE_LITERALS_DEFAULT); // Default in Sonar
-    tokenizer.setIgnoreIdentifiers(IGNORE_IDENTIFIERS); // Default in Sonar
-    AbstractLanguage javaLanguage = new AbstractLanguage(tokenizer, ".java") {
-    };
-
-    CPD cpd = new CPD(MIN_TOKENS_DEFAULT, javaLanguage);
-    cpd.setEncoding("UTF-8");
-    cpd.setLoadSourceCodeSlices(false);
-    cpd.add(files);
-
-    cpd.go();
-
     count = 0;
-    Iterator<Match> matches = cpd.getMatches();
+    Iterator<Match> matches = singleRun(files);
     while (matches.hasNext()) {
       matches.next();
       count++;
@@ -70,6 +56,29 @@ public class OldCpdBenchmark extends Benchmark {
 
   public int getCount() {
     return count;
+  }
+
+  public static Iterator<Match> singleRun(List<File> files) {
+    try {
+      TokenEntry.clearImages();
+
+      JavaTokenizer tokenizer = new JavaTokenizer();
+      tokenizer.setIgnoreLiterals(IGNORE_LITERALS_DEFAULT); // Default in Sonar
+      tokenizer.setIgnoreIdentifiers(IGNORE_IDENTIFIERS); // Default in Sonar
+      AbstractLanguage javaLanguage = new AbstractLanguage(tokenizer, ".java") {
+      };
+
+      CPD cpd = new CPD(MIN_TOKENS_DEFAULT, javaLanguage);
+      cpd.setEncoding("UTF-8");
+      cpd.setLoadSourceCodeSlices(false);
+      cpd.add(files);
+
+      cpd.go();
+
+      return cpd.getMatches();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 }
