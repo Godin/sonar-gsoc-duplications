@@ -4,10 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileCloneIndex;
-import org.sonar.duplications.index.Clone;
-import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.GlobalCloneIndex;
-import org.sonar.duplications.index.MemoryCloneIndex;
+import org.sonar.duplications.index.*;
 
 import java.util.Set;
 
@@ -74,10 +71,23 @@ public class GlobalCloneIndexTest {
     index.addOrUpdateFileCloneIndex(fileC);
 
     Set<Clone> items = index.getClones();
-    // TODO: fix this situation: should report clone with 3 parts instead of two clones
-    assertThat(items.size(), is(2));
 
-    assertThat(items, hasItem(new Clone("a", 1, 1, 8, "b", 1, 1, 8, 3)));
-    assertThat(items, hasItem(new Clone("a", 2, 2, 9, "c", 1, 1, 8, 3)));
+    ClonePart part11 = new ClonePart("a", 1, 1, 8);
+    ClonePart part12 = new ClonePart("b", 1, 1, 8);
+    Clone expected1 = new Clone(3)
+        .addPart(part11)
+        .addPart(part12);
+    expected1.setOriginPart(part11);
+
+    assertThat(items, hasItem(expected1));
+
+    ClonePart part21 = new ClonePart("a", 2, 2, 9);
+    ClonePart part22 = new ClonePart("c", 1, 1, 8);
+    Clone expected2 = new Clone(3)
+        .addPart(part21)
+        .addPart(part22);
+    expected2.setOriginPart(part21);
+
+    assertThat(items, hasItem(expected2));
   }
 }

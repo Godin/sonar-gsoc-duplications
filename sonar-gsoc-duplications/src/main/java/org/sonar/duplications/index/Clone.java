@@ -88,6 +88,8 @@ public class Clone {
         result &= another.parts.get(i).equals(parts.get(i));
       }
 
+      result &= another.originPart.equals(originPart);
+
       return result;
     }
     return false;
@@ -100,6 +102,7 @@ public class Clone {
       for (ClonePart part : parts) {
         h = 31 * h + part.hashCode();
       }
+      h = 31 * h + originPart.hashCode();
       h = 31 * h + cloneLength;
       hash = h;
     }

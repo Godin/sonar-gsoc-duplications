@@ -37,8 +37,19 @@ public class CloneReporterTest {
     List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
     List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(2));
-    assertThat(items, hasItem(new Clone("a", 3, 3, 11, "b", 2, 2, 10, 4)));
-    assertThat(items, hasItem(new Clone("a", 5, 5, 12, "c", 1, 1, 8, 3)));
+
+    Clone expected1 = new Clone(4)
+        .addPart(new ClonePart("a", 3, 3, 11))
+        .addPart(new ClonePart("b", 2, 2, 10));
+    expected1.setOriginPart(new ClonePart("a", 3, 3, 11));
+
+    Clone expected2 = new Clone(3)
+        .addPart(new ClonePart("a", 5, 5, 12))
+        .addPart(new ClonePart("c", 1, 1, 8));
+    expected2.setOriginPart(new ClonePart("a", 5, 5, 12));
+
+    assertThat(items, hasItem(expected1));
+    assertThat(items, hasItem(expected2));
   }
 
   @Test
@@ -60,11 +71,12 @@ public class CloneReporterTest {
     List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
     List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(1));
-    Clone clone = new Clone(3);
-    clone.addPart(new ClonePart("a", 1, 1, 8));
-    clone.addPart(new ClonePart("b", 1, 1, 8));
-    clone.addPart(new ClonePart("c", 1, 1, 8));
-    assertThat(items, hasItem(clone));
+    Clone expected = new Clone(3)
+        .addPart(new ClonePart("a", 1, 1, 8))
+        .addPart(new ClonePart("b", 1, 1, 8))
+        .addPart(new ClonePart("c", 1, 1, 8));
+    expected.setOriginPart(new ClonePart("a", 1, 1, 8));
+    assertThat(items, hasItem(expected));
   }
 
   @Test
@@ -79,7 +91,14 @@ public class CloneReporterTest {
     List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
     List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(1));
-    assertThat(items, hasItem(new Clone("a", 0, 0, 6, "b", 0, 0, 6, 2)));
+
+    ClonePart part1 = new ClonePart("a", 0, 0, 6);
+    ClonePart part2 = new ClonePart("b", 0, 0, 6);
+    Clone expected = new Clone(2)
+        .addPart(part1)
+        .addPart(part2);
+    expected.setOriginPart(part1);
+    assertThat(items, hasItem(expected));
   }
 
   @Test
@@ -94,7 +113,13 @@ public class CloneReporterTest {
     List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
     List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(1));
-    assertThat(items, hasItem(new Clone("a", 1, 1, 7, "b", 1, 1, 7, 2)));
+    ClonePart part1 = new ClonePart("a", 1, 1, 7);
+    ClonePart part2 = new ClonePart("b", 1, 1, 7);
+    Clone expected = new Clone(2)
+        .addPart(part1)
+        .addPart(part2);
+    expected.setOriginPart(part1);
+    assertThat(items, hasItem(expected));
   }
 
   @Test
@@ -110,7 +135,14 @@ public class CloneReporterTest {
     List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
     List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(1));
-    assertThat(items, hasItem(new Clone("a", 1, 1, 6, "a", 4, 4, 9, 1)));
+
+    ClonePart part1 = new ClonePart("a", 1, 1, 6);
+    ClonePart part2 = new ClonePart("a", 4, 4, 9);
+    Clone expected = new Clone(1)
+        .addPart(part1)
+        .addPart(part2);
+    expected.setOriginPart(part1);
+    assertThat(items, hasItem(expected));
   }
 
   @Test
@@ -126,7 +158,13 @@ public class CloneReporterTest {
     List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
     List<Clone> items = CloneReporter.reportClones(blocks, indexBackend);
     assertThat(items.size(), is(1));
-    assertThat(items, hasItem(new Clone("a", 5, 5, 10, "a", 0, 0, 5, 1)));
+    ClonePart part1 = new ClonePart("a", 0, 0, 5);
+    ClonePart part2 = new ClonePart("a", 5, 5, 10);
+    Clone expected = new Clone(1)
+        .addPart(part1)
+        .addPart(part2);
+    expected.setOriginPart(part1);
+    assertThat(items, hasItem(expected));
   }
 
   @Test
@@ -150,6 +188,7 @@ public class CloneReporterTest {
         .addPart(new ClonePart("a", 1, 1, 6))
         .addPart(new ClonePart("a", 4, 4, 9))
         .addPart(new ClonePart("a", 7, 7, 12));
+    expected.setOriginPart(new ClonePart("a", 1, 1, 6));
     assertThat(items, hasItem(expected));
   }
 }

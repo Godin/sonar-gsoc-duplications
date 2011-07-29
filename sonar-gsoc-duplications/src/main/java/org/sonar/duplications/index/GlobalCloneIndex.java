@@ -50,7 +50,7 @@ public class GlobalCloneIndex {
     Collection<String> resourceIds = backend.getAllUniqueResourceId();
     Set<Clone> clones = new HashSet<Clone>();
     for (String resourceId : resourceIds) {
-      List<Block> blocks = new ArrayList<Block>(backend.getByResourceId("a"));
+      List<Block> blocks = new ArrayList<Block>(backend.getByResourceId(resourceId));
       List<Clone> res = CloneReporter.reportClones(blocks, backend);
       clones.addAll(res);
     }

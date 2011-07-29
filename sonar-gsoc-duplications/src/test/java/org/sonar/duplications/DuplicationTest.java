@@ -38,9 +38,12 @@ public class DuplicationTest {
 
     List<Clone> cloneList = cf.findClones();
 
+    ClonePart part1 = new ClonePart(file1.getAbsolutePath(), 3, 6, 11);
+    ClonePart part2 = new ClonePart(file2.getAbsolutePath(), 9, 28, 33);
     Clone expected = new Clone(5)
-        .addPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 11))
-        .addPart(new ClonePart(file2.getAbsolutePath(), 9, 28, 33));
+        .addPart(part1)
+        .addPart(part2);
+    expected.setOriginPart(part1);
     assertThat(cloneList, hasItem(expected));
     assertThat(cloneList.size(), is(1));
   }
@@ -53,16 +56,20 @@ public class DuplicationTest {
 
     List<Clone> cloneList = cf.findClones();
 
-    assertThat(cloneList.size(), is(4));
-
+    ClonePart part11 = new ClonePart(file1.getAbsolutePath(), 3, 6, 9);
+    ClonePart part12 = new ClonePart(file3.getAbsolutePath(), 9, 28, 31);
     Clone expected1 = new Clone(2)
-        .addPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 9))
-        .addPart(new ClonePart(file3.getAbsolutePath(), 9, 28, 31));
+        .addPart(part11)
+        .addPart(part12);
+    expected1.setOriginPart(part11);
     assertThat(cloneList, hasItem(expected1));
 
+    ClonePart part21 = new ClonePart(file2.getAbsolutePath(), 17, 33, 47);
+    ClonePart part22 = new ClonePart(file3.getAbsolutePath(), 14, 31, 45);
     Clone expected2 = new Clone(3)
-        .addPart(new ClonePart(file2.getAbsolutePath(), 17, 33, 47))
-        .addPart(new ClonePart(file3.getAbsolutePath(), 14, 31, 45));
+        .addPart(part21)
+        .addPart(part22);
+    expected2.setOriginPart(part21);
     assertThat(cloneList, hasItem(expected2));
 
   }
