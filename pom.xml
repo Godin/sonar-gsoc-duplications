@@ -87,4 +87,13 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>benchmarks</id>
+      <modules>
+        <module>sonar-gsoc-benchmarks</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
