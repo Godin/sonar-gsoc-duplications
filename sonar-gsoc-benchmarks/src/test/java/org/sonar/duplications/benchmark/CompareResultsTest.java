@@ -19,16 +19,10 @@
  */
 package org.sonar.duplications.benchmark;
 
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.SetMultimap;
 import net.sourceforge.pmd.cpd.TokenEntry;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -36,9 +30,13 @@ import org.sonar.duplications.cpd.Match;
 import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.ClonePart;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.SetMultimap;
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class CompareResultsTest {
 
@@ -50,8 +48,8 @@ public class CompareResultsTest {
       "openejb-jee-3.1.4",
       "easybeans-core-1.2.1",
       "neo4j-kernel-1.4",
-      "struts-1.3.9",
-      "jboss-as-server-6.0.0.Final",
+//      "struts-1.3.9",
+//      "jboss-as-server-6.0.0.Final",
       "jackrabbit-jcr-tests-2.2.7",
   };
 
@@ -104,7 +102,7 @@ public class CompareResultsTest {
   private List<File> getProjectFiles(String project) {
     File dir = new File("target/test-projects/" + project);
     List<File> files = Lists.newArrayList();
-    files.addAll(FileUtils.listFiles(dir, new String[] { "java" }, true));
+    files.addAll(FileUtils.listFiles(dir, new String[]{"java"}, true));
     return files;
   }
 
