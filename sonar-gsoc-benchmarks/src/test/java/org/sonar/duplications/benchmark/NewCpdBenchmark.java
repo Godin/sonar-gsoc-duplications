@@ -19,13 +19,14 @@
  */
 package org.sonar.duplications.benchmark;
 
-import java.io.File;
-import java.util.List;
-
 import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NewCpdBenchmark extends Benchmark {
 
@@ -46,12 +47,15 @@ public class NewCpdBenchmark extends Benchmark {
     MemoryCloneIndex mci = new MemoryCloneIndex();
     CloneFinder cf = JavaCloneFinder.build(mci, blockSize);
     for (File file : files) {
-      cf.addSourceFileForDetection(file.getAbsolutePath());
-    }
-    for (File file : files) {
       cf.register(file);
     }
-    return cf.findClones();
+    List<Clone> clones = new ArrayList<Clone>();
+    for (File file : files) {
+      cf.clearSourceFilesForDetection();
+      cf.addSourceFileForDetection(file.getAbsolutePath());
+      clones.addAll(cf.findClones());
+    }
+    return clones;
   }
 
 }
