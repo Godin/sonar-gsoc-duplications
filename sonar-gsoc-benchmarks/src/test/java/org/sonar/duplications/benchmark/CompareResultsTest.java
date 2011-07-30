@@ -48,8 +48,8 @@ public class CompareResultsTest {
       "openejb-jee-3.1.4",
       "easybeans-core-1.2.1",
       "neo4j-kernel-1.4",
-//      "struts-1.3.9",
-//      "jboss-as-server-6.0.0.Final",
+      "struts-1.3.9",
+      "jboss-as-server-6.0.0.Final",
       "jackrabbit-jcr-tests-2.2.7",
   };
 

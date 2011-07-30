@@ -197,20 +197,20 @@
                   <classifier>sources</classifier>
                   <outputDirectory>${project.build.directory}/test-projects/jackrabbit-jcr-tests-2.2.7</outputDirectory>
                 </artifactItem>
-                <!--<artifactItem>-->
-                <!--<groupId>org.jboss.jbossas</groupId>-->
-                <!--<artifactId>jboss-as-server</artifactId>-->
-                <!--<version>6.0.0.Final</version>-->
-                <!--<classifier>sources</classifier>-->
-                <!--<outputDirectory>${project.build.directory}/test-projects/jboss-as-server-6.0.0.Final</outputDirectory>-->
-                <!--</artifactItem>-->
-                <!--<artifactItem>-->
-                <!--<groupId>com.sonarsource.it.projects</groupId>-->
-                <!--<artifactId>struts</artifactId>-->
-                <!--<version>1.3.9</version>-->
-                <!--<type>zip</type>-->
-                <!--<outputDirectory>${project.build.directory}/test-projects/struts-1.3.9</outputDirectory>-->
-                <!--</artifactItem>-->
+                <artifactItem>
+                  <groupId>org.jboss.jbossas</groupId>
+                  <artifactId>jboss-as-server</artifactId>
+                  <version>6.0.0.Final</version>
+                  <classifier>sources</classifier>
+                  <outputDirectory>${project.build.directory}/test-projects/jboss-as-server-6.0.0.Final</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.sonarsource.it.projects</groupId>-->
+                  <artifactId>struts</artifactId>-->
+                  <version>1.3.9</version>-->
+                  <type>zip</type>-->
+                  <outputDirectory>${project.build.directory}/test-projects/struts-1.3.9</outputDirectory>-->
+                </artifactItem>
               </artifactItems>
             </configuration>
           </execution>
@@ -246,4 +246,31 @@
       </plugin>
     </plugins>
   </build>
+
+  <repositories>
+    <!-- for com.sonarsource.it.projects:struts -->
+    <repository>
+      <id>sonarsource-releases</id>
+      <name>SonarSource releases</name>
+      <url>http://repository.sonarsource.org/content/repositories/sonar/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <!-- for org.jboss.jbossas:jboss-as-server -->
+    <repository>
+      <id>jboss-releases</id>
+      <name>JBoss releases</name>
+      <url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 </project>
