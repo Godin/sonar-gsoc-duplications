@@ -19,12 +19,10 @@
  */
 package org.sonar.duplications.benchmark.perf;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JbossAsServerTest extends AbstractCompare {
 
-  @Ignore
   @Test
   public void test() {
     compare("jboss-as-server-6.0.0.Final");

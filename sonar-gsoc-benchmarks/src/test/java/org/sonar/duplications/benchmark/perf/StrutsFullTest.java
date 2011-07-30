@@ -19,12 +19,10 @@
  */
 package org.sonar.duplications.benchmark.perf;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class StrutsFullTest extends AbstractCompare {
 
-  @Ignore
   @Test
   public void test() {
     compare("struts-1.3.9");
