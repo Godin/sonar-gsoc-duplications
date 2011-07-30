@@ -23,12 +23,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.io.FileUtils;
 import org.sonar.duplications.benchmark.Benchmark;
 import org.sonar.duplications.benchmark.NewCpdBenchmark;
 import org.sonar.duplications.benchmark.OldCpdBenchmark;
-
-import com.google.common.collect.Lists;
+import org.sonar.duplications.benchmark.Utils;
 
 public class AbstractCompare {
 
@@ -42,7 +40,7 @@ public class AbstractCompare {
 
   public static void compare(String project, int benchmarkRounds) {
     System.out.println();
-    List<File> files = getProjectFiles(project);
+    List<File> files = Utils.getProjectFiles(project);
     System.out.println(project + ", " + files.size() + " files to analyse");
     OldCpdBenchmark oldCpd = new OldCpdBenchmark(files);
     NewCpdBenchmark newCpd = new NewCpdBenchmark(files, BLOCK_SIZE);
@@ -59,13 +57,6 @@ public class AbstractCompare {
     Benchmark.cleanupMemory();
     double diff = (firstAvg - secondAvg) / firstAvg * 100.0;
     System.out.println(String.format(Locale.ENGLISH, "Difference %.0f%%", diff));
-  }
-
-  public static List<File> getProjectFiles(String project) {
-    File dir = new File("target/test-projects/" + project);
-    List<File> files = Lists.newArrayList();
-    files.addAll(FileUtils.listFiles(dir, new String[] { "java" }, true));
-    return files;
   }
 
 }

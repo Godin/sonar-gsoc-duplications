@@ -1,61 +1,84 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Written (W) 2011 Andrew Tereskin
+ * Copyright (C) 2008-2011 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
 package org.sonar.duplications.block;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 
-import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.statement.Statement;
 
 /**
- * this class provides a list of blocks from a list of statements
- * 
- * @author sharif
+ * Creates blocks from statements.
+ * Each block will contain specified number of statements - <code>blockSize</code>.
+ * Hash value computed for each block using Rabin-Karp rolling hash :
+ * <blockquote><pre>
+ * s[0]*31^(blockSize-1) + s[1]*31^(blockSize-2) + ... + s[blockSize-1]
+ * </pre></blockquote>
+ * using <code>long</code> arithmetic, where <code>s[i]</code>
+ * is the hash code of <code>String</code> for statement with number i.
+ * Thus running time - O(N), where N - number of statements.
  */
 public class BlockChunker {
 
-  private int blockSize;
+  private static final long PRIME_BASE = 31;
+  private long power;
 
-  private final MessageDigest digest;
+  private int blockSize;
 
   public BlockChunker(int blockSize) {
     this.blockSize = blockSize;
-    try {
-      this.digest = MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException e) {
-      throw new DuplicationsException("Unable to create a MD5 generator", e);
+
+    power = 1;
+    for (int i = 0; i < blockSize; i++) {
+      power = power * PRIME_BASE;
     }
   }
 
+  /**
+   * TODO Godin: The <tt>List</tt> interface doesn't guarantee running time O(1) on access to elements by index (e.g. <tt>LinkedList</tt>).
+   * So in fact we expect <tt>ArrayList</tt> here in order to have linear running time.
+   */
   public List<Block> chunk(String resourceId, List<Statement> statements) {
-    List<Statement> statementsForBlock = new LinkedList<Statement>();
+    if (statements.size() < blockSize) {
+      return Collections.emptyList();
+    }
     List<Block> blockList = new ArrayList<Block>();
-
-    for (Statement stmt : statements) {
-      statementsForBlock.add(stmt);
-      if (statementsForBlock.size() == blockSize) {
-        Statement firstStmt = statementsForBlock.get(0);
-        Statement lastStmt = statementsForBlock.get(blockSize - 1);
-        blockList.add(new Block(resourceId, buildBlockHash(statementsForBlock), firstStmt.getIndexInFile(), firstStmt.getStartLine(),
-            lastStmt.getEndLine()));
-        statementsForBlock.remove(0);
+    long hash = 0;
+    for (int i = 0; i < statements.size(); i++) {
+      // add current statement to hash
+      Statement current = statements.get(i);
+      hash = hash * PRIME_BASE + current.getValue().hashCode();
+      // remove first statement from hash, if needed
+      int j = i - blockSize + 1;
+      if (j > 0) {
+        hash -= power * statements.get(j - 1).getValue().hashCode();
+      }
+      // create block
+      if (j >= 0) {
+        Statement first = statements.get(j);
+        blockList.add(new Block(resourceId, Long.toHexString(hash), first.getIndexInFile(), first.getStartLine(), current.getEndLine()));
       }
     }
-
     return blockList;
-  }
-
-  private String buildBlockHash(List<Statement> statementList) {
-    digest.reset();
-    for (Statement statement : statementList) {
-      digest.update(statement.getValue().getBytes());
-    }
-    byte messageDigest[] = digest.digest();
-    BigInteger number = new BigInteger(1, messageDigest);
-    return String.format("%1$032X", number);
   }
 
 }

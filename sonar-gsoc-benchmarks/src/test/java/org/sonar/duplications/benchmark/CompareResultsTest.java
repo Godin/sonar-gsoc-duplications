@@ -19,24 +19,24 @@
  */
 package org.sonar.duplications.benchmark;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.SetMultimap;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+
 import net.sourceforge.pmd.cpd.TokenEntry;
-import org.apache.commons.io.FileUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.duplications.cpd.Match;
 import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.ClonePart;
 
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 public class CompareResultsTest {
 
@@ -64,13 +64,13 @@ public class CompareResultsTest {
 
     int[] oldCpdForProject = new int[PROJECTS.length];
     for (int prj = 0; prj < PROJECTS.length; prj++) {
-      oldCpdForProject[prj] = runOldCpd(getProjectFiles(PROJECTS[prj]));
+      oldCpdForProject[prj] = runOldCpd(Utils.getProjectFiles(PROJECTS[prj]));
     }
 
     for (int blockSize = MIN_BLOCK_SIZE; blockSize <= MAX_BLOCK_SIZE; blockSize++) {
       for (int prj = 0; prj < PROJECTS.length; prj++) {
         int oldValue = oldCpdForProject[prj];
-        int newValue = runNewCpd(getProjectFiles(PROJECTS[prj]), blockSize);
+        int newValue = runNewCpd(Utils.getProjectFiles(PROJECTS[prj]), blockSize);
         results[blockSize][prj] = (oldValue - newValue) / (double) oldValue * 100;
       }
       System.out.println(blockSize + ", " + StringUtils.join(results[blockSize], ','));
@@ -97,13 +97,6 @@ public class CompareResultsTest {
     }
     assertThat(minAvg, closeTo(6, 2));
     assertThat(optimalBlockSize, is(13));
-  }
-
-  private List<File> getProjectFiles(String project) {
-    File dir = new File("target/test-projects/" + project);
-    List<File> files = Lists.newArrayList();
-    files.addAll(FileUtils.listFiles(dir, new String[]{"java"}, true));
-    return files;
   }
 
   private int runOldCpd(List<File> files) {
