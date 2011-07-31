@@ -267,7 +267,7 @@
     <repository>
       <id>jboss-releases</id>
       <name>JBoss releases</name>
-      <url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
+      <url>http://repository.jboss.org/nexus/content/repositories/releases/</url>
       <releases>
         <enabled>true</enabled>
       </releases>
