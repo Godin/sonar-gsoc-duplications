@@ -19,15 +19,21 @@
  */
 package org.sonar.duplications.benchmark.perf;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.hamcrest.Matchers.greaterThan;
 
-public class Struts2Test extends AbstractCompare {
+import org.junit.Assume;
+import org.junit.BeforeClass;
+import org.sonar.duplications.benchmark.Utils;
 
-  @Ignore("Never ends")
-  @Test
-  public void test() {
-    compare("struts2-embeddedjsp-plugin-2.2.3");
+public class JdkTest extends AbstractTestCase {
+
+  @BeforeClass
+  public static void before() {
+    BENCHMARK_ROUNDS = 2;
+    WARMUP_ROUNDS = 1;
+
+    files = Utils.filesFromJdk16();
+    Assume.assumeThat(files.size(), greaterThan(0));
   }
 
 }

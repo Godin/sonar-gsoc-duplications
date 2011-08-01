@@ -228,7 +228,7 @@
             <configuration>
               <forkMode>always</forkMode>
               <excludes>
-                <exclude>**/perf/*Test.java</exclude>
+                <exclude>**/perf/*.java</exclude>
               </excludes>
             </configuration>
           </execution>

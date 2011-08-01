@@ -19,13 +19,14 @@
  */
 package org.sonar.duplications.benchmark.perf;
 
-import org.junit.Test;
+import org.junit.BeforeClass;
+import org.sonar.duplications.benchmark.Utils;
 
-public class JackrabbitTest extends AbstractCompare {
+public class DifferentProjectsTest extends AbstractTestCase {
 
-  @Test
-  public void test() {
-    compare("jackrabbit-jcr-tests-2.2.7");
+  @BeforeClass
+  public static void before() {
+    files = Utils.filesFromDifferentProjects();
   }
 
 }

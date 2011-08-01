@@ -17,15 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.benchmark.perf;
+package org.sonar.duplications.benchmark;
 
-import org.junit.Test;
+import java.io.File;
+import java.util.List;
 
-public class EasyBeansCoreTest extends AbstractCompare {
+import org.sonar.duplications.CloneFinder;
+import org.sonar.duplications.index.MemoryCloneIndex;
+import org.sonar.duplications.java.JavaCloneFinder;
 
-  @Test
-  public void test() {
-    compare("easybeans-core-1.2.1");
+public class PopulateIndexBenchmark extends Benchmark {
+  private final List<File> files;
+
+  public PopulateIndexBenchmark(List<File> files) {
+    this.files = files;
   }
 
+  @Override
+  public void runRound() throws Exception {
+    MemoryCloneIndex mci = new MemoryCloneIndex();
+    CloneFinder cf = JavaCloneFinder.build(mci, 13);
+    for (File file : files) {
+      cf.register(file);
+    }
+  }
 }

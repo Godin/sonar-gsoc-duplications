@@ -19,21 +19,19 @@
  */
 package org.sonar.duplications.benchmark;
 
-import java.util.Locale;
-
 public abstract class Benchmark {
 
-  public final double runBenchmark(int benchmarkRounds, int warmupRounds) {
+  public final BenchmarkResult runBenchmark(int benchmarkRounds, int warmupRounds) {
     return runBenchmark(benchmarkRounds, warmupRounds, true);
   }
 
-  public final double runBenchmark(int benchmarkRounds, int warmupRounds, boolean callgc) {
+  public final BenchmarkResult runBenchmark(int benchmarkRounds, int warmupRounds, boolean callgc) {
     long warmupTime = System.currentTimeMillis();
 
     // warmup rounds
     for (int i = 0; i < warmupRounds; i++) {
       if (callgc) {
-        cleanupMemory();
+        MemoryUtils.cleanup();
       }
       internalRunRound();
     }
@@ -42,42 +40,31 @@ public abstract class Benchmark {
     warmupTime = benchTime - warmupTime;
 
     // benchmark rounds
+    long[] peakMemory = new long[benchmarkRounds];
     long[] roundTime = new long[benchmarkRounds];
     for (int i = 0; i < benchmarkRounds; i++) {
       if (callgc) {
-        cleanupMemory();
+        MemoryUtils.cleanup();
       }
+      MemoryUtils.resetPeakUsage();
       long time = System.currentTimeMillis();
       internalRunRound();
       time = System.currentTimeMillis() - time;
       roundTime[i] = time;
+      peakMemory[i] = MemoryUtils.getPeakUsage();
     }
     benchTime = System.currentTimeMillis() - benchTime;
 
-    long totalTime = warmupTime + benchTime;
-    int totalRounds = warmupRounds + benchmarkRounds;
-    Average averageRoundTime = Average.from(roundTime);
-    System.out.println(String.format(Locale.ENGLISH,
-        "%s [measured %d out of %d rounds] round: %.2f [+-%.2f], total: %.2f, warm: %.2f, bench: %.2f",
+    BenchmarkResult result = new BenchmarkResult(
         getName(),
+        warmupRounds,
         benchmarkRounds,
-        totalRounds,
-        millisecondsToSeconds(averageRoundTime.avg),
-        millisecondsToSeconds(averageRoundTime.stddev),
-        millisecondsToSeconds(totalTime),
-        millisecondsToSeconds(warmupTime),
-        millisecondsToSeconds(benchTime)));
-    return averageRoundTime.avg;
-  }
-
-  private static double millisecondsToSeconds(double time) {
-    return time / 1000.0;
-  }
-
-  public static void cleanupMemory() {
-    System.gc();
-    System.gc();
-    Thread.yield();
+        warmupTime,
+        benchTime,
+        Average.from(roundTime),
+        Average.from(peakMemory));
+    System.out.println(result);
+    return result;
   }
 
   private void internalRunRound() {

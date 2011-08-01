@@ -20,6 +20,7 @@
 package org.sonar.duplications.benchmark;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -31,11 +32,48 @@ public final class Utils {
   private Utils() {
   }
 
-  public static List<File> getProjectFiles(String project) {
-    File dir = new File("target/test-projects/" + project);
-    List<File> files = Lists.newArrayList();
-    files.addAll(FileUtils.listFiles(dir, new String[] { "java" }, true));
+  private static final String[] PROJECTS = {
+      "activemq-core-5.5.0",
+      "openejb-jee-3.1.4",
+      "struts-1.3.9",
+      "struts-el-1.2.9",
+      // "jboss-as-server-6.0.0.Final",
+      // "commons-collections-3.2",
+      // "easybeans-core-1.2.1",
+      // "neo4j-kernel-1.4",
+      // "jackrabbit-jcr-tests-2.2.7",
+      // "struts2-embeddedjsp-plugin-2.2.3",
+      // "tomcat-jasper-7.0.19",
+      // "empire-db-2.1.0-incubating"
+  };
+
+  public static List<File> filesFromJdk16() {
+    List<File> files = Utils.listJavaFiles(new File("/tmp/jdk-src"));
+    System.out.println(files.size() + " files to analyse");
     return files;
+  }
+
+  public static List<File> filesFromDifferentProjects() {
+    List<File> files = Lists.newArrayList();
+    for (String project : PROJECTS) {
+      List<File> projectFiles = Utils.getProjectFiles(project);
+      System.out.println(projectFiles.size() + " in " + project);
+      files.addAll(projectFiles);
+    }
+    System.out.println(files.size() + " files to analyse");
+    return files;
+  }
+
+  public static List<File> getProjectFiles(String project) {
+    return listJavaFiles(new File("target/test-projects/" + project));
+  }
+
+  public static List<File> listJavaFiles(File dir) {
+    if (dir.exists() && dir.isDirectory()) {
+      return Lists.newArrayList(FileUtils.listFiles(dir, new String[] { "java" }, true));
+    } else {
+      return Collections.emptyList();
+    }
   }
 
 }

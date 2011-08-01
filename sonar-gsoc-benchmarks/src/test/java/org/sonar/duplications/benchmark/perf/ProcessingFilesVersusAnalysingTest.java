@@ -19,15 +19,39 @@
  */
 package org.sonar.duplications.benchmark.perf;
 
-import org.junit.Ignore;
+import static org.hamcrest.Matchers.greaterThan;
+
+import java.io.File;
+import java.util.List;
+
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.duplications.benchmark.PopulateIndexBenchmark;
+import org.sonar.duplications.benchmark.ReportClonesBenchmark;
+import org.sonar.duplications.benchmark.Utils;
 
-public class TomcatJasperTest extends AbstractCompare {
+public class ProcessingFilesVersusAnalysingTest {
 
-  @Ignore("Never ends")
+  protected static int BENCHMARK_ROUNDS = 2;
+  protected static int WARMUP_ROUNDS = 1;
+
+  protected static List<File> files;
+
+  @BeforeClass
+  public static void before() {
+    files = Utils.filesFromJdk16();
+    Assume.assumeThat(files.size(), greaterThan(0));
+  }
+
   @Test
-  public void test() {
-    compare("tomcat-jasper-7.0.19");
+  public void populateIndex() {
+    new PopulateIndexBenchmark(files).runBenchmark(BENCHMARK_ROUNDS, WARMUP_ROUNDS);
+  }
+
+  @Test
+  public void reportClones() {
+    new ReportClonesBenchmark(files).runBenchmark(BENCHMARK_ROUNDS, WARMUP_ROUNDS);
   }
 
 }
