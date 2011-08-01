@@ -37,6 +37,13 @@ import org.sonar.duplications.DuplicationsException;
 
 public final class TokenChunker {
 
+  /**
+   * Some files can have large tokens (e.g. javadocs), so large buffer required.
+   * 
+   * @see CodeReaderConfiguration#DEFAULT_BUFFER_CAPACITY
+   */
+  private final static int BUFFER_CAPACITY = 80000;
+
   private final Charset charset;
   private final ChannelDispatcher<TokenQueue> channelDispatcher;
 
@@ -66,7 +73,9 @@ public final class TokenChunker {
   }
 
   public TokenQueue chunk(Reader reader) {
-    CodeReader code = new CodeReader(reader, new CodeReaderConfiguration());
+    CodeReaderConfiguration codeReaderConfiguration = new CodeReaderConfiguration();
+    codeReaderConfiguration.setBufferCapacity(BUFFER_CAPACITY);
+    CodeReader code = new CodeReader(reader, codeReaderConfiguration);
     TokenQueue queue = new TokenQueue();
     try {
       channelDispatcher.consume(code, queue);
