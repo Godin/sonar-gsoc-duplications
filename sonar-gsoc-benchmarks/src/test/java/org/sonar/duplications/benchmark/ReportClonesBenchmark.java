@@ -19,14 +19,15 @@
  */
 package org.sonar.duplications.benchmark;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.duplications.CloneFinder;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReportClonesBenchmark extends Benchmark {
   private final List<File> files;
@@ -45,9 +46,9 @@ public class ReportClonesBenchmark extends Benchmark {
   public void runRound() throws Exception {
     List<Clone> clones = new ArrayList<Clone>();
     for (File file : files) {
-      cf.clearSourceFilesForDetection();
-      cf.addSourceFileForDetection(file.getAbsolutePath());
-      clones.addAll(cf.findClones());
+      FileBlockGroup fileBlockGroup = cf.tokenize(file);
+      cf.register(fileBlockGroup);
+      clones.addAll(cf.findClones(fileBlockGroup));
     }
   }
 }
