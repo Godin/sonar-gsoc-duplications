@@ -20,18 +20,13 @@
 package org.sonar.duplications;
 
 import java.io.File;
-import java.net.URISyntaxException;
-
-import junit.framework.AssertionFailedError;
 
 public class DuplicationsTestUtil {
 
+  public static final File fileDir = new File("src/test/files/");
+
   public static File findFile(String relativePathToFile) {
-    try {
-      return new File(DuplicationsTestUtil.class.getResource(relativePathToFile).toURI());
-    } catch (URISyntaxException e) {
-      throw new AssertionFailedError("Unable to find file from following relative path : '" + relativePathToFile + "'");
-    }
+    return new File(fileDir, relativePathToFile);
   }
 
 }
