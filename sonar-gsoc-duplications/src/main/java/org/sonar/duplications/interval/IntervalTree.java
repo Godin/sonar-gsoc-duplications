@@ -20,8 +20,7 @@
  */
 package org.sonar.duplications.interval;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class IntervalTree<T> {
 
@@ -38,7 +37,7 @@ public class IntervalTree<T> {
   }
 
   public IntervalTree(List<Interval<T>> intervalList) {
-    this.head = new IntervalNode<T>(intervalList);
+    this.head = createNode(intervalList);
     this.intervalList = new ArrayList<Interval<T>>();
     this.intervalList.addAll(intervalList);
     this.inSync = true;
@@ -47,7 +46,7 @@ public class IntervalTree<T> {
 
   List<Interval<T>> getIntervals(int point) {
     build();
-    return head.query(point);
+    return query(head, point);
   }
 
   public List<Interval<T>> getCoveringIntervals(int start, int end) {
@@ -72,7 +71,7 @@ public class IntervalTree<T> {
    */
   public void build() {
     if (!inSync) {
-      head = new IntervalNode<T>(intervalList);
+      head = createNode(intervalList);
       inSync = true;
       size = intervalList.size();
     }
@@ -82,6 +81,93 @@ public class IntervalTree<T> {
   public String toString() {
     return nodeString(head, 0);
   }
+
+  /**
+   * @param set the set to look on
+   * @return the median of the set
+   */
+  private int getMedian(SortedSet<Integer> set) {
+    int i = 0;
+    int middle = set.size() / 2;
+    for (int point : set) {
+      if (i == middle)
+        return point;
+      i++;
+    }
+    return 0;
+  }
+
+  /**
+   * Perform a stabbing query on the node
+   *
+   * @param point the point to query at
+   * @return all intervals containing point
+   */
+  public List<Interval<T>> query(IntervalNode<T> node, int point) {
+    List<Interval<T>> result = new ArrayList<Interval<T>>();
+
+    for (Map.Entry<Interval<T>, List<Interval<T>>> entry : node.getIntervals().entrySet()) {
+      if (entry.getKey().contains(point))
+        for (Interval<T> interval : entry.getValue())
+          result.add(interval);
+      else if (entry.getKey().getStart() > point)
+        break;
+    }
+
+    if (point < node.getCenter() && node.getLeft() != null)
+      result.addAll(query(node.getLeft(), point));
+    else if (point > node.getCenter() && node.getRight() != null)
+      result.addAll(query(node.getRight(), point));
+    return result;
+  }
+
+
+  private IntervalNode<T> createNode(List<Interval<T>> intervalList) {
+    SortedMap<Interval<T>, List<Interval<T>>> intervals = new TreeMap<Interval<T>, List<Interval<T>>>();
+
+    SortedSet<Integer> endpoints = new TreeSet<Integer>();
+
+    for (Interval<T> interval : intervalList) {
+      endpoints.add(interval.getStart());
+      endpoints.add(interval.getEnd());
+    }
+
+    int median = getMedian(endpoints);
+
+    List<Interval<T>> leftIntervals = new ArrayList<Interval<T>>();
+    List<Interval<T>> rightIntervals = new ArrayList<Interval<T>>();
+
+    for (Interval<T> interval : intervalList) {
+      if (interval.getEnd() < median) {
+        leftIntervals.add(interval);
+      } else if (interval.getStart() > median) {
+        rightIntervals.add(interval);
+      } else {
+        List<Interval<T>> current = intervals.get(interval);
+        if (current == null) {
+          current = new ArrayList<Interval<T>>();
+          intervals.put(interval, current);
+        }
+        current.add(interval);
+      }
+    }
+
+    IntervalNode<T> left = null, right = null;
+    if (leftIntervals.size() > 0) {
+      left = createNode(leftIntervals);
+    }
+    if (rightIntervals.size() > 0) {
+      right = createNode(rightIntervals);
+    }
+
+    IntervalNode<T> newNode = new IntervalNode<T>();
+    newNode.setCenter(median);
+    newNode.setIntervals(intervals);
+    newNode.setLeft(left);
+    newNode.setRight(right);
+    return newNode;
+  }
+
 
   private String nodeString(IntervalNode<T> node, int level) {
     if (node == null)
