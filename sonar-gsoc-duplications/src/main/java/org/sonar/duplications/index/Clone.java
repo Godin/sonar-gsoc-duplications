@@ -30,22 +30,21 @@ public class Clone {
 
   private ClonePart originPart;
 
-  // clone length in units (not lines)
-  private int cloneLength;
+  private int cloneUnitLength;
 
   private int hash;
 
   public Clone(String resourceId1, int unitIndex1, int lineStart1, int lineEnd1,
                String resourceId2, int unitIndex2, int lineStart2, int lineEnd2,
-               int cloneLength) {
+               int cloneUnitLength) {
     addPart(new ClonePart(resourceId1, unitIndex1, lineStart1, lineEnd1));
     addPart(new ClonePart(resourceId2, unitIndex2, lineStart2, lineEnd2));
 
-    this.cloneLength = cloneLength;
+    this.cloneUnitLength = cloneUnitLength;
   }
 
-  public Clone(int cloneLength) {
-    this.cloneLength = cloneLength;
+  public Clone(int cloneUnitLength) {
+    this.cloneUnitLength = cloneUnitLength;
   }
 
   public void setOriginPart(ClonePart originPart) {
@@ -66,12 +65,52 @@ public class Clone {
     return Collections.unmodifiableList(parts);
   }
 
-  public int getCloneLength() {
-    return cloneLength;
+  /**
+   * @return clone length measured in units (not in lines)
+   */
+  public int getCloneUnitLength() {
+    return cloneUnitLength;
   }
 
-  public void setCloneLength(int cloneLength) {
-    this.cloneLength = cloneLength;
+  /**
+   * @param cloneUnitLength clone length measured in units (not in lines)
+   */
+  public void setCloneUnitLength(int cloneUnitLength) {
+    this.cloneUnitLength = cloneUnitLength;
+  }
+
+  /**
+   * Checks if first <tt>Clone</tt> is contained in second <tt>Clone</tt>. Clone A is contained in another
+   * Clone B if every ClonePart pA from A has ClonePart pB in B which satisfy the conditions
+   * pA.resourceId == pB.resourceId and pA.unitStart >= pB.unitStart and pA.unitEnd <= pb.unitEnd
+   *
+   * @param other Clone where current Clone should be contained
+   * @return
+   */
+  public boolean containsIn(Clone other) {
+    if (!getOriginPart().getResourceId().equals(other.getOriginPart().getResourceId())) {
+      return false;
+    }
+    for (int i = 0; i < getCloneParts().size(); i++) {
+      ClonePart firstPart = getCloneParts().get(i);
+      int firstUnitEnd = firstPart.getUnitStart() + getCloneUnitLength();
+      boolean found = false;
+
+      for (int j = 0; j < other.getCloneParts().size(); j++) {
+        ClonePart secondPart = other.getCloneParts().get(j);
+        int secondUnitEnd = secondPart.getUnitStart() + other.getCloneUnitLength();
+        if (firstPart.getResourceId().equals(secondPart.getResourceId()) &&
+            firstPart.getUnitStart() >= secondPart.getUnitStart() &&
+            firstUnitEnd <= secondUnitEnd) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -79,7 +118,7 @@ public class Clone {
     if (object instanceof Clone) {
       Clone another = (Clone) object;
 
-      if (another.cloneLength != cloneLength
+      if (another.cloneUnitLength != cloneUnitLength
           || parts.size() != another.parts.size())
         return false;
 
@@ -98,12 +137,12 @@ public class Clone {
   @Override
   public int hashCode() {
     int h = hash;
-    if (h == 0 && cloneLength != 0) {
+    if (h == 0 && cloneUnitLength != 0) {
       for (ClonePart part : parts) {
         h = 31 * h + part.hashCode();
       }
       h = 31 * h + originPart.hashCode();
-      h = 31 * h + cloneLength;
+      h = 31 * h + cloneUnitLength;
       hash = h;
     }
     return h;
@@ -115,6 +154,6 @@ public class Clone {
     for (ClonePart part : parts) {
       res = res + part.toString() + " - ";
     }
-    return res + cloneLength;
+    return res + cloneUnitLength;
   }
 }

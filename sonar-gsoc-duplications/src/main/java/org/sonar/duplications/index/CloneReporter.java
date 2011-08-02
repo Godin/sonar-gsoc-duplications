@@ -21,6 +21,8 @@
 package org.sonar.duplications.index;
 
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.interval.Interval;
+import org.sonar.duplications.interval.IntervalTree;
 
 import java.util.*;
 
@@ -65,8 +67,26 @@ public class CloneReporter {
     public int getCloneLength() {
       return cloneLength;
     }
-
   }
+
+  private static class PartWrapper {
+    public Clone clone;
+    public ClonePart part;
+
+    private PartWrapper(Clone clone, ClonePart part) {
+      this.clone = clone;
+      this.part = part;
+    }
+
+    public Clone getClone() {
+      return clone;
+    }
+
+    public ClonePart getPart() {
+      return part;
+    }
+  }
+
 
   private static class TempCloneComparator implements Comparator<TempClone> {
 
@@ -120,60 +140,82 @@ public class CloneReporter {
   }
 
   /**
-   * Checks if first Clone is contained in second Clone. Clone A is contained in another
-   * Clone B if every ClonePart pA from A has ClonePart pB in B which satisfy the conditions
-   * pA.resourceId == pB.resourceId and pA.unitStart >= pB.unitStart and pA.unitEnd <= pb.unitEnd
+   * O(n^2) filter for clones fully covered by another clones
    *
-   * @param first  Clone to check contains
-   * @param second Clone where to check contains
-   * @return
+   * @param clones original list of clones
+   * @return filtered list of clones
    */
-  private static boolean containsIn(Clone first, Clone second) {
-    if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
-      return false;
-    }
-    for (int i = 0; i < first.getCloneParts().size(); i++) {
-      ClonePart firstPart = first.getCloneParts().get(i);
-      int firstUnitEnd = firstPart.getUnitStart() + first.getCloneLength();
-      boolean found = false;
-
-      for (int j = 0; j < second.getCloneParts().size(); j++) {
-        ClonePart secondPart = second.getCloneParts().get(j);
-        int secondUnitEnd = secondPart.getUnitStart() + second.getCloneLength();
-        if (firstPart.getResourceId().equals(secondPart.getResourceId()) &&
-            firstPart.getUnitStart() >= secondPart.getUnitStart() &&
-            firstUnitEnd <= secondUnitEnd) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   private static List<Clone> filterCovered(List<Clone> clones) {
-    //O(n^2) filter for clones fully covered by another clones
     List<Clone> filtered = new ArrayList<Clone>();
     for (int i = 0; i < clones.size(); i++) {
       Clone first = clones.get(i);
       boolean covered = false;
       for (int j = 0; j < clones.size(); j++) {
-        if (i == j) {
+        if (i == j)
           continue;
-        }
+
         Clone second = clones.get(j);
-        covered |= containsIn(first, second);
+        covered |= first.containsIn(second);
         if (covered)
           break;
       }
-      if (!covered) {
+      if (!covered)
         filtered.add(first);
+    }
+    return filtered;
+  }
+
+  /**
+   * O(n log n) filter using interval tree for clones fully covered by another clones
+   *
+   * @param clones original list of clones
+   * @return filtered list of clones
+   */
+  private static List<Clone> filterCoveredIntervalTree(List<Clone> clones) {
+    List<Clone> filtered = new ArrayList<Clone>();
+    HashMap<String, IntervalTree> trees = new HashMap<String, IntervalTree>();
+
+    //populate interval tree structure
+    for (int i = 0; i < clones.size(); i++) {
+      Clone clone = clones.get(i);
+
+      for (ClonePart part : clone.getCloneParts()) {
+        PartWrapper partWrap = new PartWrapper(clone, part);
+        IntervalTree tree = trees.get(part.getResourceId());
+        if (tree == null) {
+          tree = new IntervalTree();
+          trees.put(part.getResourceId(), tree);
+        }
+        int unitStart = part.getUnitStart();
+        int unitEnd = part.getUnitStart() + clone.getCloneUnitLength() - 1;
+
+        tree.addInterval(new Interval(unitStart, unitEnd, partWrap));
       }
     }
 
+    for (int i = 0; i < clones.size(); i++) {
+      Clone clone = clones.get(i);
+      ClonePart originPart = clone.getOriginPart();
+      IntervalTree tree = trees.get(originPart.getResourceId());
+
+      int unitStart = originPart.getUnitStart();
+      int unitEnd = originPart.getUnitStart() + clone.getCloneUnitLength() - 1;
+      List<Interval> intervals = tree.getCoveringIntervals(unitStart, unitEnd);
+
+      boolean covered = false;
+      for (Interval<PartWrapper> interval : intervals) {
+        Clone foundClone = interval.getData().getClone();
+        if (foundClone.equals(clone))
+          continue;
+
+        covered |= clone.containsIn(foundClone);
+        if (covered)
+          break;
+      }
+
+      if (!covered)
+        filtered.add(clone);
+    }
     return filtered;
   }
 
@@ -181,7 +223,7 @@ public class CloneReporter {
     HashSet<Clone> set = new HashSet<Clone>(clones);
     List<Clone> result = new ArrayList<Clone>(set);
 
-    return filterCovered(result);
+    return filterCoveredIntervalTree(result);
   }
 
   /**
