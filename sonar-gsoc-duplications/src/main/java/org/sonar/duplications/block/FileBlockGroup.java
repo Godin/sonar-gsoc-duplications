@@ -20,30 +20,30 @@
  */
 package org.sonar.duplications.block;
 
+import org.sonar.duplications.DuplicationsException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.sonar.duplications.DuplicationsException;
+public class FileBlockGroup {
 
-public class FileCloneIndex {
-
-  private final String fileResourceId;
+  private final String resourceId;
   private final List<Block> fileBlocks = new ArrayList<Block>();
 
-  public FileCloneIndex(String fileResourceId) {
-    this.fileResourceId = fileResourceId;
+  public FileBlockGroup(String resourceId) {
+    this.resourceId = resourceId;
   }
 
   public void addBlock(Block block) {
-    if ( !getFileResourceId().equals(block.getResourceId())) {
+    if (!getResourceId().equals(block.getResourceId())) {
       throw new DuplicationsException("Block resourceId not equals to FileBlockGroup resourceId");
     }
     fileBlocks.add(block);
   }
 
-  public String getFileResourceId() {
-    return fileResourceId;
+  public String getResourceId() {
+    return resourceId;
   }
 
   public List<Block> getBlockList() {

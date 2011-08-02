@@ -29,12 +29,14 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.duplications.CloneFinder;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 import org.sonar.plugins.cpd.backends.CpdIndexBackend;
 import org.sonar.plugins.cpd.backends.MemoryIndexBackend;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CpdSensor implements Sensor {
@@ -96,20 +98,22 @@ public class CpdSensor implements Sensor {
 
     TimeProfiler profiler = new TimeProfiler(LOG);
     profiler.start("CPD :: tokenize and update index");
+    List<FileBlockGroup> fileBlockGroups = new ArrayList<FileBlockGroup>();
+
     for (InputFile inputFile : inputFiles) {
       index.remove(inputFile.getFile().getAbsolutePath());
-      cf.register(inputFile.getFile());
+      FileBlockGroup fileBlockGroup = cf.tokenize(inputFile.getFile());
+      cf.register(fileBlockGroup);
+      fileBlockGroups.add(fileBlockGroup);
     }
     profiler.stop();
 
     profiler.start("CPD :: find and report duplicates");
     long totalTimeFindClones = 0;
-    for (InputFile inputFile : inputFiles) {
-      cf.clearSourceFilesForDetection();
-      cf.addSourceFileForDetection(inputFile.getFile().getAbsolutePath());
 
+    for (FileBlockGroup fileBlockGroup : fileBlockGroups) {
       long start = System.currentTimeMillis();
-      List<Clone> clones = cf.findClones();
+      List<Clone> clones = cf.findClones(fileBlockGroup);
       totalTimeFindClones += System.currentTimeMillis() - start;
 
       analyser.analyse(clones);

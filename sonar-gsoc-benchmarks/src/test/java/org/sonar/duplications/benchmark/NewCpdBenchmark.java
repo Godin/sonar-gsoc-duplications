@@ -20,6 +20,7 @@
 package org.sonar.duplications.benchmark;
 
 import org.sonar.duplications.CloneFinder;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
@@ -51,9 +52,9 @@ public class NewCpdBenchmark extends Benchmark {
     }
     List<Clone> clones = new ArrayList<Clone>();
     for (File file : files) {
-      cf.clearSourceFilesForDetection();
-      cf.addSourceFileForDetection(file.getAbsolutePath());
-      clones.addAll(cf.findClones());
+      FileBlockGroup fileBlockGroup = cf.tokenize(file);
+      cf.register(fileBlockGroup);
+      clones.addAll(cf.findClones(fileBlockGroup));
     }
     return clones;
   }

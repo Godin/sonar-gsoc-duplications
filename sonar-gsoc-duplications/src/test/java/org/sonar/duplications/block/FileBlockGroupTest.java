@@ -17,11 +17,11 @@ import static org.junit.Assert.assertThat;
 public class FileBlockGroupTest {
 
   private File testFile = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
-  private FileCloneIndex fci;
+  private FileBlockGroup fci;
 
   @Before
   public void pubicInitTest() {
-    fci = new FileCloneIndex(testFile.getPath());
+    fci = new FileBlockGroup(testFile.getPath());
     init(fci, testFile);
   }
 
@@ -37,11 +37,11 @@ public class FileBlockGroupTest {
 
   @Test(expected = DuplicationsException.class)
   public void shouldNotAddBlockWithDifferentResourceId() {
-    FileCloneIndex file = new FileCloneIndex("a");
+    FileBlockGroup file = new FileBlockGroup("a");
     file.addBlock(new Block("b", "13dws2324d", 1, 1, 7));
   }
 
-  public void init(FileCloneIndex fci, File file) {
+  public void init(FileBlockGroup fci, File file) {
     try {
       TokenChunker lexer = JavaTokenProducer.build();
       StatementChunker statementBuilder = JavaStatementBuilder.build();

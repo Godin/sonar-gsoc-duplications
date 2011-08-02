@@ -1,6 +1,7 @@
 package org.sonar.duplications;
 
 import org.junit.Test;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.Clone;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
@@ -30,11 +31,12 @@ public class CloneGroupDuplicationTest {
   @Test
   public void shouldFindDuplicateInFile() {
 
-    initTestData(file1, file2);
+    initTestData();
 
-    cf.addSourceFileForDetection(file1.getAbsolutePath());
-
-    List<Clone> cloneList = cf.findClones();
+    FileBlockGroup fileBlockGroup = cf.tokenize(file1);
+    cf.register(fileBlockGroup);
+    cf.register(file2);
+    List<Clone> cloneList = cf.findClones(fileBlockGroup);
 
     ClonePart part1 = new ClonePart(file1.getAbsolutePath(), 3, 6, 11);
     ClonePart part2 = new ClonePart(file2.getAbsolutePath(), 9, 28, 33);
@@ -50,13 +52,15 @@ public class CloneGroupDuplicationTest {
   @Test
   public void shouldFindTriplicateInFile() {
 
-    initTestData(file1, file2, file3);
+    initTestData();
 
-    cf.clearSourceFilesForDetection();
-    cf.addSourceFileForDetection(file1.getAbsolutePath());
-    List<Clone> cloneList1 = cf.findClones();
+    FileBlockGroup fileBlockGroup = cf.tokenize(file1);
+    cf.register(fileBlockGroup);
+    cf.register(file2);
+    cf.register(file3);
+    List<Clone> cloneList = cf.findClones(fileBlockGroup);
 
-    assertThat(cloneList1.size(), is(2));
+    assertThat(cloneList.size(), is(2));
 
     ClonePart part11 = new ClonePart(file1.getAbsolutePath(), 3, 6, 9);
     ClonePart part12 = new ClonePart(file2.getAbsolutePath(), 9, 28, 31);
@@ -68,7 +72,7 @@ public class CloneGroupDuplicationTest {
         .addPart(part13);
     expected1.setOriginPart(part11);
 
-    assertThat(cloneList1, hasItem(expected1));
+    assertThat(cloneList, hasItem(expected1));
 
     //and a bigger clone between file1 and file2 as like the previous test case
     ClonePart part21 = new ClonePart(file1.getAbsolutePath(), 3, 6, 11);
@@ -78,81 +82,86 @@ public class CloneGroupDuplicationTest {
         .addPart(part22);
     expected2.setOriginPart(part21);
 
-    assertThat(cloneList1, hasItem(expected2));
+    assertThat(cloneList, hasItem(expected2));
   }
 
   @Test
   public void shouldFindDuplicateInFileWithBiggerClone() {
-
     //separate source file contains bigger clone by adding more similar code in existing clone
     //now it should report only one clone but bigger in size
-    initTestData(file21, file22);
+    initTestData();
 
-    cf.addSourceFileForDetection(file21.getAbsolutePath());
+    FileBlockGroup fileBlockGroup21 = cf.tokenize(file21);
+    cf.register(fileBlockGroup21);
+    cf.register(file22);
+    List<Clone> cloneList21 = cf.findClones(fileBlockGroup21);
 
-    List<Clone> cloneList = cf.findClones();
-
-    ClonePart part1 = new ClonePart(file21.getAbsolutePath(), 3, 6, 18);
-    ClonePart part2 = new ClonePart(file22.getAbsolutePath(), 9, 28, 40);
+    ClonePart part21 = new ClonePart(file21.getAbsolutePath(), 3, 6, 18);
+    ClonePart part22 = new ClonePart(file22.getAbsolutePath(), 9, 28, 40);
 
     Clone expected = new Clone(12)
-        .addPart(part1)
-        .addPart(part2);
-    expected.setOriginPart(part1);
+        .addPart(part21)
+        .addPart(part22);
+    expected.setOriginPart(part21);
 
-    assertThat(cloneList, hasItem(expected));
-    assertThat(cloneList.size(), is(1));
+    assertThat(cloneList21, hasItem(expected));
+    assertThat(cloneList21.size(), is(1));
   }
 
   @Test
   public void shouldFindDuplicateInDirectory() {
+    initTestData();
 
-    initTestData(file1, file2, file3);
-
-    cf.addSourceDirectoryForDetection(dir.getAbsolutePath());
-
-    List<Clone> cloneList = cf.findClones();
+    FileBlockGroup fileBlockGroup1 = cf.tokenize(file1);
+    FileBlockGroup fileBlockGroup2 = cf.tokenize(file2);
+    cf.register(fileBlockGroup1);
+    cf.register(fileBlockGroup2);
+    cf.register(file3);
+    List<Clone> cloneList1 = cf.findClones(fileBlockGroup1);
+    List<Clone> cloneList2 = cf.findClones(fileBlockGroup2);
 
     Clone expected1 = new Clone(2)
         .addPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 9))
         .addPart(new ClonePart(file3.getAbsolutePath(), 9, 28, 31));
     expected1.setOriginPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 9));
 
-    assertThat(cloneList, hasItem(expected1));
+    assertThat(cloneList1, hasItem(expected1));
 
     Clone expected2 = new Clone(5)
         .addPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 11))
         .addPart(new ClonePart(file2.getAbsolutePath(), 9, 28, 33));
     expected2.setOriginPart(new ClonePart(file1.getAbsolutePath(), 3, 6, 11));
 
-    assertThat(cloneList, hasItem(expected2));
+    assertThat(cloneList1, hasItem(expected2));
 
     Clone expected3 = new Clone(11)
         .addPart(new ClonePart(file2.getAbsolutePath(), 0, 13, 31))
         .addPart(new ClonePart(file3.getAbsolutePath(), 0, 13, 31));
     expected3.setOriginPart(new ClonePart(file2.getAbsolutePath(), 0, 13, 31));
 
-    assertThat(cloneList, hasItem(expected3));
+    assertThat(cloneList2, hasItem(expected3));
 
     Clone expected4 = new Clone(3)
         .addPart(new ClonePart(file2.getAbsolutePath(), 17, 33, 47))
         .addPart(new ClonePart(file3.getAbsolutePath(), 14, 31, 45));
     expected4.setOriginPart(new ClonePart(file2.getAbsolutePath(), 17, 33, 47));
 
-    assertThat(cloneList, hasItem(expected4));
+    assertThat(cloneList2, hasItem(expected4));
   }
 
   @Test
   public void shouldReportCloneWithSmallBlockSize() {
-
     //find clone with smaller block size
     cf = JavaCloneFinder.build(mci, 4);
 
-    initTestData(file1, file2, file3);
+    initTestData();
 
-    cf.addSourceDirectoryForDetection(dir.getAbsolutePath());
+    FileBlockGroup fileBlockGroup1 = cf.tokenize(file1);
+    cf.register(fileBlockGroup1);
+    cf.register(file2);
+    cf.register(file3);
 
-    List<Clone> cloneList = cf.findClones();
+    List<Clone> cloneList1 = cf.findClones(fileBlockGroup1);
 
     ClonePart part1 = new ClonePart(file1.getAbsolutePath(), 12, 15, 18);
     ClonePart part2 = new ClonePart(file3.getAbsolutePath(), 21, 49, 52);
@@ -161,20 +170,22 @@ public class CloneGroupDuplicationTest {
         .addPart(part2);
     expectedSmallClone.setOriginPart(part1);
 
-    assertThat(cloneList, hasItem(expectedSmallClone));
+    assertThat(cloneList1, hasItem(expectedSmallClone));
   }
 
   @Test
   public void shouldNotReportCloneSmallerThanBlockSize() {
-
     //find clone with minimum block size 5
     cf = JavaCloneFinder.build(mci, 5);
 
-    initTestData(file1, file2, file3);
+    initTestData();
 
-    cf.addSourceDirectoryForDetection(dir.getAbsolutePath());
+    FileBlockGroup fileBlockGroup1 = cf.tokenize(file1);
+    cf.register(fileBlockGroup1);
+    cf.register(file2);
+    cf.register(file3);
 
-    List<Clone> cloneList = cf.findClones();
+    List<Clone> cloneList1 = cf.findClones(fileBlockGroup1);
 
     ClonePart part1 = new ClonePart(file1.getAbsolutePath(), 12, 15, 18);
     ClonePart part2 = new ClonePart(file3.getAbsolutePath(), 21, 49, 52);
@@ -183,11 +194,12 @@ public class CloneGroupDuplicationTest {
         .addPart(part2);
     expectedSmallClone.setOriginPart(part1);
 
-    assertThat(cloneList, not(hasItem(expectedSmallClone)));
+    assertThat(cloneList1, not(hasItem(expectedSmallClone)));
   }
 
   private void initTestData(File... files) {
     mci.removeAll();
-    cf.register(files);
+    for (File file : files)
+      cf.register(file);
   }
 }
