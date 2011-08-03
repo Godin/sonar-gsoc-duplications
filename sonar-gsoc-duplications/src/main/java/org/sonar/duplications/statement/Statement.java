@@ -20,10 +20,10 @@
  */
 package org.sonar.duplications.statement;
 
-import java.util.List;
-
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.token.Token;
+
+import java.util.List;
 
 public class Statement {
 
@@ -43,7 +43,7 @@ public class Statement {
   }
 
   public Statement(List<Token> tokenList) {
-    if (tokenList == null || tokenList.size() == 0) {
+    if (tokenList == null || tokenList.isEmpty()) {
       throw new DuplicationsException("A statement can't be initialized with an empty list of token");
     }
     int fromLine = tokenList.get(0).getLine();

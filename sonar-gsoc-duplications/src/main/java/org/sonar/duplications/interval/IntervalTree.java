@@ -155,10 +155,10 @@ public class IntervalTree<T> {
     }
 
     IntervalNode<T> left = null, right = null;
-    if (leftIntervals.size() > 0) {
+    if (!leftIntervals.isEmpty()) {
       left = createNode(leftIntervals);
     }
-    if (rightIntervals.size() > 0) {
+    if (!rightIntervals.isEmpty()) {
       right = createNode(rightIntervals);
     }
 
