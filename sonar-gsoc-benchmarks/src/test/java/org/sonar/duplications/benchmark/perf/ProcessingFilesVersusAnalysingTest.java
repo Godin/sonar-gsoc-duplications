@@ -26,11 +26,13 @@ import java.util.List;
 
 import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.duplications.benchmark.PopulateIndexBenchmark;
 import org.sonar.duplications.benchmark.ReportClonesBenchmark;
 import org.sonar.duplications.benchmark.Utils;
 
+@Ignore("not relevant at the moment, because of two algorithms")
 public class ProcessingFilesVersusAnalysingTest {
 
   protected static int BENCHMARK_ROUNDS = 2;
