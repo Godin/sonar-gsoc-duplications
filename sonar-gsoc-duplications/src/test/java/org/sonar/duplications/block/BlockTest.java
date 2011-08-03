@@ -17,8 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications;
-
+package org.sonar.duplications.block;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -29,7 +28,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.sonar.duplications.block.Block;
 
 public class BlockTest {
 
@@ -67,20 +65,20 @@ public class BlockTest {
 
   @Test
   public void hashCodeTest() {
-    String[] files = {"file1", "file2"};
-    int[] unitIndexes = {1, 2};
-    String[] arrays = {"123", "321"};
+    String[] files = { "file1", "file2" };
+    int[] unitIndexes = { 1, 2 };
+    String[] arrays = { "123", "321" };
 
-    //fileName is in hashCode()
+    // fileName is in hashCode()
     int defaultTupleHashCode = new Block(files[0], arrays[0], unitIndexes[0], 1, 10).hashCode();
     int fileNameTupleHashCode = new Block(files[1], arrays[0], unitIndexes[0], 1, 10).hashCode();
     assertThat(defaultTupleHashCode, not(equalTo(fileNameTupleHashCode)));
 
-    //statementIndex is in hashCode()
+    // statementIndex is in hashCode()
     int indexTupleHashCode = new Block(files[0], arrays[0], unitIndexes[1], 1, 10).hashCode();
     assertThat(defaultTupleHashCode, not(equalTo(indexTupleHashCode)));
 
-    //sequenceHash is in hashCode()
+    // sequenceHash is in hashCode()
     int sequenceHashTupleHashCode = new Block(files[0], arrays[1], unitIndexes[0], 1, 10).hashCode();
     assertThat(defaultTupleHashCode, not(equalTo(sequenceHashTupleHashCode)));
   }

@@ -47,7 +47,7 @@ public class AbstractTestCase {
   protected static BenchmarksDiff results = new BenchmarksDiff();
 
   protected BenchmarkResult run(Benchmark benchmark) {
-    return benchmark.runBenchmark(WARMUP_ROUNDS, BENCHMARK_ROUNDS);
+    return benchmark.runBenchmark(BENCHMARK_ROUNDS, WARMUP_ROUNDS);
   }
 
   @Before
