@@ -41,20 +41,12 @@ public class MemoryCloneIndex implements CloneIndex {
       }
       return o1.getResourceId().compareTo(o2.getResourceId());
     }
-
-    public boolean equals(Object obj) {
-      return obj instanceof ValueComparator;
-    }
   }
 
   private static final class KeyComparator implements Comparator<String> {
 
     public int compare(String o1, String o2) {
       return o1.compareTo(o2);
-    }
-
-    public boolean equals(Object obj) {
-      return obj instanceof KeyComparator;
     }
   }
 
