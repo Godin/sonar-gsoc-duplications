@@ -30,7 +30,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.block.FileBlockGroup;
-import org.sonar.duplications.index.Clone;
+import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 import org.sonar.plugins.cpd.backends.CpdIndexBackend;
@@ -113,7 +113,7 @@ public class CpdSensor implements Sensor {
 
     for (FileBlockGroup fileBlockGroup : fileBlockGroups) {
       long start = System.currentTimeMillis();
-      List<Clone> clones = cf.findClones(fileBlockGroup);
+      List<CloneGroup> clones = cf.findClones(fileBlockGroup);
       totalTimeFindClones += System.currentTimeMillis() - start;
 
       analyser.analyse(clones);

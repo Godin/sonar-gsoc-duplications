@@ -19,12 +19,12 @@
  */
 package org.sonar.duplications;
 
+import org.sonar.duplications.algorithm.CloneReporter;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.block.FileBlockGroup;
-import org.sonar.duplications.index.Clone;
+import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.CloneReporter;
 import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
@@ -118,7 +118,7 @@ public final class CloneFinder {
     return fileBlockGroup;
   }
 
-  public List<Clone> findClones(FileBlockGroup fileBlockGroup) {
+  public List<CloneGroup> findClones(FileBlockGroup fileBlockGroup) {
     //build on the fly
     if (!cloneIndex.containsResourceId(fileBlockGroup.getResourceId()))
       register(fileBlockGroup);

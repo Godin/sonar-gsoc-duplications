@@ -19,24 +19,22 @@
  */
 package org.sonar.duplications.benchmark;
 
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+import net.sourceforge.pmd.cpd.TokenEntry;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
+import org.sonar.duplications.cpd.Match;
+import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.index.ClonePart;
 
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sourceforge.pmd.cpd.TokenEntry;
-
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.sonar.duplications.cpd.Match;
-import org.sonar.duplications.index.Clone;
-import org.sonar.duplications.index.ClonePart;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class CompareResultsTest {
 
@@ -117,8 +115,8 @@ public class CompareResultsTest {
 
   private int runNewCpd(List<File> files, int blockSize) {
     SetMultimap<String, Integer> duplicatedLines = HashMultimap.create();
-    List<Clone> clones = NewCpdBenchmark.singleRun(files, blockSize);
-    for (Clone clone : clones) {
+    List<CloneGroup> clones = NewCpdBenchmark.singleRun(files, blockSize);
+    for (CloneGroup clone : clones) {
       for (ClonePart clonePart : clone.getCloneParts()) {
         String resourceId = clonePart.getResourceId();
         for (int line = clonePart.getLineStart(); line <= clonePart.getLineEnd(); line++) {

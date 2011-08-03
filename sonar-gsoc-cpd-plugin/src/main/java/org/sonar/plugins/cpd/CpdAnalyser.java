@@ -27,7 +27,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.duplications.index.Clone;
+import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 
 import java.io.File;
@@ -45,10 +45,10 @@ public class CpdAnalyser {
     this.project = project;
   }
 
-  public void analyse(List<Clone> clones) {
+  public void analyse(List<CloneGroup> clones) {
     Map<Resource, DuplicationsData> duplicationsData = new HashMap<Resource, DuplicationsData>();
 
-    for (Clone clone : clones) {
+    for (CloneGroup clone : clones) {
       ClonePart originPart = clone.getOriginPart();
       String firstResourceId = originPart.getResourceId();
       int firstLineStart = originPart.getLineStart();

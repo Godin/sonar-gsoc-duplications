@@ -2,7 +2,7 @@ package org.sonar.duplications;
 
 import org.junit.Test;
 import org.sonar.duplications.block.FileBlockGroup;
-import org.sonar.duplications.index.Clone;
+import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
@@ -36,11 +36,11 @@ public class CloneGroupDuplicationTest {
     FileBlockGroup fileBlockGroup = cf.tokenize(file1);
     cf.register(fileBlockGroup);
     cf.register(file2);
-    List<Clone> cloneList = cf.findClones(fileBlockGroup);
+    List<CloneGroup> cloneList = cf.findClones(fileBlockGroup);
 
     ClonePart part1 = new ClonePart(file1.getAbsolutePath(), 3, 4, 12);
     ClonePart part2 = new ClonePart(file2.getAbsolutePath(), 9, 25, 33);
-    Clone expected = new Clone(5)
+    CloneGroup expected = new CloneGroup(5)
         .addPart(part1)
         .addPart(part2);
     expected.setOriginPart(part1);
@@ -58,14 +58,14 @@ public class CloneGroupDuplicationTest {
     cf.register(fileBlockGroup);
     cf.register(file2);
     cf.register(file3);
-    List<Clone> cloneList = cf.findClones(fileBlockGroup);
+    List<CloneGroup> cloneList = cf.findClones(fileBlockGroup);
 
     assertThat(cloneList.size(), is(2));
 
     ClonePart part11 = new ClonePart(file1.getAbsolutePath(), 3, 4, 9);
     ClonePart part12 = new ClonePart(file2.getAbsolutePath(), 9, 25, 33);
     ClonePart part13 = new ClonePart(file3.getAbsolutePath(), 9, 25, 30);
-    Clone expected1 = new Clone(2)
+    CloneGroup expected1 = new CloneGroup(2)
         .addPart(part11)
             //TODO discuss and fix for CloneGroups
             //.addPart(part12)
@@ -77,7 +77,7 @@ public class CloneGroupDuplicationTest {
     //and a bigger clone between file1 and file2 as like the previous test case
     ClonePart part21 = new ClonePart(file1.getAbsolutePath(), 3, 4, 12);
     ClonePart part22 = new ClonePart(file2.getAbsolutePath(), 9, 25, 33);
-    Clone expected2 = new Clone(5)
+    CloneGroup expected2 = new CloneGroup(5)
         .addPart(part21)
         .addPart(part22);
     expected2.setOriginPart(part21);
@@ -94,12 +94,12 @@ public class CloneGroupDuplicationTest {
     FileBlockGroup fileBlockGroup21 = cf.tokenize(file21);
     cf.register(fileBlockGroup21);
     cf.register(file22);
-    List<Clone> cloneList21 = cf.findClones(fileBlockGroup21);
+    List<CloneGroup> cloneList21 = cf.findClones(fileBlockGroup21);
 
     ClonePart part21 = new ClonePart(file21.getAbsolutePath(), 3, 4, 19);
     ClonePart part22 = new ClonePart(file22.getAbsolutePath(), 9, 25, 40);
 
-    Clone expected = new Clone(12)
+    CloneGroup expected = new CloneGroup(12)
         .addPart(part21)
         .addPart(part22);
     expected.setOriginPart(part21);
@@ -117,31 +117,31 @@ public class CloneGroupDuplicationTest {
     cf.register(fileBlockGroup1);
     cf.register(fileBlockGroup2);
     cf.register(file3);
-    List<Clone> cloneList1 = cf.findClones(fileBlockGroup1);
-    List<Clone> cloneList2 = cf.findClones(fileBlockGroup2);
+    List<CloneGroup> cloneList1 = cf.findClones(fileBlockGroup1);
+    List<CloneGroup> cloneList2 = cf.findClones(fileBlockGroup2);
 
-    Clone expected1 = new Clone(2)
+    CloneGroup expected1 = new CloneGroup(2)
         .addPart(new ClonePart(file1.getAbsolutePath(), 3, 4, 9))
         .addPart(new ClonePart(file3.getAbsolutePath(), 9, 25, 30));
     expected1.setOriginPart(new ClonePart(file1.getAbsolutePath(), 3, 4, 9));
 
     assertThat(cloneList1, hasItem(expected1));
 
-    Clone expected2 = new Clone(5)
+    CloneGroup expected2 = new CloneGroup(5)
         .addPart(new ClonePart(file1.getAbsolutePath(), 3, 4, 12))
         .addPart(new ClonePart(file2.getAbsolutePath(), 9, 25, 33));
     expected2.setOriginPart(new ClonePart(file1.getAbsolutePath(), 3, 4, 12));
 
     assertThat(cloneList1, hasItem(expected2));
 
-    Clone expected3 = new Clone(11)
+    CloneGroup expected3 = new CloneGroup(11)
         .addPart(new ClonePart(file2.getAbsolutePath(), 0, 10, 30))
         .addPart(new ClonePart(file3.getAbsolutePath(), 0, 10, 30));
     expected3.setOriginPart(new ClonePart(file2.getAbsolutePath(), 0, 10, 30));
 
     assertThat(cloneList2, hasItem(expected3));
 
-    Clone expected4 = new Clone(3)
+    CloneGroup expected4 = new CloneGroup(3)
         .addPart(new ClonePart(file2.getAbsolutePath(), 17, 33, 47))
         .addPart(new ClonePart(file3.getAbsolutePath(), 14, 30, 44));
     expected4.setOriginPart(new ClonePart(file2.getAbsolutePath(), 17, 33, 47));
@@ -161,11 +161,11 @@ public class CloneGroupDuplicationTest {
     cf.register(file2);
     cf.register(file3);
 
-    List<Clone> cloneList1 = cf.findClones(fileBlockGroup1);
+    List<CloneGroup> cloneList1 = cf.findClones(fileBlockGroup1);
 
     ClonePart part1 = new ClonePart(file1.getAbsolutePath(), 12, 16, 19);
     ClonePart part2 = new ClonePart(file3.getAbsolutePath(), 21, 48, 51);
-    Clone expectedSmallClone = new Clone(1)
+    CloneGroup expectedSmallClone = new CloneGroup(1)
         .addPart(part1)
         .addPart(part2);
     expectedSmallClone.setOriginPart(part1);
@@ -185,11 +185,11 @@ public class CloneGroupDuplicationTest {
     cf.register(file2);
     cf.register(file3);
 
-    List<Clone> cloneList1 = cf.findClones(fileBlockGroup1);
+    List<CloneGroup> cloneList1 = cf.findClones(fileBlockGroup1);
 
     ClonePart part1 = new ClonePart(file1.getAbsolutePath(), 12, 15, 18);
     ClonePart part2 = new ClonePart(file3.getAbsolutePath(), 21, 49, 52);
-    Clone expectedSmallClone = new Clone(2)
+    CloneGroup expectedSmallClone = new CloneGroup(2)
         .addPart(part1)
         .addPart(part2);
     expectedSmallClone.setOriginPart(part1);

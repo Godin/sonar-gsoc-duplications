@@ -21,7 +21,7 @@ package org.sonar.duplications.benchmark;
 
 import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.block.FileBlockGroup;
-import org.sonar.duplications.index.Clone;
+import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 
@@ -44,7 +44,7 @@ public class ReportClonesBenchmark extends Benchmark {
 
   @Override
   public void runRound() throws Exception {
-    List<Clone> clones = new ArrayList<Clone>();
+    List<CloneGroup> clones = new ArrayList<CloneGroup>();
     for (File file : files) {
       FileBlockGroup fileBlockGroup = cf.tokenize(file);
       cf.register(fileBlockGroup);

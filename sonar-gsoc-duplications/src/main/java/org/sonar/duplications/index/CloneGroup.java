@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Clone {
+public class CloneGroup {
 
   private final List<ClonePart> parts = new ArrayList<ClonePart>();
 
@@ -34,16 +34,10 @@ public class Clone {
 
   private int hash;
 
-  public Clone(String resourceId1, int unitIndex1, int lineStart1, int lineEnd1,
-               String resourceId2, int unitIndex2, int lineStart2, int lineEnd2,
-               int cloneUnitLength) {
-    addPart(new ClonePart(resourceId1, unitIndex1, lineStart1, lineEnd1));
-    addPart(new ClonePart(resourceId2, unitIndex2, lineStart2, lineEnd2));
-
-    this.cloneUnitLength = cloneUnitLength;
+  public CloneGroup() {
   }
 
-  public Clone(int cloneUnitLength) {
+  public CloneGroup(int cloneUnitLength) {
     this.cloneUnitLength = cloneUnitLength;
   }
 
@@ -55,7 +49,7 @@ public class Clone {
     return originPart;
   }
 
-  public Clone addPart(ClonePart part) {
+  public CloneGroup addPart(ClonePart part) {
     parts.add(part);
     Collections.sort(parts, null);
     return this;
@@ -79,44 +73,11 @@ public class Clone {
     this.cloneUnitLength = cloneUnitLength;
   }
 
-  /**
-   * Checks if first <tt>Clone</tt> is contained in second <tt>Clone</tt>. Clone A is contained in another
-   * Clone B if every ClonePart pA from A has ClonePart pB in B which satisfy the conditions
-   * pA.resourceId == pB.resourceId and pA.unitStart >= pB.unitStart and pA.unitEnd <= pb.unitEnd
-   *
-   * @param other Clone where current Clone should be contained
-   * @return
-   */
-  public boolean containsIn(Clone other) {
-    if (!getOriginPart().getResourceId().equals(other.getOriginPart().getResourceId())) {
-      return false;
-    }
-    for (int i = 0; i < getCloneParts().size(); i++) {
-      ClonePart firstPart = getCloneParts().get(i);
-      int firstUnitEnd = firstPart.getUnitStart() + getCloneUnitLength();
-      boolean found = false;
-
-      for (int j = 0; j < other.getCloneParts().size(); j++) {
-        ClonePart secondPart = other.getCloneParts().get(j);
-        int secondUnitEnd = secondPart.getUnitStart() + other.getCloneUnitLength();
-        if (firstPart.getResourceId().equals(secondPart.getResourceId()) &&
-            firstPart.getUnitStart() >= secondPart.getUnitStart() &&
-            firstUnitEnd <= secondUnitEnd) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   @Override
   public boolean equals(Object object) {
-    if (object instanceof Clone) {
-      Clone another = (Clone) object;
+    if (object instanceof CloneGroup) {
+      CloneGroup another = (CloneGroup) object;
 
       if (another.cloneUnitLength != cloneUnitLength
           || parts.size() != another.parts.size())

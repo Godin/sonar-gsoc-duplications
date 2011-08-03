@@ -19,21 +19,13 @@
  */
 package org.sonar.duplications.benchmark;
 
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
+import com.google.common.collect.Lists;
 import org.sonar.duplications.DuplicationsException;
+import org.sonar.duplications.algorithm.CloneReporter;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
-import org.sonar.duplications.index.Clone;
+import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.CloneReporter;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaStatementBuilder;
 import org.sonar.duplications.java.JavaTokenProducer;
@@ -42,7 +34,9 @@ import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class ThreadedNewCpdBenchmark extends Benchmark {
 
@@ -61,11 +55,11 @@ public class ThreadedNewCpdBenchmark extends Benchmark {
     singleRun(files, threadsCount, blockSize);
   }
 
-  public static List<Clone> singleRun(List<File> files, int threadsCount, int blockSize) throws Exception {
+  public static List<CloneGroup> singleRun(List<File> files, int threadsCount, int blockSize) throws Exception {
     MemoryCloneIndex cloneIndex = new MemoryCloneIndex();
     populateIndex(files, threadsCount, blockSize, cloneIndex);
     // find clones
-    List<Clone> clones = Lists.newArrayList();
+    List<CloneGroup> clones = Lists.newArrayList();
     for (File file : files) {
       List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
       clones.addAll(CloneReporter.reportClones(candidateBlockList, cloneIndex));
