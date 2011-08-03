@@ -43,6 +43,26 @@ public class CloneReporter {
       }
       return this.resourceId.compareTo(o.resourceId);
     }
+
+    @Override
+    public boolean equals(Object object) {
+      if (object instanceof Key) {
+        Key other = (Key) object;
+
+        if (other.resourceId.equals(resourceId) && other.unitNum == unitNum) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      int h = 0;
+      h = 31 * h + resourceId.hashCode();
+      h = 31 * h + unitNum;
+      return h;
+    }
   }
 
   private static class TempClone {
@@ -86,7 +106,6 @@ public class CloneReporter {
       return part;
     }
   }
-
 
   private static class TempCloneComparator implements Comparator<TempClone> {
 

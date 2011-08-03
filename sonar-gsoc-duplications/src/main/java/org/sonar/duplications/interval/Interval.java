@@ -76,4 +76,23 @@ public class Interval<T> implements Comparable<Interval<T>> {
       return 0;
   }
 
+  @Override
+  public boolean equals(Object object) {
+    if (object instanceof Interval) {
+      Interval other = (Interval) object;
+
+      if (other.getStart() == start && other.getEnd() == end) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int h = 0;
+    h = 31 * h + start;
+    h = 31 * h + end;
+    return h;
+  }
 }
