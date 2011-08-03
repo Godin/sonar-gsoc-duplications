@@ -21,16 +21,14 @@ package org.sonar.duplications.benchmark;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.sonar.duplications.CloneFinder;
-import org.sonar.duplications.block.FileBlockGroup;
-import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.algorithm.CloneReporter;
+import org.sonar.duplications.block.Block;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class NewCpdBenchmark extends Benchmark {
 
@@ -47,20 +45,16 @@ public class NewCpdBenchmark extends Benchmark {
     singleRun(files, blockSize);
   }
 
-  public static List<CloneGroup> singleRun(List<File> files, int blockSize) {
-    MemoryCloneIndex mci = new MemoryCloneIndex();
-    CloneFinder cf = JavaCloneFinder.build(mci, blockSize);
-    Map<File, FileBlockGroup> blocksByFile = Maps.newHashMap();
+  private static void singleRun(List<File> files, int blockSize) {
+    MemoryCloneIndex cloneIndex = new MemoryCloneIndex();
+    CloneFinder cf = JavaCloneFinder.build(cloneIndex, blockSize);
     for (File file : files) {
-      FileBlockGroup fileBlockGroup = cf.tokenize(file);
-      blocksByFile.put(file, fileBlockGroup);
-      cf.register(fileBlockGroup);
+      cf.register(file);
     }
-    List<CloneGroup> clones = Lists.newArrayList();
     for (File file : files) {
-      clones.addAll(cf.findClones(blocksByFile.get(file)));
+      List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
+      CloneReporter.reportClones(candidateBlockList, cloneIndex);
     }
-    return clones;
   }
 
 }

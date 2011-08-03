@@ -19,22 +19,30 @@
  */
 package org.sonar.duplications.benchmark;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
-import net.sourceforge.pmd.cpd.TokenEntry;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.sonar.duplications.cpd.Match;
-import org.sonar.duplications.index.CloneGroup;
-import org.sonar.duplications.index.ClonePart;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import net.sourceforge.pmd.cpd.TokenEntry;
+
+import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
+import org.sonar.duplications.CloneFinder;
+import org.sonar.duplications.algorithm.CloneReporter;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.cpd.Match;
+import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.index.ClonePart;
+import org.sonar.duplications.index.MemoryCloneIndex;
+import org.sonar.duplications.java.JavaCloneFinder;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.SetMultimap;
 
 public class CompareResultsTest {
 
@@ -115,15 +123,26 @@ public class CompareResultsTest {
 
   private int runNewCpd(List<File> files, int blockSize) {
     SetMultimap<String, Integer> duplicatedLines = HashMultimap.create();
-    List<CloneGroup> clones = NewCpdBenchmark.singleRun(files, blockSize);
-    for (CloneGroup clone : clones) {
-      for (ClonePart clonePart : clone.getCloneParts()) {
-        String resourceId = clonePart.getResourceId();
-        for (int line = clonePart.getLineStart(); line <= clonePart.getLineEnd(); line++) {
-          duplicatedLines.put(resourceId, line);
+
+    MemoryCloneIndex cloneIndex = new MemoryCloneIndex();
+    CloneFinder cf = JavaCloneFinder.build(cloneIndex, blockSize);
+    for (File file : files) {
+      cf.register(file);
+    }
+    for (File file : files) {
+      List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
+      List<CloneGroup> clones = CloneReporter.reportClones(candidateBlockList, cloneIndex);
+
+      for (CloneGroup clone : clones) {
+        for (ClonePart clonePart : clone.getCloneParts()) {
+          String resourceId = clonePart.getResourceId();
+          for (int line = clonePart.getLineStart(); line <= clonePart.getLineEnd(); line++) {
+            duplicatedLines.put(resourceId, line);
+          }
         }
       }
     }
+
     return duplicatedLines.entries().size();
   }
 

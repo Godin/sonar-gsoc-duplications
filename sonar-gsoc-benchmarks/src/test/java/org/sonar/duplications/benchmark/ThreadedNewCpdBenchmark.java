@@ -55,16 +55,14 @@ public class ThreadedNewCpdBenchmark extends Benchmark {
     singleRun(files, threadsCount, blockSize);
   }
 
-  public static List<CloneGroup> singleRun(List<File> files, int threadsCount, int blockSize) throws Exception {
+  private static void singleRun(List<File> files, int threadsCount, int blockSize) throws Exception {
     MemoryCloneIndex cloneIndex = new MemoryCloneIndex();
     populateIndex(files, threadsCount, blockSize, cloneIndex);
     // find clones
-    List<CloneGroup> clones = Lists.newArrayList();
     for (File file : files) {
       List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
-      clones.addAll(CloneReporter.reportClones(candidateBlockList, cloneIndex));
+      CloneReporter.reportClones(candidateBlockList, cloneIndex);
     }
-    return clones;
   }
 
   /**
