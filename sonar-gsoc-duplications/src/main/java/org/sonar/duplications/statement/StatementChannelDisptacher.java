@@ -31,7 +31,7 @@ public class StatementChannelDisptacher {
   private final StatementChannel[] channels;
 
   public StatementChannelDisptacher(List<StatementChannel> channels) {
-    this.channels = channels.toArray(new StatementChannel[0]);
+    this.channels = channels.toArray(new StatementChannel[channels.size()]);
   }
 
   public boolean consume(TokenQueue tokenQueue, List<Statement> statements) {
