@@ -27,13 +27,11 @@ public class IntervalTree<T> {
   private IntervalNode<T> head;
   private List<Interval<T>> intervalList;
   private boolean inSync;
-  private int size;
 
   public IntervalTree() {
     this.head = new IntervalNode<T>();
     this.intervalList = new ArrayList<Interval<T>>();
     this.inSync = true;
-    this.size = 0;
   }
 
   public IntervalTree(List<Interval<T>> intervalList) {
@@ -41,7 +39,6 @@ public class IntervalTree<T> {
     this.intervalList = new ArrayList<Interval<T>>();
     this.intervalList.addAll(intervalList);
     this.inSync = true;
-    this.size = intervalList.size();
   }
 
   List<Interval<T>> getIntervals(int point) {
@@ -53,9 +50,11 @@ public class IntervalTree<T> {
     List<Interval<T>> result = new ArrayList<Interval<T>>();
     List<Interval<T>> intervals = getIntervals(start);
 
-    for (Interval<T> interval : intervals)
-      if (interval.contains(end))
+    for (Interval<T> interval : intervals) {
+      if (interval.contains(end)) {
         result.add(interval);
+      }
+    }
 
     return result;
   }
@@ -73,7 +72,6 @@ public class IntervalTree<T> {
     if (!inSync) {
       head = createNode(intervalList);
       inSync = true;
-      size = intervalList.size();
     }
   }
 
@@ -90,8 +88,9 @@ public class IntervalTree<T> {
     int i = 0;
     int middle = set.size() / 2;
     for (int point : set) {
-      if (i == middle)
+      if (i == middle) {
         return point;
+      }
       i++;
     }
     return 0;
@@ -107,17 +106,20 @@ public class IntervalTree<T> {
     List<Interval<T>> result = new ArrayList<Interval<T>>();
 
     for (Map.Entry<Interval<T>, List<Interval<T>>> entry : node.getIntervals().entrySet()) {
-      if (entry.getKey().contains(point))
-        for (Interval<T> interval : entry.getValue())
+      if (entry.getKey().contains(point)) {
+        for (Interval<T> interval : entry.getValue()) {
           result.add(interval);
-      else if (entry.getKey().getStart() > point)
+        }
+      } else if (entry.getKey().getStart() > point) {
         break;
+      }
     }
 
-    if (point < node.getCenter() && node.getLeft() != null)
+    if (point < node.getCenter() && node.getLeft() != null) {
       result.addAll(query(node.getLeft(), point));
-    else if (point > node.getCenter() && node.getRight() != null)
+    } else if (point > node.getCenter() && node.getRight() != null) {
       result.addAll(query(node.getRight(), point));
+    }
     return result;
   }
 
@@ -170,12 +172,14 @@ public class IntervalTree<T> {
 
 
   private String nodeString(IntervalNode<T> node, int level) {
-    if (node == null)
+    if (node == null) {
       return "";
+    }
 
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < level; i++)
+    for (int i = 0; i < level; i++) {
       sb.append("\t");
+    }
     sb.append(node + "\n");
     sb.append(nodeString(node.getLeft(), level + 1));
     sb.append(nodeString(node.getRight(), level + 1));
