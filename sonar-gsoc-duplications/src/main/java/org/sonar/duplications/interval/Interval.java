@@ -64,16 +64,16 @@ public class Interval<T> implements Comparable<Interval<T>> {
   }
 
   public int compareTo(Interval<T> other) {
-    if (start < other.getStart())
+    if (start < other.getStart()) {
       return -1;
-    else if (start > other.getStart())
+    } else if (start > other.getStart()) {
       return 1;
-    else if (end < other.getEnd())
+    } else if (end < other.getEnd()) {
       return -1;
-    else if (end > other.getEnd())
+    } else if (end > other.getEnd()) {
       return 1;
-    else
-      return 0;
+    }
+    return 0;
   }
 
   @Override

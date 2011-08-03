@@ -54,10 +54,11 @@ public final class StatementChunker {
       }
       return statements;
     } catch (Exception e) {
-    	if(tokenQueue != null)
-    		throw new DuplicationsException("Unable to build statement from token : " + tokenQueue.peek(), e);
-    	else
-    		throw new DuplicationsException("Token queue is null", e);
+      if (tokenQueue != null) {
+        throw new DuplicationsException("Unable to build statement from token : " + tokenQueue.peek(), e);
+      } else {
+        throw new DuplicationsException("Token queue is null", e);
+      }
     }
   }
 
