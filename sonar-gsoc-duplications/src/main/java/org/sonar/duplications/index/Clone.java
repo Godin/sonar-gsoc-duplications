@@ -150,10 +150,11 @@ public class Clone {
 
   @Override
   public String toString() {
-    String res = "";
+    StringBuilder builder = new StringBuilder();
     for (ClonePart part : parts) {
-      res = res + part.toString() + " - ";
+      builder.append(part).append(" - ");
     }
-    return res + cloneUnitLength;
+    builder.append(cloneUnitLength);
+    return builder.toString();
   }
 }
