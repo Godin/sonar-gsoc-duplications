@@ -135,10 +135,10 @@ public class CloneReporter {
     //an empty list is needed a the end to report clone at the end of file
     sameHashBlockGroups.add(new ArrayList<Block>());
 
-    TreeMap<Key, TempClone> prevActiveMap = new TreeMap<Key, TempClone>();
+    Map<Key, TempClone> prevActiveMap = new TreeMap<Key, TempClone>();
 
     for (int i = 0; i < sameHashBlockGroups.size(); i++) {
-      TreeMap<Key, TempClone> nextActiveMap = new TreeMap<Key, TempClone>();
+      Map<Key, TempClone> nextActiveMap = new TreeMap<Key, TempClone>();
 
       for (Block block : sameHashBlockGroups.get(i)) {
         Block origBlock = resourceBlocks.get(i);
@@ -195,9 +195,7 @@ public class CloneReporter {
     HashMap<String, IntervalTree> trees = new HashMap<String, IntervalTree>();
 
     //populate interval tree structure
-    for (int i = 0; i < clones.size(); i++) {
-      Clone clone = clones.get(i);
-
+    for (Clone clone : clones) {
       for (ClonePart part : clone.getCloneParts()) {
         PartWrapper partWrap = new PartWrapper(clone, part);
         IntervalTree tree = trees.get(part.getResourceId());
@@ -212,8 +210,7 @@ public class CloneReporter {
       }
     }
 
-    for (int i = 0; i < clones.size(); i++) {
-      Clone clone = clones.get(i);
+    for (Clone clone : clones) {
       ClonePart originPart = clone.getOriginPart();
       IntervalTree tree = trees.get(originPart.getResourceId());
 
@@ -255,8 +252,8 @@ public class CloneReporter {
    * @param origBlock,     block of original file
    * @param anotherBlock,  one of blocks with same hash as <tt>origBlock</tt>
    */
-  private static void processBlock(TreeMap<Key, TempClone> prevActiveMap,
-                                   TreeMap<Key, TempClone> nextActiveMap,
+  private static void processBlock(Map<Key, TempClone> prevActiveMap,
+                                   Map<Key, TempClone> nextActiveMap,
                                    Block origBlock, Block anotherBlock) {
     ClonePart origPart = new ClonePart(origBlock);
     ClonePart anotherPart = new ClonePart(anotherBlock);
