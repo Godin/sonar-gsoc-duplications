@@ -28,7 +28,7 @@ import java.util.*;
 
 public class CloneReporter {
 
-  private static class Key implements Comparable<Key> {
+  private final static class Key implements Comparable<Key> {
     private String resourceId;
     private int unitNum;
 
@@ -65,7 +65,7 @@ public class CloneReporter {
     }
   }
 
-  private static class TempClone {
+  private final static class TempClone {
     private ClonePart origPart;
     private ClonePart anotherPart;
     private int cloneLength;
@@ -89,7 +89,7 @@ public class CloneReporter {
     }
   }
 
-  private static class PartWrapper {
+  private final static class PartWrapper {
     public Clone clone;
     public ClonePart part;
 

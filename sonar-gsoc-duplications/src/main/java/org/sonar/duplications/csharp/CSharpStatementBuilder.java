@@ -19,17 +19,11 @@
  */
 package org.sonar.duplications.csharp;
 
-import static org.sonar.duplications.statement.TokenMatcherFactory.anyToken;
-import static org.sonar.duplications.statement.TokenMatcherFactory.bridge;
-import static org.sonar.duplications.statement.TokenMatcherFactory.forgiveLastToken;
-import static org.sonar.duplications.statement.TokenMatcherFactory.from;
-import static org.sonar.duplications.statement.TokenMatcherFactory.opt;
-import static org.sonar.duplications.statement.TokenMatcherFactory.to;
-import static org.sonar.duplications.statement.TokenMatcherFactory.token;
-
 import org.sonar.duplications.statement.StatementChunker;
 
-public class CSharpStatementBuilder {
+import static org.sonar.duplications.statement.TokenMatcherFactory.*;
+
+public final class CSharpStatementBuilder {
 
   private CSharpStatementBuilder() {
   }

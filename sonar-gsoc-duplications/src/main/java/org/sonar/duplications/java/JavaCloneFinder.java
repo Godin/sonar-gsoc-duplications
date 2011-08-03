@@ -7,7 +7,7 @@ import org.sonar.duplications.index.CloneIndex;
 /**
  * @author sharif
  */
-public class JavaCloneFinder {
+public final class JavaCloneFinder {
 
   private JavaCloneFinder() {
   }

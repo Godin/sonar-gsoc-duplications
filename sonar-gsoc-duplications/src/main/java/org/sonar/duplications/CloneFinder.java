@@ -34,7 +34,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CloneFinder {
+public final class CloneFinder {
 
   private TokenChunker tokenChunker;
   private StatementChunker stmtChunker;

@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @author sharif
  */
-public class StatementChannel {
+public final class StatementChannel {
 
   private final TokenMatcher[] tokenMatchers;
   private boolean blackHole = false;

@@ -1,28 +1,21 @@
 package org.sonar.duplications.statement;
 
-import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
-import org.sonar.duplications.statement.matcher.BridgeTokenMatcher;
-import org.sonar.duplications.statement.matcher.ExactTokenMatcher;
-import org.sonar.duplications.statement.matcher.ForgiveLastTokenMatcher;
-import org.sonar.duplications.statement.matcher.OptTokenMatcher;
-import org.sonar.duplications.statement.matcher.TokenMatcher;
-import org.sonar.duplications.statement.matcher.UptoTokenMatcher;
+import org.sonar.duplications.statement.matcher.*;
 
 
 /**
  * returns instance of different token matcher
- * 
+ *
  * @author sharif
- * 
  */
-public class TokenMatcherFactory {
+public final class TokenMatcherFactory {
 
   private TokenMatcherFactory() {
   }
 
   /**
    * match the beginning of a statement
-   * 
+   *
    * @param tokenToMatch
    * @return
    */
@@ -32,7 +25,7 @@ public class TokenMatcherFactory {
 
   /**
    * match the end of a statement
-   * 
+   *
    * @param endMatchTokens
    * @return
    */
@@ -42,11 +35,9 @@ public class TokenMatcherFactory {
 
   /**
    * match everything between two token pair
-   * 
-   * @param lToken
-   *          : left token of the pair
-   * @param rToken
-   *          : right token of the pair
+   *
+   * @param lToken : left token of the pair
+   * @param rToken : right token of the pair
    * @return
    */
   public static TokenMatcher bridge(String lToken, String rToken) {
@@ -55,7 +46,7 @@ public class TokenMatcherFactory {
 
   /**
    * match to any token, this just consumes a specified number of token
-   * 
+   *
    * @param numberOfTokenToMatch
    * @return
    */
@@ -73,7 +64,7 @@ public class TokenMatcherFactory {
 
   /**
    * match the next token from the queue
-   * 
+   *
    * @param tokenToMatch
    * @return
    */
