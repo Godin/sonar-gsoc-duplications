@@ -91,7 +91,6 @@ public class DbCloneIndex implements CloneIndex {
         block.getBlockHash(), block.getIndexInFile(),
         block.getFirstLineNumber(), block.getLastLineNumber());
     session.save(indexBlock);
-    session.commit();
   }
 
   public void remove(String resourceId) {
@@ -99,7 +98,6 @@ public class DbCloneIndex implements CloneIndex {
     session.createQuery(hql)
         .setParameter("resource_id", resourceId)
         .executeUpdate();
-    session.commit();
   }
 
   public void remove(Block block) {
@@ -110,13 +108,11 @@ public class DbCloneIndex implements CloneIndex {
         .setParameter("resource_id", block.getResourceId())
         .setParameter("index_in_file", block.getIndexInFile())
         .executeUpdate();
-    session.commit();
   }
 
   public void removeAll() {
     session.createQuery("DELETE FROM IndexBlock")
         .executeUpdate();
-    session.commit();
   }
 
   public int size() {
