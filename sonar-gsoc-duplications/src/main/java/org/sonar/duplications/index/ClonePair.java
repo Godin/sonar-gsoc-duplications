@@ -20,17 +20,20 @@
  */
 package org.sonar.duplications.index;
 
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
+
 import java.util.List;
 
 public class ClonePair {
   private ClonePart originPart;
   private ClonePart anotherPart;
+  private List<ClonePart> parts;
   private int cloneLength;
 
   public ClonePair(ClonePart originPart, ClonePart anotherPart, int cloneLength) {
     this.originPart = originPart;
     this.anotherPart = anotherPart;
+    this.parts = Lists.newArrayList(originPart, anotherPart);
     this.cloneLength = cloneLength;
   }
 
@@ -43,10 +46,7 @@ public class ClonePair {
   }
 
   public List<ClonePart> getCloneParts() {
-    List<ClonePart> result = new ArrayList<ClonePart>();
-    result.add(originPart);
-    result.add(anotherPart);
-    return result;
+    return parts;
   }
 
   public int getCloneLength() {
@@ -65,20 +65,13 @@ public class ClonePair {
     if (!getOriginPart().getResourceId().equals(other.getOriginPart().getResourceId())) {
       return false;
     }
-    List<ClonePart> parts1 = new ArrayList<ClonePart>();
-    parts1.add(originPart);
-    parts1.add(anotherPart);
-    List<ClonePart> parts2 = new ArrayList<ClonePart>();
-    parts2.add(other.getOriginPart());
-    parts2.add(other.getAnotherPart());
-    for (ClonePart firstPart : parts1) {
-      int firstUnitEnd = firstPart.getUnitStart() + getCloneLength();
+    for (ClonePart first : this.getCloneParts()) {
+      int firstUnitEnd = first.getUnitStart() + getCloneLength();
       boolean found = false;
-      for (ClonePart secondPart : parts2) {
-        int secondUnitEnd = secondPart.getUnitStart() + other.getCloneLength();
-        if (firstPart.getResourceId().equals(secondPart.getResourceId()) &&
-            firstPart.getUnitStart() >= secondPart.getUnitStart() &&
-            firstUnitEnd <= secondUnitEnd) {
+      for (ClonePart second : other.getCloneParts()) {
+        int secondUnitEnd = second.getUnitStart() + other.getCloneLength();
+        if (first.getResourceId().equals(second.getResourceId()) &&
+            first.getUnitStart() >= second.getUnitStart() && firstUnitEnd <= secondUnitEnd) {
           found = true;
           break;
         }

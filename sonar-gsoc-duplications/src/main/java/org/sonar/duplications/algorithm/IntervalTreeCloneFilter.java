@@ -36,18 +36,17 @@ public class IntervalTreeCloneFilter implements CloneFilter {
 
     //populate interval tree structure
     for (ClonePair clone : clones) {
-      for (ClonePart part : clone.getCloneParts()) {
-        PartWrapper partWrap = new PartWrapper(clone, part);
-        IntervalTree tree = trees.get(part.getResourceId());
-        if (tree == null) {
-          tree = new IntervalTree();
-          trees.put(part.getResourceId(), tree);
-        }
-        int unitStart = part.getUnitStart();
-        int unitEnd = part.getUnitStart() + clone.getCloneLength() - 1;
-
-        tree.addInterval(new Interval(unitStart, unitEnd, partWrap));
+      ClonePart part = clone.getOriginPart();
+      PartWrapper partWrap = new PartWrapper(clone, part);
+      IntervalTree tree = trees.get(part.getResourceId());
+      if (tree == null) {
+        tree = new IntervalTree();
+        trees.put(part.getResourceId(), tree);
       }
+      int unitStart = part.getUnitStart();
+      int unitEnd = part.getUnitStart() + clone.getCloneLength() - 1;
+
+      tree.addInterval(new Interval(unitStart, unitEnd, partWrap));
     }
     return trees;
   }

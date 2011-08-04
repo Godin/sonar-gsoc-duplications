@@ -1,11 +1,13 @@
-package org.sonar.duplications.index;
+package org.sonar.duplications.algorithm;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.duplications.algorithm.AdvancedCloneReporter;
-import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
+import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.index.CloneIndex;
+import org.sonar.duplications.index.ClonePart;
+import org.sonar.duplications.index.MemoryCloneIndex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +16,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CloneReporterTest {
+public class AdvancedCloneReporterTest {
 
   private CloneIndex cloneIndex;
   private CloneReporterAlgorithm cloneReporter;
@@ -196,7 +198,7 @@ public class CloneReporterTest {
     FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
     List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     // TODO fix situation with duplicated clone
-    assertThat(items.size(), is(2));
+    assertThat(items.size(), is(1));
     CloneGroup expected = new CloneGroup(1)
         .addPart(new ClonePart("a", 1, 1, 6))
         .addPart(new ClonePart("a", 4, 4, 9))
