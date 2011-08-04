@@ -21,6 +21,7 @@
 package org.sonar.duplications.algorithm;
 
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePair;
@@ -28,9 +29,10 @@ import org.sonar.duplications.index.ClonePart;
 
 import java.util.*;
 
-public class CloneReporter {
+public class AdvancedCloneReporter implements CloneReporterAlgorithm {
 
   private final static class Key implements Comparable<Key> {
+
     private String resourceId;
     private int unitNum;
 
@@ -65,25 +67,25 @@ public class CloneReporter {
       h = 31 * h + unitNum;
       return h;
     }
+
   }
 
-  private static class ClonePairComparator implements Comparator<ClonePair> {
+  private final CloneIndex cloneIndex;
 
-    public int compare(ClonePair o1, ClonePair o2) {
-      return o1.getOriginPart().getUnitStart() - o2.getOriginPart().getUnitStart();
-    }
+  public AdvancedCloneReporter(CloneIndex cloneIndex) {
+    this.cloneIndex = cloneIndex;
   }
 
-  public static List<CloneGroup> reportClones(List<Block> candidateBlocks, CloneIndex index) {
+  public List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup) {
     ArrayList<ClonePair> clones = new ArrayList<ClonePair>();
 
-    ArrayList<Block> resourceBlocks = new ArrayList<Block>(candidateBlocks);
+    List<Block> resourceBlocks = fileBlockGroup.getBlockList();
 
     ArrayList<List<Block>> sameHashBlockGroups = new ArrayList<List<Block>>();
 
-    for (Block block : candidateBlocks) {
+    for (Block block : fileBlockGroup.getBlockList()) {
       List<Block> sameHashBlockGroup = new ArrayList<Block>();
-      for (Block shBlock : index.getBySequenceHash(block.getBlockHash())) {
+      for (Block shBlock : cloneIndex.getBySequenceHash(block.getBlockHash())) {
         if (!shBlock.getResourceId().equals(block.getResourceId()) ||
             shBlock.getIndexInFile() > block.getIndexInFile()) {
           sameHashBlockGroup.add(shBlock);
@@ -97,11 +99,16 @@ public class CloneReporter {
 
     Map<Key, ClonePair> prevActiveMap = new TreeMap<Key, ClonePair>();
 
-    for (int i = 0; i < sameHashBlockGroups.size(); i++) {
+    Iterator<Block> blockIterator = resourceBlocks.iterator();
+    for (List<Block> blockGroup : sameHashBlockGroups) {
       Map<Key, ClonePair> nextActiveMap = new TreeMap<Key, ClonePair>();
 
-      for (Block block : sameHashBlockGroups.get(i)) {
-        Block origBlock = resourceBlocks.get(i);
+      Block origBlock = null;
+      if (blockIterator.hasNext()) {
+        origBlock = blockIterator.next();
+      }
+
+      for (Block block : blockGroup) {
         processBlock(prevActiveMap, nextActiveMap, origBlock, block);
       }
       clones.addAll(prevActiveMap.values());
@@ -116,7 +123,7 @@ public class CloneReporter {
     return groups;
   }
 
-  private static List<ClonePair> removeDuplicates(List<ClonePair> clones) {
+  private List<ClonePair> removeDuplicates(List<ClonePair> clones) {
     HashSet<ClonePair> set = new HashSet<ClonePair>(clones);
     List<ClonePair> result = new ArrayList<ClonePair>(set);
     return result;
@@ -132,9 +139,9 @@ public class CloneReporter {
    * @param origBlock,     block of original file
    * @param anotherBlock,  one of blocks with same hash as <tt>origBlock</tt>
    */
-  private static void processBlock(Map<Key, ClonePair> prevActiveMap,
-                                   Map<Key, ClonePair> nextActiveMap,
-                                   Block origBlock, Block anotherBlock) {
+  private void processBlock(Map<Key, ClonePair> prevActiveMap,
+                            Map<Key, ClonePair> nextActiveMap,
+                            Block origBlock, Block anotherBlock) {
     ClonePart origPart = new ClonePart(origBlock);
     ClonePart anotherPart = new ClonePart(anotherBlock);
     int cloneLength = 0;
@@ -167,10 +174,15 @@ public class CloneReporter {
    * @param clones, array of TempClone sorted by getOriginPart().getUnitStart()
    * @return list of reported clones
    */
-  private static List<CloneGroup> groupClonePairs(List<ClonePair> clones) {
+  private List<CloneGroup> groupClonePairs(List<ClonePair> clones) {
     List<CloneGroup> res = new ArrayList<CloneGroup>();
     //sort elements of prevActiveMap by getOriginPart.getUnitStart()
-    Collections.sort(clones, new ClonePairComparator());
+    Comparator<ClonePair> comp = new Comparator<ClonePair>() {
+      public int compare(ClonePair o1, ClonePair o2) {
+        return o1.getOriginPart().getUnitStart() - o2.getOriginPart().getUnitStart();
+      }
+    };
+    Collections.sort(clones, comp);
 
     CloneGroup curClone = null;
     int prevUnitStart = -1;

@@ -2,8 +2,10 @@ package org.sonar.duplications.index;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.duplications.algorithm.CloneReporter;
+import org.sonar.duplications.algorithm.AdvancedCloneReporter;
+import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.FileBlockGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,29 +16,32 @@ import static org.junit.Assert.assertThat;
 
 public class CloneReporterTest {
 
-  private CloneIndex indexBackend;
+  private CloneIndex cloneIndex;
+  private CloneReporterAlgorithm cloneReporter;
 
   @Before
   public void initialize() {
-    indexBackend = new MemoryCloneIndex();
+    cloneIndex = new MemoryCloneIndex();
+    cloneReporter = new AdvancedCloneReporter(cloneIndex);
   }
 
   @Test
   public void testSimple() {
     for (int i = 0; i < 9; i++) {
-      indexBackend.insert(new Block("a", "" + i, i, i, i + 5));
+      cloneIndex.insert(new Block("a", "" + i, i, i, i + 5));
     }
 
-    indexBackend.insert(new Block("b", "3", 2, 2, 7));
-    indexBackend.insert(new Block("b", "4", 3, 3, 8));
-    indexBackend.insert(new Block("b", "5", 4, 4, 9));
-    indexBackend.insert(new Block("b", "6", 5, 5, 10));
+    cloneIndex.insert(new Block("b", "3", 2, 2, 7));
+    cloneIndex.insert(new Block("b", "4", 3, 3, 8));
+    cloneIndex.insert(new Block("b", "5", 4, 4, 9));
+    cloneIndex.insert(new Block("b", "6", 5, 5, 10));
 
-    indexBackend.insert(new Block("c", "5", 1, 1, 6));
-    indexBackend.insert(new Block("c", "6", 2, 2, 7));
-    indexBackend.insert(new Block("c", "7", 3, 3, 8));
-    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
-    List<CloneGroup> items = CloneReporter.reportClones(blocks, indexBackend);
+    cloneIndex.insert(new Block("c", "5", 1, 1, 6));
+    cloneIndex.insert(new Block("c", "6", 2, 2, 7));
+    cloneIndex.insert(new Block("c", "7", 3, 3, 8));
+    List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
+    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(2));
 
     CloneGroup expected1 = new CloneGroup(4)
@@ -55,22 +60,23 @@ public class CloneReporterTest {
 
   @Test
   public void testSameClones() {
-    indexBackend.insert(new Block("a", "0", 0, 0, 5));
-    indexBackend.insert(new Block("a", "1", 1, 1, 6));
-    indexBackend.insert(new Block("a", "2", 2, 2, 7));
-    indexBackend.insert(new Block("a", "3", 3, 3, 8));
-    indexBackend.insert(new Block("a", "4", 4, 4, 9));
+    cloneIndex.insert(new Block("a", "0", 0, 0, 5));
+    cloneIndex.insert(new Block("a", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("a", "2", 2, 2, 7));
+    cloneIndex.insert(new Block("a", "3", 3, 3, 8));
+    cloneIndex.insert(new Block("a", "4", 4, 4, 9));
 
-    indexBackend.insert(new Block("b", "1", 1, 1, 6));
-    indexBackend.insert(new Block("b", "2", 2, 2, 7));
-    indexBackend.insert(new Block("b", "3", 3, 3, 8));
+    cloneIndex.insert(new Block("b", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("b", "2", 2, 2, 7));
+    cloneIndex.insert(new Block("b", "3", 3, 3, 8));
 
-    indexBackend.insert(new Block("c", "1", 1, 1, 6));
-    indexBackend.insert(new Block("c", "2", 2, 2, 7));
-    indexBackend.insert(new Block("c", "3", 3, 3, 8));
+    cloneIndex.insert(new Block("c", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("c", "2", 2, 2, 7));
+    cloneIndex.insert(new Block("c", "3", 3, 3, 8));
 
-    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
-    List<CloneGroup> items = CloneReporter.reportClones(blocks, indexBackend);
+    List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
+    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
     CloneGroup expected = new CloneGroup(3)
         .addPart(new ClonePart("a", 1, 1, 8))
@@ -82,15 +88,16 @@ public class CloneReporterTest {
 
   @Test
   public void testBegin() {
-    indexBackend.insert(new Block("a", "0", 0, 0, 5));
-    indexBackend.insert(new Block("a", "1", 1, 1, 6));
-    indexBackend.insert(new Block("a", "2", 2, 2, 7));
+    cloneIndex.insert(new Block("a", "0", 0, 0, 5));
+    cloneIndex.insert(new Block("a", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("a", "2", 2, 2, 7));
 
-    indexBackend.insert(new Block("b", "0", 0, 0, 5));
-    indexBackend.insert(new Block("b", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("b", "0", 0, 0, 5));
+    cloneIndex.insert(new Block("b", "1", 1, 1, 6));
 
-    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
-    List<CloneGroup> items = CloneReporter.reportClones(blocks, indexBackend);
+    List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
+    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
 
     ClonePart part1 = new ClonePart("a", 0, 0, 6);
@@ -104,15 +111,16 @@ public class CloneReporterTest {
 
   @Test
   public void testEnd() {
-    indexBackend.insert(new Block("a", "0", 0, 0, 5));
-    indexBackend.insert(new Block("a", "1", 1, 1, 6));
-    indexBackend.insert(new Block("a", "2", 2, 2, 7));
+    cloneIndex.insert(new Block("a", "0", 0, 0, 5));
+    cloneIndex.insert(new Block("a", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("a", "2", 2, 2, 7));
 
-    indexBackend.insert(new Block("b", "1", 1, 1, 6));
-    indexBackend.insert(new Block("b", "2", 2, 2, 7));
+    cloneIndex.insert(new Block("b", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("b", "2", 2, 2, 7));
 
-    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
-    List<CloneGroup> items = CloneReporter.reportClones(blocks, indexBackend);
+    List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
+    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
     ClonePart part1 = new ClonePart("a", 1, 1, 7);
     ClonePart part2 = new ClonePart("b", 1, 1, 7);
@@ -125,16 +133,17 @@ public class CloneReporterTest {
 
   @Test
   public void testDuplicatesSameFile1() {
-    indexBackend.insert(new Block("a", "0", 0, 0, 5));
-    indexBackend.insert(new Block("a", "1", 1, 1, 6));
-    indexBackend.insert(new Block("a", "2", 2, 2, 7));
+    cloneIndex.insert(new Block("a", "0", 0, 0, 5));
+    cloneIndex.insert(new Block("a", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("a", "2", 2, 2, 7));
 
-    indexBackend.insert(new Block("a", "3", 3, 3, 8));
-    indexBackend.insert(new Block("a", "1", 4, 4, 9));
-    indexBackend.insert(new Block("a", "4", 5, 5, 10));
+    cloneIndex.insert(new Block("a", "3", 3, 3, 8));
+    cloneIndex.insert(new Block("a", "1", 4, 4, 9));
+    cloneIndex.insert(new Block("a", "4", 5, 5, 10));
 
-    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
-    List<CloneGroup> items = CloneReporter.reportClones(blocks, indexBackend);
+    List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
+    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
 
     ClonePart part1 = new ClonePart("a", 1, 1, 6);
@@ -148,16 +157,17 @@ public class CloneReporterTest {
 
   @Test
   public void testDuplicatesSameFile2() {
-    indexBackend.insert(new Block("a", "0", 0, 0, 5));
-    indexBackend.insert(new Block("a", "1", 1, 1, 6));
-    indexBackend.insert(new Block("a", "2", 2, 2, 7));
+    cloneIndex.insert(new Block("a", "0", 0, 0, 5));
+    cloneIndex.insert(new Block("a", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("a", "2", 2, 2, 7));
 
-    indexBackend.insert(new Block("a", "3", 3, 3, 8));
-    indexBackend.insert(new Block("a", "4", 4, 4, 9));
-    indexBackend.insert(new Block("a", "0", 5, 5, 10));
+    cloneIndex.insert(new Block("a", "3", 3, 3, 8));
+    cloneIndex.insert(new Block("a", "4", 4, 4, 9));
+    cloneIndex.insert(new Block("a", "0", 5, 5, 10));
 
-    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
-    List<CloneGroup> items = CloneReporter.reportClones(blocks, indexBackend);
+    List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
+    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
     ClonePart part1 = new ClonePart("a", 0, 0, 5);
     ClonePart part2 = new ClonePart("a", 5, 5, 10);
@@ -170,20 +180,21 @@ public class CloneReporterTest {
 
   @Test
   public void testDuplicatesSameFileTriangle() {
-    indexBackend.insert(new Block("a", "0", 0, 0, 5));
-    indexBackend.insert(new Block("a", "1", 1, 1, 6));
-    indexBackend.insert(new Block("a", "2", 2, 2, 7));
+    cloneIndex.insert(new Block("a", "0", 0, 0, 5));
+    cloneIndex.insert(new Block("a", "1", 1, 1, 6));
+    cloneIndex.insert(new Block("a", "2", 2, 2, 7));
 
-    indexBackend.insert(new Block("a", "3", 3, 3, 8));
-    indexBackend.insert(new Block("a", "1", 4, 4, 9));
-    indexBackend.insert(new Block("a", "4", 5, 5, 10));
+    cloneIndex.insert(new Block("a", "3", 3, 3, 8));
+    cloneIndex.insert(new Block("a", "1", 4, 4, 9));
+    cloneIndex.insert(new Block("a", "4", 5, 5, 10));
 
-    indexBackend.insert(new Block("a", "5", 6, 6, 11));
-    indexBackend.insert(new Block("a", "1", 7, 7, 12));
-    indexBackend.insert(new Block("a", "6", 8, 8, 13));
+    cloneIndex.insert(new Block("a", "5", 6, 6, 11));
+    cloneIndex.insert(new Block("a", "1", 7, 7, 12));
+    cloneIndex.insert(new Block("a", "6", 8, 8, 13));
 
-    List<Block> blocks = new ArrayList<Block>(indexBackend.getByResourceId("a"));
-    List<CloneGroup> items = CloneReporter.reportClones(blocks, indexBackend);
+    List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
+    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     // TODO fix situation with duplicated clone
     assertThat(items.size(), is(2));
     CloneGroup expected = new CloneGroup(1)

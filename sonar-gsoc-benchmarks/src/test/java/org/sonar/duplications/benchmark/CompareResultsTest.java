@@ -19,30 +19,30 @@
  */
 package org.sonar.duplications.benchmark;
 
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.SetMultimap;
 import net.sourceforge.pmd.cpd.TokenEntry;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.duplications.CloneFinder;
-import org.sonar.duplications.algorithm.CloneReporter;
+import org.sonar.duplications.algorithm.AdvancedCloneReporter;
+import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.cpd.Match;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.SetMultimap;
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class CompareResultsTest {
 
@@ -129,9 +129,12 @@ public class CompareResultsTest {
     for (File file : files) {
       cf.register(file);
     }
+    CloneReporterAlgorithm cloneReporter = new AdvancedCloneReporter(cloneIndex);
     for (File file : files) {
+      String fileResourceId = file.getAbsolutePath();
       List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
-      List<CloneGroup> clones = CloneReporter.reportClones(candidateBlockList, cloneIndex);
+      FileBlockGroup fileBlockGroup = new FileBlockGroup(fileResourceId, candidateBlockList);
+      List<CloneGroup> clones = cloneReporter.reportClones(fileBlockGroup);
 
       for (CloneGroup clone : clones) {
         for (ClonePart clonePart : clone.getCloneParts()) {

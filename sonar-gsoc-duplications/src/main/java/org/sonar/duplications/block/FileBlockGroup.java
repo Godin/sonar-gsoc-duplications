@@ -35,6 +35,11 @@ public class FileBlockGroup {
     this.resourceId = resourceId;
   }
 
+  public FileBlockGroup(String resourceId, List<Block> blocks) {
+    this.resourceId = resourceId;
+    this.fileBlocks.addAll(blocks);
+  }
+
   public void addBlock(Block block) {
     if (!getResourceId().equals(block.getResourceId())) {
       throw new DuplicationsException("Block resourceId not equals to FileBlockGroup resourceId");

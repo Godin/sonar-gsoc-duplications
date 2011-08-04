@@ -19,7 +19,8 @@
  */
 package org.sonar.duplications;
 
-import org.sonar.duplications.algorithm.CloneReporter;
+import org.sonar.duplications.algorithm.AdvancedCloneReporter;
+import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.block.FileBlockGroup;
@@ -41,6 +42,8 @@ public final class CloneFinder {
   private BlockChunker blockChunker;
   private CloneIndex cloneIndex;
 
+  private CloneReporterAlgorithm cloneReporter;
+
   private List<String> sourceFilesForDetection = new ArrayList<String>();
 
   private CloneFinder(Builder builder) {
@@ -48,6 +51,7 @@ public final class CloneFinder {
     this.stmtChunker = builder.stmtChunker;
     this.blockChunker = builder.blockChunker;
     this.cloneIndex = builder.cloneIndex;
+    cloneReporter = new AdvancedCloneReporter(cloneIndex);
   }
 
   public static Builder build() {
@@ -123,7 +127,7 @@ public final class CloneFinder {
     if (!cloneIndex.containsResourceId(fileBlockGroup.getResourceId()))
       register(fileBlockGroup);
 
-    return CloneReporter.reportClones(fileBlockGroup.getBlockList(), cloneIndex);
+    return cloneReporter.reportClones(fileBlockGroup);
   }
 
 }

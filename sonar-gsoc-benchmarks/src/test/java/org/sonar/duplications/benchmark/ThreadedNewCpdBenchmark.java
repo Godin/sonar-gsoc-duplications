@@ -21,10 +21,11 @@ package org.sonar.duplications.benchmark;
 
 import com.google.common.collect.Lists;
 import org.sonar.duplications.DuplicationsException;
-import org.sonar.duplications.algorithm.CloneReporter;
+import org.sonar.duplications.algorithm.AdvancedCloneReporter;
+import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
-import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaStatementBuilder;
@@ -59,9 +60,11 @@ public class ThreadedNewCpdBenchmark extends Benchmark {
     MemoryCloneIndex cloneIndex = new MemoryCloneIndex();
     populateIndex(files, threadsCount, blockSize, cloneIndex);
     // find clones
+    CloneReporterAlgorithm cloneReporter = new AdvancedCloneReporter(cloneIndex);
     for (File file : files) {
       List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
-      CloneReporter.reportClones(candidateBlockList, cloneIndex);
+      FileBlockGroup fileBlockGroup = new FileBlockGroup(file.getAbsolutePath(), candidateBlockList);
+      cloneReporter.reportClones(fileBlockGroup);
     }
   }
 
