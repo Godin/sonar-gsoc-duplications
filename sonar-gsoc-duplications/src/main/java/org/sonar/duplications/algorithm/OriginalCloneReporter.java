@@ -17,38 +17,37 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.detector.original;
+package org.sonar.duplications.algorithm;
 
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
 /**
  * Implementation of algorithm described in paper
  * <a href="http://www4.in.tum.de/~juergens/publications/icsm2010_crc.pdf">Index-Based Code Clone Detection: Incremental, Distributed, Scalable</a>
  * by Benjamin Hummel, Elmar Juergens, Michael Conradt and Lars Heinemann.
  */
-public class OriginalCloneDetectionAlgorithm {
-
-  /**
-   * Performs detection and returns list of clone groups between index and file, which represented as sorted list of blocks.
-   */
-  public static List<CloneGroup> detect(CloneIndex cloneIndex, List<Block> fileBlocks) {
-    OriginalCloneDetectionAlgorithm reporter = new OriginalCloneDetectionAlgorithm(cloneIndex);
-    reporter.findClones(fileBlocks);
-    return reporter.clones;
-  }
+public class OriginalCloneReporter implements CloneReporterAlgorithm {
 
   private final CloneIndex cloneIndex;
   private final List<CloneGroup> clones = Lists.newArrayList();
 
-  private OriginalCloneDetectionAlgorithm(CloneIndex cloneIndex) {
+  public OriginalCloneReporter(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
+  }
+
+  /**
+   * Performs detection and returns list of clone groups between index and file, which represented as sorted list of blocks.
+   */
+  public List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup) {
+    findClones(fileBlockGroup.getBlockList());
+    return this.clones;
   }
 
   private void findClones(List<Block> fileBlocks) {
@@ -123,5 +122,4 @@ public class OriginalCloneDetectionAlgorithm {
     }
     clones.add(clone);
   }
-
 }

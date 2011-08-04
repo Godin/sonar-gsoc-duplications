@@ -17,14 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.detector.original;
-
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.util.List;
+package org.sonar.duplications.algorithm;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -33,7 +26,7 @@ import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
-import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
@@ -44,6 +37,13 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
+
+import java.io.File;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class OriginalCloneDetectionAlgorithmIntegrationTest {
 
@@ -71,7 +71,9 @@ public class OriginalCloneDetectionAlgorithmIntegrationTest {
   public void test1() {
     register(getBlocks(file1));
     List<Block> fileBlocks = getBlocks(file2);
-    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    CloneReporterAlgorithm cloneReporter = new OriginalCloneReporter(cloneIndex);
+    FileBlockGroup fileBlockGroup = new FileBlockGroup(file2.getAbsolutePath(), fileBlocks);
+    List<CloneGroup> clones = cloneReporter.reportClones(fileBlockGroup);
 
     assertThat(clones.size(), is(1));
     CloneGroup clone = clones.get(0);
@@ -90,7 +92,9 @@ public class OriginalCloneDetectionAlgorithmIntegrationTest {
     register(getBlocks(file1));
     register(getBlocks(file2));
     List<Block> fileBlocks = getBlocks(file3);
-    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    CloneReporterAlgorithm cloneReporter = new OriginalCloneReporter(cloneIndex);
+    FileBlockGroup fileBlockGroup = new FileBlockGroup(file3.getAbsolutePath(), fileBlocks);
+    List<CloneGroup> clones = cloneReporter.reportClones(fileBlockGroup);
     assertThat(clones.size(), is(3));
     for (CloneGroup clone : clones) {
       System.out.println(clone);

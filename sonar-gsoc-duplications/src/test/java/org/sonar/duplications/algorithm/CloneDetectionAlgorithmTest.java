@@ -17,26 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.detector.original;
+package org.sonar.duplications.algorithm;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.junit.TestNamePrinter;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class CloneDetectionAlgorithmTest {
 
@@ -46,7 +45,7 @@ public class CloneDetectionAlgorithmTest {
   private static int LINES_PER_BLOCK = 5;
 
   /**
-   * To simplify testing we assume that each block starts from a new line and contains {@link #LINES_PER_BLOCK} lines, 
+   * To simplify testing we assume that each block starts from a new line and contains {@link #LINES_PER_BLOCK} lines,
    * so we can simply use index and hash.
    */
   private static Block newBlock(String resourceId, String hash, int index) {
@@ -70,7 +69,8 @@ public class CloneDetectionAlgorithmTest {
         blocksForResource("y").withHashes("2", "3", "4", "5"),
         blocksForResource("z").withHashes("3", "4"));
     List<Block> fileBlocks = blocksForResource("x").withHashes("1", "2", "3", "4", "5", "6");
-    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    CloneReporterAlgorithm cloneReporter = new OriginalCloneReporter(cloneIndex);
+    List<CloneGroup> clones = cloneReporter.reportClones(new FileBlockGroup("x", fileBlocks));
     print(clones);
     assertThat(clones.size(), is(3));
 
@@ -108,7 +108,8 @@ public class CloneDetectionAlgorithmTest {
         blocksForResource("c").withHashes("5", "6", "7"));
     List<Block> fileBlocks =
         blocksForResource("a").withHashes("1", "2", "3", "4", "5", "6", "7", "8", "9");
-    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    CloneReporterAlgorithm cloneReporter = new OriginalCloneReporter(cloneIndex);
+    List<CloneGroup> clones = cloneReporter.reportClones(new FileBlockGroup("a", fileBlocks));
     print(clones);
     assertThat(clones.size(), is(3));
 
@@ -139,7 +140,8 @@ public class CloneDetectionAlgorithmTest {
         blocksForResource("c").withHashes("1", "2", "3", "4"));
     List<Block> fileBlocks =
         blocksForResource("a").withHashes("1", "2", "3", "5");
-    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    CloneReporterAlgorithm cloneReporter = new OriginalCloneReporter(cloneIndex);
+    List<CloneGroup> clones = cloneReporter.reportClones(new FileBlockGroup("a", fileBlocks));
     print(clones);
     assertThat(clones.size(), is(1));
 
@@ -159,7 +161,8 @@ public class CloneDetectionAlgorithmTest {
         blocksForResource("b").withHashes("1", "2", "3", "4"));
     List<Block> fileBlocks =
         blocksForResource("a").withHashes("1", "2", "3", "4");
-    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    CloneReporterAlgorithm cloneReporter = new OriginalCloneReporter(cloneIndex);
+    List<CloneGroup> clones = cloneReporter.reportClones(new FileBlockGroup("a", fileBlocks));
     print(clones);
     assertThat(clones.size(), is(1));
 
@@ -180,7 +183,8 @@ public class CloneDetectionAlgorithmTest {
         blocksForResource("b").withHashes("1", "2", "1", "2", "1", "2", "1"));
     List<Block> fileBlocks =
         blocksForResource("a").withHashes("1", "2", "1", "2", "1", "2");
-    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    CloneReporterAlgorithm cloneReporter = new OriginalCloneReporter(cloneIndex);
+    List<CloneGroup> clones = cloneReporter.reportClones(new FileBlockGroup("a", fileBlocks));
     print(clones);
   }
 

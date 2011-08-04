@@ -17,16 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.detector.original;
+package org.sonar.duplications.algorithm;
+
+import com.google.common.collect.Lists;
+import org.sonar.duplications.block.Block;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import org.sonar.duplications.block.Block;
-
-import com.google.common.collect.Lists;
 
 /**
  * Set of {@link Block}s, which internally stored as a sorted list.
@@ -153,7 +152,7 @@ class BlocksGroup {
         c = beginBlock.getIndexInFile() + len - 1 - endBlock.getIndexInFile();
       }
       if (c == 0) {
-        result.add(new Block[] { beginBlock, endBlock });
+        result.add(new Block[]{beginBlock, endBlock});
         i++;
         j++;
       }

@@ -17,16 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.detector.original;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.Arrays;
+package org.sonar.duplications.algorithm;
 
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.detector.original.BlocksGroup;
+
+import java.util.Arrays;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class BlocksGroupTest {
 
@@ -71,7 +70,7 @@ public class BlocksGroupTest {
   }
 
   /**
-   * Results for this test taken from results of work of {@link NaiveBlocksGroup naive implementation}.
+   * Results for this test taken from results of work of {@link org.sonar.duplications.algorithm.NaiveBlocksGroup naive implementation}.
    */
   @Test
   public void testSubsumedBy3() {
@@ -126,7 +125,7 @@ public class BlocksGroupTest {
   }
 
   /**
-   * Results for this test taken from results of work of {@link NaiveBlocksGroup naive implementation}.
+   * Results for this test taken from results of work of {@link org.sonar.duplications.algorithm.NaiveBlocksGroup naive implementation}.
    */
   @Test
   public void testIntersect2() {
