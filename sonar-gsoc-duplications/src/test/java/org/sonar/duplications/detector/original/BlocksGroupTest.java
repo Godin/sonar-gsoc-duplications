@@ -57,6 +57,7 @@ public class BlocksGroupTest {
   public void testSubsumedBy() {
     BlocksGroup group1 = newBlocksGroup(newBlock("a", 1), newBlock("b", 2));
     BlocksGroup group2 = newBlocksGroup(newBlock("a", 2), newBlock("b", 3), newBlock("c", 4));
+    // block "c" from group2 does not have corresponding block in group1
     assertThat(group2.subsumedBy(group1), is(false));
   }
 
@@ -64,7 +65,17 @@ public class BlocksGroupTest {
   public void testSubsumedBy2() {
     BlocksGroup group1 = newBlocksGroup(newBlock("a", 1), newBlock("b", 2));
     BlocksGroup group2 = newBlocksGroup(newBlock("a", 2), newBlock("b", 3));
-    assertThat(group2.subsumedBy(group1), is(true));
+    BlocksGroup group3 = newBlocksGroup(newBlock("a", 3), newBlock("b", 4));
+    BlocksGroup group4 = newBlocksGroup(newBlock("a", 4), newBlock("b", 5));
+
+    assertThat(group2.subsumedBy(group1), is(true)); // correction of index - 1
+
+    assertThat(group3.subsumedBy(group1), is(true)); // correction of index - 2
+    assertThat(group3.subsumedBy(group2), is(true)); // correction of index - 1
+
+    assertThat(group4.subsumedBy(group1), is(true)); // correction of index - 3
+    assertThat(group4.subsumedBy(group2), is(true)); // correction of index - 2
+    assertThat(group4.subsumedBy(group3), is(true)); // correction of index - 1
   }
 
   @Test

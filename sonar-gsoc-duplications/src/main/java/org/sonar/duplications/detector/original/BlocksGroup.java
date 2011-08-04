@@ -52,6 +52,7 @@ class BlocksGroup {
 
   /**
    * @return true, if this group subsumed by specified group
+   * @see #subsumedBy(BlocksGroup, BlocksGroup, int)
    */
   public boolean subsumedBy(BlocksGroup other) {
     if (other.size() == 0) {
@@ -63,6 +64,7 @@ class BlocksGroup {
 
   /**
    * @return intersection of this group with specified
+   * @see #intersect(BlocksGroup, BlocksGroup)
    */
   public BlocksGroup intersect(BlocksGroup other) {
     return intersect(this, other);
@@ -113,6 +115,9 @@ class BlocksGroup {
     return intersection;
   }
 
+  /**
+   * One group is subsumed by another group, when each block from first group has corresponding block from second group with corrected index.
+   */
   protected boolean subsumedBy(BlocksGroup group1, BlocksGroup group2, int indexCorrection) {
     List<Block> list1 = group1.blocks;
     List<Block> list2 = group2.blocks;

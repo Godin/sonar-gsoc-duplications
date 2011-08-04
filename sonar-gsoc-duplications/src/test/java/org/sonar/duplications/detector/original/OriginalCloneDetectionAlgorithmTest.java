@@ -175,16 +175,16 @@ public class OriginalCloneDetectionAlgorithmTest {
     CloneIndex cloneIndex = createIndex(
         blocksForResource("b").withHashes("1", "2", "3", "4"));
     List<Block> fileBlocks =
-        blocksForResource("a").withHashes("1", "2", "3", "4");
+        blocksForResource("a").withHashes("1", "2", "3");
     List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
     print(clones);
     assertThat(clones.size(), is(1));
 
     CloneGroup clone1 = clones.get(0);
-    assertThat(clone1.getCloneUnitLength(), is(4));
+    assertThat(clone1.getCloneUnitLength(), is(3));
     assertThat(clone1.getCloneParts().size(), is(2));
-    assertThat(clone1.getCloneParts(), hasItem(newClonePart("a", 0, 4)));
-    assertThat(clone1.getCloneParts(), hasItem(newClonePart("b", 0, 4)));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("a", 0, 3)));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("b", 0, 3)));
   }
 
   /**

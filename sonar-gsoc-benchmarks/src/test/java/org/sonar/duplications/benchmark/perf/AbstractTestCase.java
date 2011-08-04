@@ -35,6 +35,7 @@ import org.sonar.duplications.benchmark.BenchmarksDiff;
 import org.sonar.duplications.benchmark.MemoryUtils;
 import org.sonar.duplications.benchmark.NewCpdBenchmark;
 import org.sonar.duplications.benchmark.OldCpdBenchmark;
+import org.sonar.duplications.benchmark.OriginalAlgorithmBenchmark;
 import org.sonar.duplications.benchmark.ThreadedNewCpdBenchmark;
 
 public class AbstractTestCase {
@@ -69,7 +70,12 @@ public class AbstractTestCase {
 
   @Test
   public void newCpd() {
-    results.add(run(new NewCpdBenchmark(files, 13)));
+    results.add(run(new NewCpdBenchmark(files, BLOCK_SIZE)));
+  }
+
+  @Test
+  public void originalAlgorithm() {
+    results.add(run(new OriginalAlgorithmBenchmark(files, BLOCK_SIZE)));
   }
 
   @Test
