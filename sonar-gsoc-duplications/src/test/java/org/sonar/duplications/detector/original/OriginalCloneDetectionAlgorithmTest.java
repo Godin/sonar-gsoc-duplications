@@ -29,7 +29,6 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
@@ -38,7 +37,7 @@ import org.sonar.duplications.junit.TestNamePrinter;
 
 import com.google.common.collect.Lists;
 
-public class CloneDetectionAlgorithmTest {
+public class OriginalCloneDetectionAlgorithmTest {
 
   @Rule
   public TestNamePrinter name = new TestNamePrinter();
@@ -72,7 +71,7 @@ public class CloneDetectionAlgorithmTest {
     List<Block> fileBlocks = blocksForResource("x").withHashes("1", "2", "3", "4", "5", "6");
     List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
     print(clones);
-    assertThat(clones.size(), is(3));
+    assertThat(clones.size(), is(2));
 
     CloneGroup clone1 = clones.get(0);
     assertThat(clone1.getCloneUnitLength(), is(4));
@@ -86,12 +85,30 @@ public class CloneDetectionAlgorithmTest {
     assertThat(clone2.getCloneParts(), hasItem(newClonePart("x", 2, 2)));
     assertThat(clone2.getCloneParts(), hasItem(newClonePart("y", 1, 2)));
     assertThat(clone2.getCloneParts(), hasItem(newClonePart("z", 0, 2)));
+  }
 
-    CloneGroup clone3 = clones.get(2);
-    assertThat(clone3.getCloneUnitLength(), is(3));
-    assertThat(clone3.getCloneParts().size(), is(2));
-    assertThat(clone3.getCloneParts(), hasItem(newClonePart("x", 2, 3)));
-    assertThat(clone3.getCloneParts(), hasItem(newClonePart("y", 1, 3)));
+  @Test
+  public void exampleFromPaperWithModifiedResourceIds() {
+    CloneIndex cloneIndex = createIndex(
+        blocksForResource("a").withHashes("2", "3", "4", "5"),
+        blocksForResource("b").withHashes("3", "4"));
+    List<Block> fileBlocks = blocksForResource("c").withHashes("1", "2", "3", "4", "5", "6");
+    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    print(clones);
+    assertThat(clones.size(), is(2));
+
+    CloneGroup clone1 = clones.get(0);
+    assertThat(clone1.getCloneUnitLength(), is(4));
+    assertThat(clone1.getCloneParts().size(), is(2));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("c", 1, 4)));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("a", 0, 4)));
+
+    CloneGroup clone2 = clones.get(1);
+    assertThat(clone2.getCloneUnitLength(), is(2));
+    assertThat(clone2.getCloneParts().size(), is(3));
+    assertThat(clone2.getCloneParts(), hasItem(newClonePart("c", 2, 2)));
+    assertThat(clone2.getCloneParts(), hasItem(newClonePart("a", 1, 2)));
+    assertThat(clone2.getCloneParts(), hasItem(newClonePart("b", 0, 2)));
   }
 
   /**
@@ -171,9 +188,32 @@ public class CloneDetectionAlgorithmTest {
   }
 
   /**
-   * FIXME fix and implement test
+   * FIXME Godin: this problem was described in original paper - same clone would be reported twice
    */
-  @Ignore("not implemented")
+  @Test
+  public void clonesInFileItself() {
+    CloneIndex cloneIndex = createIndex();
+    List<Block> fileBlocks =
+        blocksForResource("a").withHashes("1", "2", "3", "1", "2", "4");
+    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    print(clones);
+
+    assertThat(clones.size(), is(2));
+
+    CloneGroup clone1 = clones.get(0);
+    assertThat(clone1.getCloneUnitLength(), is(2));
+    assertThat(clone1.getCloneParts().size(), is(2));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("a", 3, 2)));
+
+    CloneGroup clone2 = clones.get(1);
+    assertThat(clone2.getCloneUnitLength(), is(2));
+    assertThat(clone2.getCloneParts().size(), is(2));
+    assertThat(clone2.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
+    assertThat(clone2.getCloneParts(), hasItem(newClonePart("a", 3, 2)));
+  }
+
+  @Ignore("as in original paper - we don't have filter for nested clone groups")
   @Test
   public void problemWithNestedCloneGroups() {
     CloneIndex cloneIndex = createIndex(
@@ -182,6 +222,41 @@ public class CloneDetectionAlgorithmTest {
         blocksForResource("a").withHashes("1", "2", "1", "2", "1", "2");
     List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
     print(clones);
+
+    assertThat(clones.size(), is(2));
+
+    CloneGroup clone1 = clones.get(0);
+    assertThat(clone1.getCloneUnitLength(), is(5));
+    assertThat(clone1.getCloneParts().size(), is(3));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("a", 0, 5)));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("b", 0, 5)));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("b", 2, 5)));
+
+    CloneGroup clone2 = clones.get(1);
+    assertThat(clone2.getCloneUnitLength(), is(6));
+    assertThat(clone2.getCloneParts().size(), is(2));
+    assertThat(clone2.getCloneParts(), hasItem(newClonePart("a", 0, 6)));
+    assertThat(clone2.getCloneParts(), hasItem(newClonePart("b", 0, 6)));
+  }
+
+  @Test
+  public void fileAlreadyInIndex() {
+    CloneIndex cloneIndex = createIndex(
+        blocksForResource("a").withHashes("0"),
+        blocksForResource("b").withHashes("1", "2", "3"));
+    // Note about blocks with hashes "3" and "4": those blocks here in order to not face another problem - with EOF (see separate test)
+    List<Block> fileBlocks =
+        blocksForResource("a").withHashes("1", "2", "4");
+    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    print(clones);
+
+    assertThat(clones.size(), is(1));
+
+    CloneGroup clone1 = clones.get(0);
+    assertThat(clone1.getCloneUnitLength(), is(2));
+    assertThat(clone1.getCloneParts().size(), is(2));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
+    assertThat(clone1.getCloneParts(), hasItem(newClonePart("b", 0, 2)));
   }
 
   private void print(List<CloneGroup> clones) {

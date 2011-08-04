@@ -19,8 +19,6 @@
  */
 package org.sonar.duplications.detector.original;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -34,25 +32,15 @@ import com.google.common.collect.Lists;
 class BlocksGroup {
 
   /**
+   * Factory method.
+   * 
    * @return new empty group
    */
   public static BlocksGroup empty() {
-    return new BlocksGroup(Collections.EMPTY_LIST);
-  }
-
-  /**
-   * @return new group with specified blocks
-   */
-  public static BlocksGroup from(Collection<Block> blocks) {
-    return new BlocksGroup(blocks);
+    return new BlocksGroup();
   }
 
   protected final List<Block> blocks;
-
-  protected BlocksGroup(Collection<Block> blocks) {
-    this.blocks = Lists.newArrayList(blocks);
-    Collections.sort(this.blocks, BlockComparator.INSTANCE);
-  }
 
   protected BlocksGroup() {
     this.blocks = Lists.newArrayList();
@@ -66,7 +54,11 @@ class BlocksGroup {
    * @return true, if this group subsumed by specified group
    */
   public boolean subsumedBy(BlocksGroup other) {
-    return subsumedBy(this, other);
+    if (other.size() == 0) {
+      return false;
+    }
+    int indexCorrection = this.blocks.get(0).getIndexInFile() - other.blocks.get(0).getIndexInFile();
+    return subsumedBy(this, other, indexCorrection);
   }
 
   /**
@@ -95,6 +87,14 @@ class BlocksGroup {
       Block block1 = list1.get(i);
       Block block2 = list2.get(j);
       int c = block1.getResourceId().compareTo(block2.getResourceId());
+      if (c > 0) {
+        j++;
+        continue;
+      }
+      if (c < 0) {
+        i++;
+        continue;
+      }
       if (c == 0) {
         c = block1.getIndexInFile() + 1 - block2.getIndexInFile();
       }
@@ -113,7 +113,7 @@ class BlocksGroup {
     return intersection;
   }
 
-  protected boolean subsumedBy(BlocksGroup group1, BlocksGroup group2) {
+  protected boolean subsumedBy(BlocksGroup group1, BlocksGroup group2, int indexCorrection) {
     List<Block> list1 = group1.blocks;
     List<Block> list2 = group2.blocks;
     int i = 0;
@@ -122,8 +122,12 @@ class BlocksGroup {
       Block block1 = list1.get(i);
       Block block2 = list2.get(j);
       int c = block1.getResourceId().compareTo(block2.getResourceId());
+      if (c != 0) {
+        j++;
+        continue;
+      }
       if (c == 0) {
-        c = block1.getIndexInFile() - 1 - block2.getIndexInFile();
+        c = block1.getIndexInFile() - indexCorrection - block2.getIndexInFile();
       }
       if (c < 0) { // list1[i] < list2[j]
         break;

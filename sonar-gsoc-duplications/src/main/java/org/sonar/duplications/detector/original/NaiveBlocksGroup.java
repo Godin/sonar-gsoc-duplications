@@ -19,7 +19,6 @@
  */
 package org.sonar.duplications.detector.original;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.sonar.duplications.block.Block;
@@ -31,22 +30,18 @@ import com.google.common.collect.Lists;
  */
 class NaiveBlocksGroup extends BlocksGroup {
 
-  public NaiveBlocksGroup(Collection<Block> blocks) {
-    super(blocks);
-  }
-
-  public NaiveBlocksGroup() {
+  protected NaiveBlocksGroup() {
     super();
   }
 
   @Override
-  protected boolean subsumedBy(BlocksGroup group1, BlocksGroup group2) {
+  protected boolean subsumedBy(BlocksGroup group1, BlocksGroup group2, int indexCorrection) {
     boolean result = true;
     for (Block block1 : group1.blocks) {
       // search for a block2 to cover block1
       boolean partialResult = false;
       for (Block block2 : group2.blocks) {
-        if (block1.getResourceId().equals(block2.getResourceId()) && (block1.getIndexInFile() - 1) == block2.getIndexInFile()) {
+        if (block1.getResourceId().equals(block2.getResourceId()) && (block1.getIndexInFile() - indexCorrection) == block2.getIndexInFile()) {
           // block1 is covered by block2
           partialResult = true;
           break;

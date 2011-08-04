@@ -26,18 +26,31 @@ import java.util.List;
 
 public class CloneGroup {
 
-  private final List<ClonePart> parts = new ArrayList<ClonePart>();
+  private final List<ClonePart> parts;
 
   private ClonePart originPart;
 
   private int cloneUnitLength;
 
+  /**
+   * Cache for hash code.
+   */
   private int hash;
 
   public CloneGroup() {
+    this(new ArrayList<ClonePart>());
+  }
+
+  /**
+   * TODO Godin: Hack - this code stores a reference to an externally mutable object into the internal representation of the object.
+   * However allows creation with initial capacity and what's more important - avoid invocations of method {@link #addPart(ClonePart)}, which performs sorting.
+   */
+  public CloneGroup(List<ClonePart> parts) {
+    this.parts = parts;
   }
 
   public CloneGroup(int cloneUnitLength) {
+    this();
     this.cloneUnitLength = cloneUnitLength;
   }
 
@@ -73,15 +86,15 @@ public class CloneGroup {
     this.cloneUnitLength = cloneUnitLength;
   }
 
-
   @Override
   public boolean equals(Object object) {
     if (object instanceof CloneGroup) {
       CloneGroup another = (CloneGroup) object;
 
       if (another.cloneUnitLength != cloneUnitLength
-          || parts.size() != another.parts.size())
+          || parts.size() != another.parts.size()) {
         return false;
+      }
 
       boolean result = true;
       for (int i = 0; i < parts.size(); i++) {
