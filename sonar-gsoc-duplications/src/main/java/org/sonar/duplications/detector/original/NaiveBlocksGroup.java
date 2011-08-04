@@ -17,13 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.algorithm;
-
-import com.google.common.collect.Lists;
-import org.sonar.duplications.block.Block;
+package org.sonar.duplications.detector.original;
 
 import java.util.Collection;
 import java.util.List;
+
+import org.sonar.duplications.block.Block;
+
+import com.google.common.collect.Lists;
 
 /**
  * Straightforward implementation made by Sharif Uddin.
@@ -80,7 +81,7 @@ class NaiveBlocksGroup extends BlocksGroup {
     for (Block beginBlock : beginGroup.blocks) {
       for (Block endBlock : endGroup.blocks) {
         if ((beginBlock.getResourceId().equals(endBlock.getResourceId())) && (beginBlock.getIndexInFile() + cloneLength - 1 == endBlock.getIndexInFile())) {
-          result.add(new Block[]{beginBlock, endBlock});
+          result.add(new Block[] { beginBlock, endBlock });
           break;
         }
       }
