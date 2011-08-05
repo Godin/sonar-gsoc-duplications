@@ -32,6 +32,8 @@ public class CloneGroup {
 
   private int cloneUnitLength;
 
+  private boolean sorted = true;
+
   /**
    * Cache for hash code.
    */
@@ -64,11 +66,14 @@ public class CloneGroup {
 
   public CloneGroup addPart(ClonePart part) {
     parts.add(part);
-    Collections.sort(parts, null);
+    sorted = false;
     return this;
   }
 
   public List<ClonePart> getCloneParts() {
+    if (!sorted) {
+      Collections.sort(parts, null);
+    }
     return Collections.unmodifiableList(parts);
   }
 
@@ -80,7 +85,7 @@ public class CloneGroup {
   }
 
   /**
-   * @param cloneUnitLength clone length measured in units (not in lines)
+   * @param cloneUnitLength clone length in units (not in lines)
    */
   public void setCloneUnitLength(int cloneUnitLength) {
     this.cloneUnitLength = cloneUnitLength;
@@ -120,17 +125,17 @@ public class CloneGroup {
     if (object instanceof CloneGroup) {
       CloneGroup another = (CloneGroup) object;
 
-      if (another.cloneUnitLength != cloneUnitLength
-          || parts.size() != another.parts.size()) {
+      if (another.cloneUnitLength != cloneUnitLength ||
+          getCloneParts().size() != another.getCloneParts().size()) {
         return false;
       }
 
       boolean result = true;
-      for (int i = 0; i < parts.size(); i++) {
-        result &= another.parts.get(i).equals(parts.get(i));
+      for (int i = 0; i < getCloneParts().size(); i++) {
+        result &= another.getCloneParts().get(i).equals(getCloneParts().get(i));
       }
 
-      result &= another.originPart.equals(originPart);
+      result &= another.getOriginPart().equals(getOriginPart());
 
       return result;
     }
@@ -141,10 +146,10 @@ public class CloneGroup {
   public int hashCode() {
     int h = hash;
     if (h == 0 && cloneUnitLength != 0) {
-      for (ClonePart part : parts) {
+      for (ClonePart part : getCloneParts()) {
         h = 31 * h + part.hashCode();
       }
-      h = 31 * h + originPart.hashCode();
+      h = 31 * h + getOriginPart().hashCode();
       h = 31 * h + cloneUnitLength;
       hash = h;
     }
@@ -154,7 +159,7 @@ public class CloneGroup {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    for (ClonePart part : parts) {
+    for (ClonePart part : getCloneParts()) {
       builder.append(part).append(" - ");
     }
     builder.append(cloneUnitLength);
