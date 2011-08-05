@@ -32,7 +32,6 @@ import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public final class CloneFinder {
@@ -43,8 +42,6 @@ public final class CloneFinder {
   private CloneIndex cloneIndex;
 
   private CloneReporterAlgorithm cloneReporter;
-
-  private List<String> sourceFilesForDetection = new ArrayList<String>();
 
   private CloneFinder(Builder builder) {
     this.tokenChunker = builder.tokenChunker;

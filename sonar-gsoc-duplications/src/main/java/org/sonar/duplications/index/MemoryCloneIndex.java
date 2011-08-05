@@ -24,6 +24,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.TreeMultimap;
 import org.sonar.duplications.block.Block;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
@@ -33,7 +34,7 @@ public class MemoryCloneIndex implements CloneIndex {
   private final TreeMultimap<String, Block> filenameIndex;
   private final HashMultimap<String, Block> sequenceHashIndex;
 
-  private static final class ValueComparator implements Comparator<Block> {
+  private static final class ValueComparator implements Comparator<Block>, Serializable {
 
     public int compare(Block o1, Block o2) {
       if (o2.getResourceId().equals(o1.getResourceId())) {
@@ -43,7 +44,7 @@ public class MemoryCloneIndex implements CloneIndex {
     }
   }
 
-  private static final class KeyComparator implements Comparator<String> {
+  private static final class KeyComparator implements Comparator<String>, Serializable {
 
     public int compare(String o1, String o2) {
       return o1.compareTo(o2);

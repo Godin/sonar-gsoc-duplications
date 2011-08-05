@@ -86,6 +86,35 @@ public class CloneGroup {
     this.cloneUnitLength = cloneUnitLength;
   }
 
+
+  public boolean containsIn(CloneGroup second) {
+    if (!this.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
+      return false;
+    }
+
+    for (ClonePart firstPart : this.getCloneParts()) {
+      boolean found = false;
+
+      for (ClonePart secondPart : second.getCloneParts()) {
+        int firstUnitEnd = firstPart.getUnitStart() + this.getCloneUnitLength();
+        int secondUnitEnd = secondPart.getUnitStart() + second.getCloneUnitLength();
+
+        if (firstPart.getResourceId().equals(secondPart.getResourceId()) &&
+            firstPart.getUnitStart() >= secondPart.getUnitStart() &&
+            firstUnitEnd <= secondUnitEnd) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+
   @Override
   public boolean equals(Object object) {
     if (object instanceof CloneGroup) {

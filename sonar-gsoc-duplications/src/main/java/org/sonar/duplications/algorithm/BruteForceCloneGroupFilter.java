@@ -20,10 +20,33 @@
  */
 package org.sonar.duplications.algorithm;
 
-import org.sonar.duplications.index.ClonePair;
+import com.google.common.collect.Lists;
+import org.sonar.duplications.index.CloneGroup;
 
 import java.util.List;
 
-public interface CloneFilter {
-  List<ClonePair> filter(List<ClonePair> clones);
+public class BruteForceCloneGroupFilter implements CloneGroupFilter {
+
+  public List<CloneGroup> filter(List<CloneGroup> clones) {
+    List<CloneGroup> filtered = Lists.newArrayList();
+    for (int i = 0; i < clones.size(); i++) {
+      CloneGroup first = clones.get(i);
+      boolean covered = false;
+      for (int j = 0; j < clones.size(); j++) {
+        if (i == j) {
+          continue;
+        }
+
+        CloneGroup second = clones.get(j);
+        covered |= first.containsIn(second);
+        if (covered) {
+          break;
+        }
+      }
+      if (!covered) {
+        filtered.add(first);
+      }
+    }
+    return filtered;
+  }
 }

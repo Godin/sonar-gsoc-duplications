@@ -20,18 +20,21 @@
  */
 package org.sonar.duplications.algorithm;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.interval.Interval;
-import org.sonar.duplications.interval.IntervalTree;
 
 import java.util.*;
 
 public class AdvancedCloneReporter implements CloneReporterAlgorithm {
+
+  public static final CloneGroupFilter INTERVAL_FILTER = new IntervalTreeCloneGroupFilter();
+  public static final CloneGroupFilter SIMPLE_FILTER = new BruteForceCloneGroupFilter();
 
   public static final String ALGORITHM_KEY = "algorithm";
   public static final String INIT_KEY = "init";
@@ -41,9 +44,40 @@ public class AdvancedCloneReporter implements CloneReporterAlgorithm {
 
   public static final String[] TIME_KEYS = new String[]{ALGORITHM_KEY, INIT_KEY, DUPLIACATES_KEY, FILTER_KEY, GROUPS_KEY};
 
+  private static final Comparator<TempClone> TEMP_CLONE_COMPARATOR = new Comparator<TempClone>() {
+    public int compare(TempClone o1, TempClone o2) {
+      return o1.getOrigPart().getUnitStart() - o2.getOrigPart().getUnitStart();
+    }
+  };
+
   private final CloneIndex cloneIndex;
   private Map<String, Long> workingTimes;
   private Map<String, Long> startTimes;
+
+
+  private final static class TempClone {
+    private ClonePart origPart;
+    private ClonePart anotherPart;
+    private int cloneLength;
+
+    private TempClone(ClonePart origPart, ClonePart anotherPart, int cloneLength) {
+      this.origPart = origPart;
+      this.anotherPart = anotherPart;
+      this.cloneLength = cloneLength;
+    }
+
+    public ClonePart getOrigPart() {
+      return origPart;
+    }
+
+    public ClonePart getAnotherPart() {
+      return anotherPart;
+    }
+
+    public int getCloneLength() {
+      return cloneLength;
+    }
+  }
 
   public AdvancedCloneReporter(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
@@ -84,14 +118,14 @@ public class AdvancedCloneReporter implements CloneReporterAlgorithm {
 
   public List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup) {
     startTime(INIT_KEY);
-    List<CloneGroup> clones = new ArrayList<CloneGroup>();
+    List<CloneGroup> clones = Lists.newArrayList();
 
-    ArrayList<Block> resourceBlocks = new ArrayList<Block>(fileBlockGroup.getBlockList());
+    List<Block> resourceBlocks = fileBlockGroup.getBlockList();
 
-    ArrayList<List<Block>> sameHashBlockGroups = new ArrayList<List<Block>>();
+    ArrayList<List<Block>> sameHashBlockGroups = Lists.newArrayList();
 
     for (Block block : fileBlockGroup.getBlockList()) {
-      List<Block> sameHashBlockGroup = new ArrayList<Block>();
+      List<Block> sameHashBlockGroup = Lists.newArrayList();
       for (Block shBlock : cloneIndex.getBySequenceHash(block.getBlockHash())) {
         if (!shBlock.getResourceId().equals(block.getResourceId()) ||
             shBlock.getIndexInFile() > block.getIndexInFile()) {
@@ -103,24 +137,27 @@ public class AdvancedCloneReporter implements CloneReporterAlgorithm {
 
     //an empty list is needed a the end to report clone at the end of file
     sameHashBlockGroups.add(new ArrayList<Block>());
+    Map<CloneKey, TempClone> prevActiveMap = Maps.newTreeMap();
     endTime(INIT_KEY);
 
     startTime(ALGORITHM_KEY);
-    Map<Key, TempClone> prevActiveMap = new TreeMap<Key, TempClone>();
-    for (int i = 0; i < sameHashBlockGroups.size(); i++) {
-      Map<Key, TempClone> nextActiveMap = new TreeMap<Key, TempClone>();
+    Iterator<Block> blockIterator = resourceBlocks.iterator();
+    for (List<Block> blockGroup : sameHashBlockGroups) {
+      //for (int i = 0; i < sameHashBlockGroups.size(); i++) {
+      Map<CloneKey, TempClone> nextActiveMap = Maps.newTreeMap();
 
-      for (Block block : sameHashBlockGroups.get(i)) {
-        Block origBlock = resourceBlocks.get(i);
+      Block origBlock = null;
+      if (blockIterator.hasNext()) {
+        origBlock = blockIterator.next();
+      }
+
+      for (Block block : blockGroup) {
         processBlock(prevActiveMap, nextActiveMap, origBlock, block);
       }
       endTime(ALGORITHM_KEY);
 
       startTime(GROUPS_KEY);
-      //sort elements of prevActiveMap by getOrigPart.getUnitStart()
-      ArrayList<TempClone> sortedArr = new ArrayList<TempClone>(prevActiveMap.values());
-      Collections.sort(sortedArr, new TempCloneComparator());
-      clones.addAll(reportClones(sortedArr));
+      clones.addAll(reportClones(prevActiveMap.values()));
       endTime(GROUPS_KEY);
 
       startTime(ALGORITHM_KEY);
@@ -134,213 +171,15 @@ public class AdvancedCloneReporter implements CloneReporterAlgorithm {
     endTime(DUPLIACATES_KEY);
 
     startTime(FILTER_KEY);
-    clones = filterCoveredIntervalTree(clones);
+    clones = INTERVAL_FILTER.filter(clones);
     endTime(FILTER_KEY);
 
     return clones;
   }
 
-  private final static class Key implements Comparable<Key> {
-    private String resourceId;
-    private int unitNum;
-
-    private Key(String resourceId, int unitNum) {
-      this.resourceId = resourceId;
-      this.unitNum = unitNum;
-    }
-
-    public int compareTo(Key o) {
-      if (this.resourceId.equals(o.resourceId)) {
-        return this.unitNum - o.unitNum;
-      }
-      return this.resourceId.compareTo(o.resourceId);
-    }
-
-    @Override
-    public boolean equals(Object object) {
-      if (object instanceof Key) {
-        Key other = (Key) object;
-        if (other.resourceId.equals(resourceId) && other.unitNum == unitNum) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    @Override
-    public int hashCode() {
-      int h = 0;
-      h = 31 * h + resourceId.hashCode();
-      h = 31 * h + unitNum;
-      return h;
-    }
-  }
-
-  private final static class TempClone {
-    private ClonePart origPart;
-    private ClonePart anotherPart;
-    private int cloneLength;
-
-    private TempClone(ClonePart origPart, ClonePart anotherPart, int cloneLength) {
-      this.origPart = origPart;
-      this.anotherPart = anotherPart;
-      this.cloneLength = cloneLength;
-    }
-
-    public ClonePart getOrigPart() {
-      return origPart;
-    }
-
-    public ClonePart getAnotherPart() {
-      return anotherPart;
-    }
-
-    public int getCloneLength() {
-      return cloneLength;
-    }
-  }
-
-  private final static class PartWrapper {
-    public CloneGroup clone;
-    public ClonePart part;
-
-    private PartWrapper(CloneGroup clone, ClonePart part) {
-      this.clone = clone;
-      this.part = part;
-    }
-
-    public CloneGroup getClone() {
-      return clone;
-    }
-
-    public ClonePart getPart() {
-      return part;
-    }
-  }
-
-  private static class TempCloneComparator implements Comparator<TempClone> {
-
-    public int compare(TempClone o1, TempClone o2) {
-      return o1.getOrigPart().getUnitStart() - o2.getOrigPart().getUnitStart();
-    }
-  }
-
-  /**
-   * O(n^2) filter for clones fully covered by another clones
-   *
-   * @param clones original list of clones
-   * @return filtered list of clones
-   */
-  private static List<CloneGroup> filterCovered(List<CloneGroup> clones) {
-    List<CloneGroup> filtered = new ArrayList<CloneGroup>();
-    for (int i = 0; i < clones.size(); i++) {
-      CloneGroup first = clones.get(i);
-      boolean covered = false;
-      for (int j = 0; j < clones.size(); j++) {
-        if (i == j) {
-          continue;
-        }
-
-        CloneGroup second = clones.get(j);
-        covered |= containsIn(first, second);
-        if (covered)
-          break;
-      }
-      if (!covered)
-        filtered.add(first);
-    }
-    return filtered;
-  }
-
-  private static Map<String, IntervalTree> buildTrees(List<CloneGroup> clones) {
-    Map<String, IntervalTree> trees = Maps.newHashMap();
-
-    //populate interval tree structure
-    for (CloneGroup clone : clones) {
-      for (ClonePart part : clone.getCloneParts()) {
-        PartWrapper partWrap = new PartWrapper(clone, part);
-        IntervalTree tree = trees.get(part.getResourceId());
-        if (tree == null) {
-          tree = new IntervalTree();
-          trees.put(part.getResourceId(), tree);
-        }
-        int unitStart = part.getUnitStart();
-        int unitEnd = part.getUnitStart() + clone.getCloneUnitLength() - 1;
-
-        tree.addInterval(new Interval(unitStart, unitEnd, partWrap));
-      }
-    }
-
-    return trees;
-  }
-
-  /**
-   * O(n log n) filter using interval tree for clones fully covered by another clones
-   *
-   * @param clones original list of clones
-   * @return filtered list of clones
-   */
-  private static List<CloneGroup> filterCoveredIntervalTree(List<CloneGroup> clones) {
-    List<CloneGroup> filtered = new ArrayList<CloneGroup>();
-
-    Map<String, IntervalTree> trees = buildTrees(clones);
-
-    for (CloneGroup clone : clones) {
-      ClonePart originPart = clone.getOriginPart();
-      IntervalTree tree = trees.get(originPart.getResourceId());
-
-      int unitStart = originPart.getUnitStart();
-      int unitEnd = originPart.getUnitStart() + clone.getCloneUnitLength() - 1;
-      List<Interval> intervals = tree.getCoveringIntervals(unitStart, unitEnd);
-
-      boolean covered = false;
-      for (Interval<PartWrapper> interval : intervals) {
-        CloneGroup foundClone = interval.getData().getClone();
-        if (foundClone.equals(clone))
-          continue;
-
-        covered |= containsIn(clone, foundClone);
-        if (covered)
-          break;
-      }
-
-      if (!covered)
-        filtered.add(clone);
-    }
-    return filtered;
-  }
-
-  private static boolean containsIn(CloneGroup first, CloneGroup second) {
-    if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
-      return false;
-    }
-    for (int i = 0; i < first.getCloneParts().size(); i++) {
-      ClonePart firstPart = first.getCloneParts().get(i);
-      int firstUnitEnd = firstPart.getUnitStart() + first.getCloneUnitLength();
-      boolean found = false;
-
-      for (int j = 0; j < second.getCloneParts().size(); j++) {
-        ClonePart secondPart = second.getCloneParts().get(j);
-        int secondUnitEnd = secondPart.getUnitStart() + second.getCloneUnitLength();
-        if (firstPart.getResourceId().equals(secondPart.getResourceId()) &&
-            firstPart.getUnitStart() >= secondPart.getUnitStart() &&
-            firstUnitEnd <= secondUnitEnd) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   private static List<CloneGroup> removeDuplicates(List<CloneGroup> clones) {
-    HashSet<CloneGroup> set = new HashSet<CloneGroup>(clones);
-    List<CloneGroup> result = new ArrayList<CloneGroup>(set);
-
-    return result;
+    HashSet<CloneGroup> set = Sets.newHashSet(clones);
+    return Lists.newArrayList(set);
   }
 
   /**
@@ -353,14 +192,14 @@ public class AdvancedCloneReporter implements CloneReporterAlgorithm {
    * @param origBlock,     block of original file
    * @param anotherBlock,  one of blocks with same hash as <tt>origBlock</tt>
    */
-  private static void processBlock(Map<Key, TempClone> prevActiveMap,
-                                   Map<Key, TempClone> nextActiveMap,
+  private static void processBlock(Map<CloneKey, TempClone> prevActiveMap,
+                                   Map<CloneKey, TempClone> nextActiveMap,
                                    Block origBlock, Block anotherBlock) {
     ClonePart origPart = new ClonePart(origBlock);
     ClonePart anotherPart = new ClonePart(anotherBlock);
     int cloneLength = 0;
 
-    Key curKey = new Key(anotherBlock.getResourceId(), anotherBlock.getIndexInFile());
+    CloneKey curKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile());
     if (prevActiveMap.containsKey(curKey)) {
       TempClone prevTmp = prevActiveMap.get(curKey);
 
@@ -379,17 +218,21 @@ public class AdvancedCloneReporter implements CloneReporterAlgorithm {
 
     TempClone tempClone = new TempClone(origPart, anotherPart, cloneLength + 1);
 
-    Key nextKey = new Key(anotherBlock.getResourceId(), anotherBlock.getIndexInFile() + 1);
+    CloneKey nextKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile() + 1);
     nextActiveMap.put(nextKey, tempClone);
   }
 
 
   /**
-   * @param sortedArr, array of TempClone sorted by getOrigPart().getUnitStart()
-   * @return list of reported clones
+   * @param tempClones, array of TempClone to report
+   * @return list of reported CloneGroups
    */
-  private static List<CloneGroup> reportClones(List<TempClone> sortedArr) {
-    List<CloneGroup> res = new ArrayList<CloneGroup>();
+  private static List<CloneGroup> reportClones(Collection<TempClone> tempClones) {
+    List<CloneGroup> res = Lists.newArrayList();
+    //sort elements of prevActiveMap by getOrigPart.getUnitStart()
+    ArrayList<TempClone> sortedArr = Lists.newArrayList(tempClones);
+    Collections.sort(sortedArr, TEMP_CLONE_COMPARATOR);
+
     CloneGroup curClone = null;
     int prevUnitStart = -1;
     for (int j = 0; j < sortedArr.size(); j++) {
