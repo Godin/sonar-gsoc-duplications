@@ -22,7 +22,6 @@ package org.sonar.duplications.benchmark;
 import com.google.common.collect.Lists;
 import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.algorithm.AdvancedCloneReporter;
-import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.MemoryCloneIndex;
@@ -52,13 +51,14 @@ public class NewCpdBenchmark extends Benchmark {
     for (File file : files) {
       cf.register(file);
     }
-    CloneReporterAlgorithm cloneReporter = new AdvancedCloneReporter(cloneIndex);
+    AdvancedCloneReporter cloneReporter = new AdvancedCloneReporter(cloneIndex);
     for (File file : files) {
       String resourceId = file.getAbsolutePath();
       List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(resourceId));
       FileBlockGroup fileBlockGroup = new FileBlockGroup(resourceId, candidateBlockList);
       cloneReporter.reportClones(fileBlockGroup);
     }
+    cloneReporter.printStatistics();
   }
 
 }

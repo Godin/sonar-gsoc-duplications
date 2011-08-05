@@ -43,58 +43,26 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
   public static final String FILTER_KEY = "filter";
   public static final String GROUPS_KEY = "groups";
 
-  public static final String[] TIME_KEYS = new String[]{ALGORITHM_KEY, INIT_KEY, DUPLIACATES_KEY, FILTER_KEY, GROUPS_KEY};
-
   public static final Comparator<ClonePair> CLONEPAIR_COMPARATOR = new Comparator<ClonePair>() {
     public int compare(ClonePair o1, ClonePair o2) {
       return o1.getOriginPart().getUnitStart() - o2.getOriginPart().getUnitStart();
     }
   };
 
-
   private final CloneIndex cloneIndex;
-  private Map<String, Long> workingTimes;
-  private Map<String, Long> startTimes;
+  private final StatsCollector statsCollector;
 
   public PairedAdvancedCloneReporter(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
-    workingTimes = Maps.newHashMap();
-    startTimes = Maps.newHashMap();
+    statsCollector = new StatsCollector("PairedAdvanced");
   }
 
-  public void printTimes() {
-    long total = 0;
-    for (String key : TIME_KEYS) {
-      if (workingTimes.containsKey(key)) {
-        total += workingTimes.get(key);
-      }
-    }
-    for (String key : TIME_KEYS) {
-      long time = 0;
-      if (workingTimes.containsKey(key)) {
-        time = workingTimes.get(key);
-      }
-      long percentage = Math.round(100.0 * time / total);
-      System.out.println("Working time for '" + key + "':" + time + " - " + percentage);
-    }
-  }
-
-  private void startTime(String key) {
-    startTimes.put(key, System.currentTimeMillis());
-  }
-
-  private void endTime(String key) {
-    long startTime = startTimes.get(key);
-    long prevTime = 0;
-    if (workingTimes.containsKey(key)) {
-      prevTime = workingTimes.get(key);
-    }
-    prevTime += System.currentTimeMillis() - startTime;
-    workingTimes.put(key, prevTime);
+  public void printStatistics() {
+    statsCollector.printAllStatistics();
   }
 
   public List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup) {
-    startTime(INIT_KEY);
+    statsCollector.startTime(INIT_KEY);
     ArrayList<ClonePair> clones = Lists.newArrayList();
 
     List<Block> resourceBlocks = fileBlockGroup.getBlockList();
@@ -103,7 +71,9 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
 
     for (Block block : fileBlockGroup.getBlockList()) {
       List<Block> sameHashBlockGroup = Lists.newArrayList();
-      for (Block shBlock : cloneIndex.getBySequenceHash(block.getBlockHash())) {
+      Collection<Block> foundBlocks = cloneIndex.getBySequenceHash(block.getBlockHash());
+      statsCollector.addNumber("total found blocks", foundBlocks.size());
+      for (Block shBlock : foundBlocks) {
         if (!shBlock.getResourceId().equals(block.getResourceId()) ||
             shBlock.getIndexInFile() > block.getIndexInFile()) {
           sameHashBlockGroup.add(shBlock);
@@ -115,9 +85,9 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
     //an empty list is needed a the end to report clone at the end of file
     sameHashBlockGroups.add(new ArrayList<Block>());
     Map<CloneKey, ClonePair> prevActiveMap = Maps.newTreeMap();
-    endTime(INIT_KEY);
+    statsCollector.stopTime(INIT_KEY);
 
-    startTime(ALGORITHM_KEY);
+    statsCollector.startTime(ALGORITHM_KEY);
     Iterator<Block> blockIterator = resourceBlocks.iterator();
     for (List<Block> blockGroup : sameHashBlockGroups) {
       Map<CloneKey, ClonePair> nextActiveMap = Maps.newTreeMap();
@@ -134,20 +104,28 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
 
       prevActiveMap = nextActiveMap;
     }
-    endTime(ALGORITHM_KEY);
+    statsCollector.stopTime(ALGORITHM_KEY);
 
-    startTime(DUPLIACATES_KEY);
+    statsCollector.addNumber("clones", clones.size());
+
+    statsCollector.startTime(DUPLIACATES_KEY);
     List<ClonePair> filtered = removeDuplicates(clones);
-    endTime(DUPLIACATES_KEY);
+    statsCollector.stopTime(DUPLIACATES_KEY);
 
-    startTime(FILTER_KEY);
+    statsCollector.addNumber("removed duplicates", clones.size() - filtered.size());
+
+    int sizeBefore = filtered.size();
+    statsCollector.startTime(FILTER_KEY);
     filtered = INTERVAL_FILTER.filter(filtered);
-    endTime(FILTER_KEY);
+    statsCollector.stopTime(FILTER_KEY);
 
-    startTime(GROUPS_KEY);
+    statsCollector.addNumber("removed covered", sizeBefore - filtered.size());
+
+    statsCollector.startTime(GROUPS_KEY);
     List<CloneGroup> groups = groupClonePairs(filtered);
-    endTime(GROUPS_KEY);
+    statsCollector.stopTime(GROUPS_KEY);
 
+    statsCollector.addNumber("total clone groups", groups.size());
     return groups;
   }
 
