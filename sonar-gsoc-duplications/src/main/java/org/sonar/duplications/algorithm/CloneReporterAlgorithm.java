@@ -26,4 +26,6 @@ import java.util.List;
 
 public interface CloneReporterAlgorithm {
   List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup);
+
+  void printStatistics();
 }

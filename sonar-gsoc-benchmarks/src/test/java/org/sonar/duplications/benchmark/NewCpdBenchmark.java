@@ -21,10 +21,10 @@ package org.sonar.duplications.benchmark;
 
 import com.google.common.collect.Lists;
 import org.sonar.duplications.CloneFinder;
-import org.sonar.duplications.algorithm.AdvancedCloneReporter;
+import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
-import org.sonar.duplications.index.MemoryCloneIndex;
+import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 
 import java.io.File;
@@ -34,31 +34,33 @@ public class NewCpdBenchmark extends Benchmark {
 
   private final List<File> files;
   private final int blockSize;
+  private final CloneIndex cloneIndex;
+  private final CloneReporterAlgorithm cloneReporter;
 
-  public NewCpdBenchmark(List<File> files, int blockSize) {
+  public NewCpdBenchmark(List<File> files, int blockSize, CloneIndex index, CloneReporterAlgorithm cloneReporter) {
     this.files = files;
     this.blockSize = blockSize;
+    this.cloneIndex = index;
+    this.cloneReporter = cloneReporter;
   }
 
   @Override
   public void runRound() throws Exception {
-    singleRun(files, blockSize);
+    singleRun(files, blockSize, cloneIndex, cloneReporter);
   }
 
-  private static void singleRun(List<File> files, int blockSize) {
-    MemoryCloneIndex cloneIndex = new MemoryCloneIndex();
-    CloneFinder cf = JavaCloneFinder.build(cloneIndex, blockSize);
+  private static void singleRun(List<File> files, int blockSize, CloneIndex index, CloneReporterAlgorithm reporter) {
+    CloneFinder cf = JavaCloneFinder.build(index, blockSize);
     for (File file : files) {
       cf.register(file);
     }
-    AdvancedCloneReporter cloneReporter = new AdvancedCloneReporter(cloneIndex);
     for (File file : files) {
       String resourceId = file.getAbsolutePath();
-      List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(resourceId));
+      List<Block> candidateBlockList = Lists.newArrayList(index.getByResourceId(resourceId));
       FileBlockGroup fileBlockGroup = new FileBlockGroup(resourceId, candidateBlockList);
-      cloneReporter.reportClones(fileBlockGroup);
+      reporter.reportClones(fileBlockGroup);
     }
-    cloneReporter.printStatistics();
+    reporter.printStatistics();
   }
 
 }
