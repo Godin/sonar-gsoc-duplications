@@ -70,15 +70,20 @@ public class CloneGroup {
     return this;
   }
 
+  void sortParts() {
+    Collections.sort(parts, null);
+  }
+
   public List<ClonePart> getCloneParts() {
     if (!sorted) {
-      Collections.sort(parts, null);
+      sortParts();
+      sorted = true;
     }
     return Collections.unmodifiableList(parts);
   }
 
   /**
-   * @return clone length measured in units (not in lines)
+   * @return clone length in units (not in lines)
    */
   public int getCloneUnitLength() {
     return cloneUnitLength;
@@ -91,6 +96,10 @@ public class CloneGroup {
     this.cloneUnitLength = cloneUnitLength;
   }
 
+
+  boolean isSorted() {
+    return sorted;
+  }
 
   public boolean containsIn(CloneGroup second) {
     if (!this.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
