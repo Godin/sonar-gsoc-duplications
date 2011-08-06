@@ -86,16 +86,19 @@ public class IntervalTreeClonePairFilter implements ClonePairFilter {
       boolean covered = false;
       for (Interval<PartWrapper> interval : intervals) {
         ClonePair foundClone = interval.getData().getClone();
-        if (foundClone.equals(clone))
+        if (foundClone.equals(clone)) {
           continue;
+        }
 
         covered |= clone.containsIn(foundClone);
-        if (covered)
+        if (covered) {
           break;
+        }
       }
 
-      if (!covered)
+      if (!covered) {
         filtered.add(clone);
+      }
     }
     return filtered;
   }

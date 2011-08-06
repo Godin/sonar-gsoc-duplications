@@ -31,14 +31,17 @@ public class BruteforceClonePairFilter implements ClonePairFilter {
     for (ClonePair first : clones) {
       boolean covered = false;
       for (ClonePair second : clones) {
-        if (first.equals(second))
+        if (first.equals(second)) {
           continue;
+        }
         covered |= first.containsIn(second);
-        if (covered)
+        if (covered) {
           break;
+        }
       }
-      if (!covered)
+      if (!covered) {
         filtered.add(first);
+      }
     }
     return filtered;
   }

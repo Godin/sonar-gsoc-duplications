@@ -121,8 +121,9 @@ public final class CloneFinder {
 
   public List<CloneGroup> findClones(FileBlockGroup fileBlockGroup) {
     //build on the fly
-    if (!cloneIndex.containsResourceId(fileBlockGroup.getResourceId()))
+    if (!cloneIndex.containsResourceId(fileBlockGroup.getResourceId())) {
       register(fileBlockGroup);
+    }
 
     return cloneReporter.reportClones(fileBlockGroup);
   }
