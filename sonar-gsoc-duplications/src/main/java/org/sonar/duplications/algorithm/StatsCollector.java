@@ -22,29 +22,54 @@ package org.sonar.duplications.algorithm;
 
 
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class StatsCollector {
 
+  private Logger logger;
   private Map<String, Long> workingTimes;
   private Map<String, Long> startTimes;
   private Map<String, Double> statNumbers;
 
   private String name;
+  private boolean debug = false;
 
   public StatsCollector(String name) {
-    this.workingTimes = Maps.newHashMap();
-    this.startTimes = Maps.newHashMap();
-    this.statNumbers = Maps.newHashMap();
+    this.workingTimes = Maps.newLinkedHashMap();
+    this.startTimes = Maps.newLinkedHashMap();
+    this.statNumbers = Maps.newLinkedHashMap();
     this.name = name;
+    this.logger = LoggerFactory.getLogger(StatsCollector.class);
   }
 
-  public void startTime(String key) {
+  public StatsCollector(String name, Logger logger) {
+    this(name);
+    this.logger = logger;
+  }
+
+  public StatsCollector(String name, Class clazz) {
+    this(name);
+    this.logger = LoggerFactory.getLogger(clazz);
+  }
+
+  public StatsCollector setLogger(Logger logger) {
+    this.logger = logger;
+    return this;
+  }
+
+  public Logger getLogger() {
+    return logger;
+  }
+
+  public StatsCollector startTime(String key) {
     startTimes.put(key, System.currentTimeMillis());
+    return this;
   }
 
-  public void stopTime(String key) {
+  public StatsCollector stopTime(String key) {
     long startTime = startTimes.get(key);
     long prevTime = 0;
     if (workingTimes.containsKey(key)) {
@@ -52,18 +77,37 @@ public class StatsCollector {
     }
     prevTime += System.currentTimeMillis() - startTime;
     workingTimes.put(key, prevTime);
+    return this;
   }
 
-  public void addNumber(String key, double value) {
+  public StatsCollector addNumber(String key, double value) {
     double prev = 0;
     if (statNumbers.containsKey(key)) {
       prev = statNumbers.get(key);
     }
     statNumbers.put(key, prev + value);
+    return this;
+  }
+
+  public StatsCollector setLevelToDebug() {
+    debug = true;
+    return this;
+  }
+
+  public StatsCollector reset() {
+    workingTimes.clear();
+    startTimes.clear();
+    statNumbers.clear();
+    return this;
   }
 
   public void printTimeStatistics() {
-    System.out.println("---- Time statistics for " + name);
+    if (debug) {
+      logger.debug("---- Time statistics for {}", name);
+    } else {
+      logger.info("---- Time statistics for {}", name);
+    }
+
     long total = 0;
     for (String key : workingTimes.keySet()) {
       total += workingTimes.get(key);
@@ -72,16 +116,32 @@ public class StatsCollector {
       long time = workingTimes.get(key);
       double percentage = 100.0 * time / total;
       double seconds = time / 1000.0;
-      System.out.println("Working time for '" + key + "': " + seconds + " - " + percentage + "%");
+
+      percentage = Math.round(percentage * 100.0) / 100.0;
+      seconds = Math.round(seconds * 100.0) / 100.0;
+
+      if (debug) {
+        logger.debug("Working time for '{}': {} s - {}%", new Object[]{key, seconds, percentage});
+      } else {
+        logger.info("Working time for '{}': {} s - {}%", new Object[]{key, seconds, percentage});
+      }
     }
   }
 
   public void printNumberStatistics() {
-    System.out.println("---- Number statistics for " + name);
+    if (debug) {
+      logger.debug("---- Number statistics for {}", name);
+    } else {
+      logger.info("---- Number statistics for {}", name);
+    }
 
     for (String key : statNumbers.keySet()) {
       double val = statNumbers.get(key);
-      System.out.println("Number statistics for '" + key + "': " + val);
+      if (debug) {
+        logger.debug("Number statistics for '{}': {}", key, val);
+      } else {
+        logger.info("Number statistics for '{}': {}", key, val);
+      }
     }
   }
 
