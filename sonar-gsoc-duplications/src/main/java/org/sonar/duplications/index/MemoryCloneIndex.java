@@ -36,6 +36,8 @@ public class MemoryCloneIndex implements CloneIndex {
 
   private static final class ValueComparator implements Comparator<Block>, Serializable {
 
+    private static final long serialVersionUID = 6048010242032502222L;
+
     public int compare(Block o1, Block o2) {
       if (o2.getResourceId().equals(o1.getResourceId())) {
         return o1.getIndexInFile() - o2.getIndexInFile();
@@ -45,6 +47,8 @@ public class MemoryCloneIndex implements CloneIndex {
   }
 
   private static final class KeyComparator implements Comparator<String>, Serializable {
+
+    private static final long serialVersionUID = 8705841881237170539L;
 
     public int compare(String o1, String o2) {
       return o1.compareTo(o2);

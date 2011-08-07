@@ -35,7 +35,6 @@ import java.util.*;
 public class AdvancedCloneReporter implements CloneReporterAlgorithm {
 
   public static final CloneGroupFilter INTERVAL_FILTER = new IntervalTreeCloneGroupFilter();
-  public static final CloneGroupFilter SIMPLE_FILTER = new BruteForceCloneGroupFilter();
 
   public static final String ALGORITHM_KEY = "main algorithm";
   public static final String INIT_KEY = "initialization";
