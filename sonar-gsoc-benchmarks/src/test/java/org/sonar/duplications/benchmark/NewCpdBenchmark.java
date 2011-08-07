@@ -50,6 +50,7 @@ public class NewCpdBenchmark extends Benchmark {
   }
 
   private static void singleRun(List<File> files, int blockSize, CloneIndex index, CloneReporterAlgorithm reporter) {
+    reporter.resetStatistics();
     CloneFinder cf = JavaCloneFinder.build(index, blockSize);
     for (File file : files) {
       cf.register(file);

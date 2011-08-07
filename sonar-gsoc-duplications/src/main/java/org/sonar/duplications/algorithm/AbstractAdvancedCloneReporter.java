@@ -37,6 +37,14 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
   protected CloneIndex cloneIndex;
   protected StatsCollector statsCollector;
 
+  public void printStatistics() {
+    statsCollector.printAllStatistics();
+  }
+
+  public void resetStatistics() {
+    statsCollector.reset();
+  }
+
   protected List<List<Block>> getIndexedBlockGroups(FileBlockGroup fileBlockGroup) {
     List<List<Block>> result = Lists.newArrayList();
 

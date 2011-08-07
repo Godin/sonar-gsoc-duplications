@@ -21,7 +21,7 @@ package org.sonar.duplications.benchmark;
 
 import com.google.common.collect.Lists;
 import org.sonar.duplications.DuplicationsException;
-import org.sonar.duplications.algorithm.AdvancedCloneReporter;
+import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
@@ -60,7 +60,7 @@ public class ThreadedNewCpdBenchmark extends Benchmark {
     MemoryCloneIndex cloneIndex = new MemoryCloneIndex();
     populateIndex(files, threadsCount, blockSize, cloneIndex);
     // find clones
-    CloneReporterAlgorithm cloneReporter = new AdvancedCloneReporter(cloneIndex);
+    CloneReporterAlgorithm cloneReporter = new AdvancedGroupCloneReporter(cloneIndex);
     for (File file : files) {
       List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
       FileBlockGroup fileBlockGroup = new FileBlockGroup(file.getAbsolutePath(), candidateBlockList);

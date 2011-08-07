@@ -23,8 +23,8 @@ package org.sonar.duplications.algorithm;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.sonar.duplications.algorithm.filter.ClonePairFilter;
-import org.sonar.duplications.algorithm.filter.IntervalTreeClonePairFilter;
+import org.sonar.duplications.algorithm.filter.CloneGroupFilter;
+import org.sonar.duplications.algorithm.filter.IntervalTreeCloneGroupFilter;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
@@ -33,108 +33,102 @@ import org.sonar.duplications.index.ClonePair;
 
 import java.util.*;
 
-public class PairedAdvancedCloneReporter extends AbstractAdvancedCloneReporter {
+public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
 
-  private static final ClonePairFilter INTERVAL_FILTER = new IntervalTreeClonePairFilter();
+  public static final CloneGroupFilter INTERVAL_FILTER = new IntervalTreeCloneGroupFilter();
 
-  public static final String ALGORITHM_KEY = "algorithm";
-  public static final String INIT_KEY = "init";
-  public static final String DUPLIACATES_KEY = "duplicates";
-  public static final String FILTER_KEY = "filter";
-  public static final String GROUPS_KEY = "groups";
+  public static final String ALGORITHM_KEY = "main algorithm";
+  public static final String INIT_KEY = "initialization";
+  public static final String DUPLIACATES_KEY = "remove duplicates";
+  public static final String FILTER_KEY = "filter covered";
+  public static final String GROUPS_KEY = "report clones";
 
-  public static final Comparator<ClonePair> CLONEPAIR_COMPARATOR = new Comparator<ClonePair>() {
+  private static final Comparator<ClonePair> CLONEPAIR_COMPARATOR = new Comparator<ClonePair>() {
     public int compare(ClonePair o1, ClonePair o2) {
       return o1.getOriginPart().getUnitStart() - o2.getOriginPart().getUnitStart();
     }
   };
 
-  public PairedAdvancedCloneReporter(CloneIndex cloneIndex) {
+  public AdvancedGroupCloneReporter(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
-    this.statsCollector = new StatsCollector("PairedAdvanced");
-  }
-
-  public void printStatistics() {
-    statsCollector.printAllStatistics();
+    this.statsCollector = new StatsCollector("AdvancedGrouped");
   }
 
   public List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup) {
     statsCollector.startTime(INIT_KEY);
-    ArrayList<ClonePair> clones = Lists.newArrayList();
-    List<Block> fileBlocks = fileBlockGroup.getBlockList();
+    List<CloneGroup> clones = Lists.newArrayList();
+    List<Block> resourceBlocks = fileBlockGroup.getBlockList();
     List<List<Block>> sameHashBlockGroups = getIndexedBlockGroups(fileBlockGroup);
-
     //an empty list is needed a the end to report clone at the end of file
     sameHashBlockGroups.add(new ArrayList<Block>());
     Map<CloneKey, ClonePair> prevActiveMap = Maps.newTreeMap();
     statsCollector.stopTime(INIT_KEY);
 
     statsCollector.startTime(ALGORITHM_KEY);
-    Iterator<Block> blockIterator = fileBlocks.iterator();
+    Iterator<Block> blockIterator = resourceBlocks.iterator();
     for (List<Block> blockGroup : sameHashBlockGroups) {
       Map<CloneKey, ClonePair> nextActiveMap = Maps.newTreeMap();
-
       Block origBlock = null;
       if (blockIterator.hasNext()) {
         origBlock = blockIterator.next();
       }
-
       for (Block block : blockGroup) {
         processBlock(prevActiveMap, nextActiveMap, origBlock, block);
       }
-      clones.addAll(prevActiveMap.values());
+      statsCollector.stopTime(ALGORITHM_KEY);
 
+      statsCollector.startTime(GROUPS_KEY);
+      statsCollector.addNumber("reported pairs", prevActiveMap.values().size());
+      clones.addAll(reportClones(prevActiveMap.values()));
+      statsCollector.stopTime(GROUPS_KEY);
+
+      statsCollector.startTime(ALGORITHM_KEY);
       prevActiveMap = nextActiveMap;
     }
     statsCollector.stopTime(ALGORITHM_KEY);
 
-    statsCollector.addNumber("clones", clones.size());
+    statsCollector.addNumber("reported clones", clones.size());
 
+    int sizeBefore = clones.size();
     statsCollector.startTime(DUPLIACATES_KEY);
-    List<ClonePair> filtered = removeDuplicates(clones);
+    clones = removeDuplicates(clones);
     statsCollector.stopTime(DUPLIACATES_KEY);
 
-    statsCollector.addNumber("removed duplicates", clones.size() - filtered.size());
+    statsCollector.addNumber("removed duplicates", sizeBefore - clones.size());
 
-    int sizeBefore = filtered.size();
+    sizeBefore = clones.size();
     statsCollector.startTime(FILTER_KEY);
-    filtered = INTERVAL_FILTER.filter(filtered);
+    clones = INTERVAL_FILTER.filter(clones);
     statsCollector.stopTime(FILTER_KEY);
 
-    statsCollector.addNumber("removed covered", sizeBefore - filtered.size());
+    statsCollector.addNumber("removed covered", sizeBefore - clones.size());
+    statsCollector.addNumber("total clone groups", clones.size());
 
-    statsCollector.startTime(GROUPS_KEY);
-    List<CloneGroup> groups = groupClonePairs(filtered);
-    statsCollector.stopTime(GROUPS_KEY);
-
-    statsCollector.addNumber("total clone groups", groups.size());
-    return groups;
+    return clones;
   }
 
-  private List<ClonePair> removeDuplicates(List<ClonePair> clones) {
-    HashSet<ClonePair> set = Sets.newHashSet(clones);
+  private static List<CloneGroup> removeDuplicates(List<CloneGroup> clones) {
+    HashSet<CloneGroup> set = Sets.newHashSet(clones);
     return Lists.newArrayList(set);
   }
 
   /**
-   * @param clones, array of TempClone sorted by getOriginPart().getUnitStart()
-   * @return list of reported clones
+   * @param clonePairs, array of ClonePair to report
+   * @return list of reported CloneGroups
    */
-  private List<CloneGroup> groupClonePairs(List<ClonePair> clones) {
+  private static List<CloneGroup> reportClones(Collection<ClonePair> clonePairs) {
     List<CloneGroup> res = Lists.newArrayList();
-    //sort elements of prevActiveMap by getOriginPart.getUnitStart()
-    Collections.sort(clones, CLONEPAIR_COMPARATOR);
+    //sort elements of prevActiveMap by getOrigPart.getUnitStart()
+    ArrayList<ClonePair> sortedArr = Lists.newArrayList(clonePairs);
+    Collections.sort(sortedArr, CLONEPAIR_COMPARATOR);
 
     CloneGroup curClone = null;
     int prevUnitStart = -1;
-    int prevLength = -1;
-    for (ClonePair clonePair : clones) {
+    for (int j = 0; j < sortedArr.size(); j++) {
+      ClonePair clonePair = sortedArr.get(j);
       int curUnitStart = clonePair.getOriginPart().getUnitStart();
-      int curLength = clonePair.getCloneLength();
       //if current sequence matches with different sequence in original file
-      if (curUnitStart != prevUnitStart || prevLength != curLength) {
-        prevLength = curLength;
-
+      if (curUnitStart != prevUnitStart) {
         curClone = new CloneGroup()
             .setCloneUnitLength(clonePair.getCloneLength())
             .setOriginPart(clonePair.getOriginPart())
@@ -149,6 +143,5 @@ public class PairedAdvancedCloneReporter extends AbstractAdvancedCloneReporter {
     }
     return res;
   }
-
 
 }

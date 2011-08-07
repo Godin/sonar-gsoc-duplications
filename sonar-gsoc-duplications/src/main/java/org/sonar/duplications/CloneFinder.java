@@ -19,7 +19,6 @@
  */
 package org.sonar.duplications;
 
-import org.sonar.duplications.algorithm.AdvancedCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
@@ -48,7 +47,7 @@ public final class CloneFinder {
     this.stmtChunker = builder.stmtChunker;
     this.blockChunker = builder.blockChunker;
     this.cloneIndex = builder.cloneIndex;
-    cloneReporter = new AdvancedCloneReporter(cloneIndex);
+    cloneReporter = builder.cloneReporter;
   }
 
   public static Builder build() {
@@ -58,10 +57,10 @@ public final class CloneFinder {
   public static final class Builder {
 
     private TokenChunker tokenChunker;
-
     private StatementChunker stmtChunker;
     private BlockChunker blockChunker;
     private CloneIndex cloneIndex;
+    private CloneReporterAlgorithm cloneReporter;
 
     public Builder setTokenChunker(TokenChunker tokenChunker) {
       this.tokenChunker = tokenChunker;
@@ -80,6 +79,11 @@ public final class CloneFinder {
 
     public Builder setCloneIndex(CloneIndex cloneIndex) {
       this.cloneIndex = cloneIndex;
+      return this;
+    }
+
+    public Builder setCloneReporter(CloneReporterAlgorithm cloneReporter) {
+      this.cloneReporter = cloneReporter;
       return this;
     }
 
@@ -117,6 +121,10 @@ public final class CloneFinder {
     }
 
     return fileBlockGroup;
+  }
+
+  public void printCloneReporterStatistics() {
+    cloneReporter.printStatistics();
   }
 
   public List<CloneGroup> findClones(FileBlockGroup fileBlockGroup) {

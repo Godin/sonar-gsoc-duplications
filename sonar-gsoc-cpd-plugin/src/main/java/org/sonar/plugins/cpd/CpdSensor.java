@@ -119,6 +119,7 @@ public class CpdSensor implements Sensor {
       analyser.analyse(clones);
     }
     profiler.stop();
+    cf.printCloneReporterStatistics();
     LOG.info("CPD :: time for findClones(): {} ms", totalTimeFindClones);
   }
 

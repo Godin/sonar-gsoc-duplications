@@ -20,9 +20,9 @@
 package org.sonar.duplications.benchmark.perf;
 
 import org.junit.*;
-import org.sonar.duplications.algorithm.AdvancedCloneReporter;
+import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
+import org.sonar.duplications.algorithm.AdvancedPairCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
-import org.sonar.duplications.algorithm.PairedAdvancedCloneReporter;
 import org.sonar.duplications.benchmark.*;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.MemoryCloneIndex;
@@ -63,16 +63,16 @@ public class AbstractTestCase {
   }
 
   @Test
-  public void newCpdAdvanced() {
+  public void newCpdGrouped() {
     CloneIndex index = new MemoryCloneIndex();
-    CloneReporterAlgorithm reporter = new AdvancedCloneReporter(index);
+    CloneReporterAlgorithm reporter = new AdvancedGroupCloneReporter(index);
     results.add(run(new NewCpdBenchmark(files, BLOCK_SIZE, index, reporter)));
   }
 
   @Test
   public void newCpdPaired() {
     CloneIndex index = new MemoryCloneIndex();
-    CloneReporterAlgorithm reporter = new PairedAdvancedCloneReporter(index);
+    CloneReporterAlgorithm reporter = new AdvancedPairCloneReporter(index);
     results.add(run(new NewCpdBenchmark(files, BLOCK_SIZE, index, reporter)));
   }
 

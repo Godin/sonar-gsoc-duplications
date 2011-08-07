@@ -1,6 +1,7 @@
 package org.sonar.duplications.java;
 
 import org.sonar.duplications.CloneFinder;
+import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.index.CloneIndex;
 
@@ -21,7 +22,8 @@ public final class JavaCloneFinder {
         .setTokenChunker(JavaTokenProducer.build())
         .setStatementChunker(JavaStatementBuilder.build())
         .setBlockChunker(new BlockChunker(blockSize))
-        .setCloneIndex(cloneIndex);
+        .setCloneIndex(cloneIndex)
+        .setCloneReporter(new AdvancedGroupCloneReporter(cloneIndex));
     return builder.build();
   }
 }

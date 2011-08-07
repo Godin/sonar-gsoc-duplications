@@ -24,7 +24,7 @@ public class AdvancedCloneReporterTest {
   @Before
   public void initialize() {
     cloneIndex = new MemoryCloneIndex();
-    cloneReporter = new AdvancedCloneReporter(cloneIndex);
+    cloneReporter = new AdvancedGroupCloneReporter(cloneIndex);
   }
 
   @Test

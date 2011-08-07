@@ -26,7 +26,7 @@ import net.sourceforge.pmd.cpd.TokenEntry;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.duplications.CloneFinder;
-import org.sonar.duplications.algorithm.AdvancedCloneReporter;
+import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
@@ -129,7 +129,7 @@ public class CompareResultsTest {
     for (File file : files) {
       cf.register(file);
     }
-    CloneReporterAlgorithm cloneReporter = new AdvancedCloneReporter(cloneIndex);
+    CloneReporterAlgorithm cloneReporter = new AdvancedGroupCloneReporter(cloneIndex);
     for (File file : files) {
       String fileResourceId = file.getAbsolutePath();
       List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
