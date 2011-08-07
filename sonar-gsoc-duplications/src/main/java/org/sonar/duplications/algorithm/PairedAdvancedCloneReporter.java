@@ -23,6 +23,8 @@ package org.sonar.duplications.algorithm;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.sonar.duplications.algorithm.filter.ClonePairFilter;
+import org.sonar.duplications.algorithm.filter.IntervalTreeClonePairFilter;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;

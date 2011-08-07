@@ -1,4 +1,4 @@
-package org.sonar.duplications.algorithm;
+package org.sonar.duplications.algorithm.filter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
