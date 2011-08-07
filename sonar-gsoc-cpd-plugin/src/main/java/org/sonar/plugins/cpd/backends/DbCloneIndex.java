@@ -72,8 +72,9 @@ public class DbCloneIndex implements CloneIndex {
   }
 
   public Collection<Block> getBySequenceHash(String blockHash) {
-    String hql = "SELECT d FROM IndexBlock d WHERE block_hash=:block_hash";
-    List<IndexBlock> list = session.createQuery(hql)
+    String sql = "SELECT * from index_blocks WHERE block_hash=:block_hash";
+    List<IndexBlock> list = session.getEntityManager()
+        .createNativeQuery(sql, IndexBlock.class)
         .setParameter("block_hash", blockHash)
         .getResultList();
     List<Block> blocks = new ArrayList<Block>(list.size());
