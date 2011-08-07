@@ -56,8 +56,9 @@ public class CloneGroup {
     this.cloneUnitLength = cloneUnitLength;
   }
 
-  public void setOriginPart(ClonePart originPart) {
+  public CloneGroup setOriginPart(ClonePart originPart) {
     this.originPart = originPart;
+    return this;
   }
 
   public ClonePart getOriginPart() {
@@ -92,8 +93,9 @@ public class CloneGroup {
   /**
    * @param cloneUnitLength clone length in units (not in lines)
    */
-  public void setCloneUnitLength(int cloneUnitLength) {
+  public CloneGroup setCloneUnitLength(int cloneUnitLength) {
     this.cloneUnitLength = cloneUnitLength;
+    return this;
   }
 
 

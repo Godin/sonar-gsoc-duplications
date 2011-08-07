@@ -52,32 +52,36 @@ public class ClonePart implements Comparable<ClonePart> {
     return resourceId;
   }
 
-  public void setResourceId(String resourceId) {
+  public ClonePart setResourceId(String resourceId) {
     this.resourceId = resourceId;
+    return this;
   }
 
   public int getUnitStart() {
     return unitStart;
   }
 
-  public void setUnitStart(int unitStart) {
+  public ClonePart setUnitStart(int unitStart) {
     this.unitStart = unitStart;
+    return this;
   }
 
   public int getLineStart() {
     return lineStart;
   }
 
-  public void setLineStart(int lineStart) {
+  public ClonePart setLineStart(int lineStart) {
     this.lineStart = lineStart;
+    return this;
   }
 
   public int getLineEnd() {
     return lineEnd;
   }
 
-  public void setLineEnd(int lineEnd) {
+  public ClonePart setLineEnd(int lineEnd) {
     this.lineEnd = lineEnd;
+    return this;
   }
 
   @Override

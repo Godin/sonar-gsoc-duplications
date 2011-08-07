@@ -145,34 +145,32 @@ public class AdvancedCloneReporter implements CloneReporterAlgorithm {
    *
    * @param prevActiveMap, map with active block sequences from previous cycle iteration
    * @param nextActiveMap, map with active block sequences after current cycle iteration
-   * @param origBlock,     block of original file
-   * @param anotherBlock,  one of blocks with same hash as <tt>origBlock</tt>
+   * @param originBlock,   block of original file
+   * @param anotherBlock,  one of blocks with same hash as <tt>originBlock</tt>
    */
   private static void processBlock(Map<CloneKey, ClonePair> prevActiveMap,
                                    Map<CloneKey, ClonePair> nextActiveMap,
-                                   Block origBlock, Block anotherBlock) {
-    ClonePart origPart = new ClonePart(origBlock);
+                                   Block originBlock, Block anotherBlock) {
+    ClonePart originPart = new ClonePart(originBlock);
     ClonePart anotherPart = new ClonePart(anotherBlock);
     int cloneLength = 0;
 
     CloneKey curKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile());
     if (prevActiveMap.containsKey(curKey)) {
-      ClonePair prevTmp = prevActiveMap.get(curKey);
+      ClonePair prevPair = prevActiveMap.get(curKey);
 
-      ClonePart prevOrigPart = prevTmp.getOriginPart();
-      origPart.setLineStart(prevOrigPart.getLineStart());
-      origPart.setUnitStart(prevOrigPart.getUnitStart());
+      originPart.setLineStart(prevPair.getOriginPart().getLineStart())
+          .setUnitStart(prevPair.getOriginPart().getUnitStart());
 
-      ClonePart prevAnotherPart = prevTmp.getAnotherPart();
-      anotherPart.setLineStart(prevAnotherPart.getLineStart());
-      anotherPart.setUnitStart(prevAnotherPart.getUnitStart());
+      anotherPart.setLineStart(prevPair.getAnotherPart().getLineStart())
+          .setUnitStart(prevPair.getAnotherPart().getUnitStart());
 
-      cloneLength = prevTmp.getCloneLength();
+      cloneLength = prevPair.getCloneLength();
 
       prevActiveMap.remove(curKey);
     }
 
-    ClonePair tempClone = new ClonePair(origPart, anotherPart, cloneLength + 1);
+    ClonePair tempClone = new ClonePair(originPart, anotherPart, cloneLength + 1);
 
     CloneKey nextKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile() + 1);
     nextActiveMap.put(nextKey, tempClone);
@@ -192,17 +190,19 @@ public class AdvancedCloneReporter implements CloneReporterAlgorithm {
     CloneGroup curClone = null;
     int prevUnitStart = -1;
     for (int j = 0; j < sortedArr.size(); j++) {
-      ClonePair tempClone = sortedArr.get(j);
-      int curUnitStart = tempClone.getOriginPart().getUnitStart();
+      ClonePair clonePair = sortedArr.get(j);
+      int curUnitStart = clonePair.getOriginPart().getUnitStart();
       //if current sequence matches with different sequence in original file
       if (curUnitStart != prevUnitStart) {
-        curClone = new CloneGroup(tempClone.getCloneLength());
-        curClone.setOriginPart(tempClone.getOriginPart());
-        curClone.addPart(tempClone.getOriginPart());
-        curClone.addPart(tempClone.getAnotherPart());
+        curClone = new CloneGroup()
+            .setCloneUnitLength(clonePair.getCloneLength())
+            .setOriginPart(clonePair.getOriginPart())
+            .addPart(clonePair.getOriginPart())
+            .addPart(clonePair.getAnotherPart());
+
         res.add(curClone);
       } else {
-        curClone.addPart(tempClone.getAnotherPart());
+        curClone.addPart(clonePair.getAnotherPart());
       }
       prevUnitStart = curUnitStart;
     }

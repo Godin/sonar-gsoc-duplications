@@ -135,40 +135,37 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
 
   /**
    * processes curren block - checks if current block continues one of block sequences
-   * or creates new block sequence. sequences (<tt>TempClone</tt>) are put to
+   * or creates new block sequence. sequences (<tt>ClonePair</tt>) are put to
    * <tt>nextActiveMap</tt>
    *
    * @param prevActiveMap, map with active block sequences from previous cycle iteration
    * @param nextActiveMap, map with active block sequences after current cycle iteration
-   * @param origBlock,     block of original file
-   * @param anotherBlock,  one of blocks with same hash as <tt>origBlock</tt>
+   * @param originBlock,   block of original file
+   * @param anotherBlock,  one of blocks with same hash as <tt>originBlock</tt>
    */
-  private void processBlock(Map<CloneKey, ClonePair> prevActiveMap,
-                            Map<CloneKey, ClonePair> nextActiveMap,
-                            Block origBlock, Block anotherBlock) {
-    ClonePart origPart = new ClonePart(origBlock);
+  private static void processBlock(Map<CloneKey, ClonePair> prevActiveMap,
+                                   Map<CloneKey, ClonePair> nextActiveMap,
+                                   Block originBlock, Block anotherBlock) {
+    ClonePart originPart = new ClonePart(originBlock);
     ClonePart anotherPart = new ClonePart(anotherBlock);
     int cloneLength = 0;
 
     CloneKey curKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile());
     if (prevActiveMap.containsKey(curKey)) {
-      ClonePair prevClonePair = prevActiveMap.get(curKey);
+      ClonePair prevPair = prevActiveMap.get(curKey);
 
-      ClonePart prevOrigPart = prevClonePair.getOriginPart();
-      ClonePart prevAnotherPart = prevClonePair.getAnotherPart();
+      originPart.setLineStart(prevPair.getOriginPart().getLineStart())
+          .setUnitStart(prevPair.getOriginPart().getUnitStart());
 
-      origPart.setLineStart(prevOrigPart.getLineStart());
-      origPart.setUnitStart(prevOrigPart.getUnitStart());
+      anotherPart.setLineStart(prevPair.getAnotherPart().getLineStart())
+          .setUnitStart(prevPair.getAnotherPart().getUnitStart());
 
-      anotherPart.setLineStart(prevAnotherPart.getLineStart());
-      anotherPart.setUnitStart(prevAnotherPart.getUnitStart());
-
-      cloneLength = prevClonePair.getCloneLength();
+      cloneLength = prevPair.getCloneLength();
 
       prevActiveMap.remove(curKey);
     }
 
-    ClonePair tempClone = new ClonePair(origPart, anotherPart, cloneLength + 1);
+    ClonePair tempClone = new ClonePair(originPart, anotherPart, cloneLength + 1);
 
     CloneKey nextKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile() + 1);
     nextActiveMap.put(nextKey, tempClone);
@@ -194,10 +191,11 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
       if (curUnitStart != prevUnitStart || prevLength != curLength) {
         prevLength = curLength;
 
-        curClone = new CloneGroup(clonePair.getCloneLength());
-        curClone.setOriginPart(clonePair.getOriginPart());
-        curClone.addPart(clonePair.getOriginPart());
-        curClone.addPart(clonePair.getAnotherPart());
+        curClone = new CloneGroup()
+            .setCloneUnitLength(clonePair.getCloneLength())
+            .setOriginPart(clonePair.getOriginPart())
+            .addPart(clonePair.getOriginPart())
+            .addPart(clonePair.getAnotherPart());
 
         res.add(curClone);
       } else {
