@@ -2,10 +2,10 @@ package org.sonar.duplications.algorithm.filter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.sonar.duplications.algorithm.interval.Interval;
+import org.sonar.duplications.algorithm.interval.IntervalTree;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.interval.Interval;
-import org.sonar.duplications.interval.IntervalTree;
 
 import java.util.List;
 import java.util.Map;

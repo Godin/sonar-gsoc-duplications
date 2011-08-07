@@ -20,10 +20,10 @@
  */
 package org.sonar.duplications.algorithm.filter;
 
+import org.sonar.duplications.algorithm.interval.Interval;
+import org.sonar.duplications.algorithm.interval.IntervalTree;
 import org.sonar.duplications.index.ClonePair;
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.interval.Interval;
-import org.sonar.duplications.interval.IntervalTree;
 
 import java.util.ArrayList;
 import java.util.HashMap;
