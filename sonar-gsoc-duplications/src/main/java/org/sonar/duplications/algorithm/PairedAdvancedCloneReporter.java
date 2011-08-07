@@ -28,11 +28,10 @@ import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePair;
-import org.sonar.duplications.index.ClonePart;
 
 import java.util.*;
 
-public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
+public class PairedAdvancedCloneReporter extends AbstractAdvancedCloneReporter {
 
   private static final ClonePairFilter INTERVAL_FILTER = new IntervalTreeClonePairFilter();
 
@@ -48,12 +47,9 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
     }
   };
 
-  private final CloneIndex cloneIndex;
-  private final StatsCollector statsCollector;
-
   public PairedAdvancedCloneReporter(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
-    statsCollector = new StatsCollector("PairedAdvanced");
+    this.statsCollector = new StatsCollector("PairedAdvanced");
   }
 
   public void printStatistics() {
@@ -63,23 +59,8 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
   public List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup) {
     statsCollector.startTime(INIT_KEY);
     ArrayList<ClonePair> clones = Lists.newArrayList();
-
-    List<Block> resourceBlocks = fileBlockGroup.getBlockList();
-
-    ArrayList<List<Block>> sameHashBlockGroups = Lists.newArrayList();
-
-    for (Block block : fileBlockGroup.getBlockList()) {
-      List<Block> sameHashBlockGroup = Lists.newArrayList();
-      Collection<Block> foundBlocks = cloneIndex.getBySequenceHash(block.getBlockHash());
-      statsCollector.addNumber("total found blocks", foundBlocks.size());
-      for (Block shBlock : foundBlocks) {
-        if (!shBlock.getResourceId().equals(block.getResourceId()) ||
-            shBlock.getIndexInFile() > block.getIndexInFile()) {
-          sameHashBlockGroup.add(shBlock);
-        }
-      }
-      sameHashBlockGroups.add(sameHashBlockGroup);
-    }
+    List<Block> fileBlocks = fileBlockGroup.getBlockList();
+    List<List<Block>> sameHashBlockGroups = getIndexedBlockGroups(fileBlockGroup);
 
     //an empty list is needed a the end to report clone at the end of file
     sameHashBlockGroups.add(new ArrayList<Block>());
@@ -87,7 +68,7 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
     statsCollector.stopTime(INIT_KEY);
 
     statsCollector.startTime(ALGORITHM_KEY);
-    Iterator<Block> blockIterator = resourceBlocks.iterator();
+    Iterator<Block> blockIterator = fileBlocks.iterator();
     for (List<Block> blockGroup : sameHashBlockGroups) {
       Map<CloneKey, ClonePair> nextActiveMap = Maps.newTreeMap();
 
@@ -132,45 +113,6 @@ public class PairedAdvancedCloneReporter implements CloneReporterAlgorithm {
     HashSet<ClonePair> set = Sets.newHashSet(clones);
     return Lists.newArrayList(set);
   }
-
-  /**
-   * processes curren block - checks if current block continues one of block sequences
-   * or creates new block sequence. sequences (<tt>ClonePair</tt>) are put to
-   * <tt>nextActiveMap</tt>
-   *
-   * @param prevActiveMap, map with active block sequences from previous cycle iteration
-   * @param nextActiveMap, map with active block sequences after current cycle iteration
-   * @param originBlock,   block of original file
-   * @param anotherBlock,  one of blocks with same hash as <tt>originBlock</tt>
-   */
-  private static void processBlock(Map<CloneKey, ClonePair> prevActiveMap,
-                                   Map<CloneKey, ClonePair> nextActiveMap,
-                                   Block originBlock, Block anotherBlock) {
-    ClonePart originPart = new ClonePart(originBlock);
-    ClonePart anotherPart = new ClonePart(anotherBlock);
-    int cloneLength = 0;
-
-    CloneKey curKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile());
-    if (prevActiveMap.containsKey(curKey)) {
-      ClonePair prevPair = prevActiveMap.get(curKey);
-
-      originPart.setLineStart(prevPair.getOriginPart().getLineStart())
-          .setUnitStart(prevPair.getOriginPart().getUnitStart());
-
-      anotherPart.setLineStart(prevPair.getAnotherPart().getLineStart())
-          .setUnitStart(prevPair.getAnotherPart().getUnitStart());
-
-      cloneLength = prevPair.getCloneLength();
-
-      prevActiveMap.remove(curKey);
-    }
-
-    ClonePair tempClone = new ClonePair(originPart, anotherPart, cloneLength + 1);
-
-    CloneKey nextKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile() + 1);
-    nextActiveMap.put(nextKey, tempClone);
-  }
-
 
   /**
    * @param clones, array of TempClone sorted by getOriginPart().getUnitStart()
