@@ -19,7 +19,15 @@
  */
 package org.sonar.duplications.benchmark;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
@@ -35,9 +43,7 @@ import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
 
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.*;
+import com.google.common.collect.Lists;
 
 public class ThreadedNewCpdBenchmark extends Benchmark {
 
@@ -56,44 +62,48 @@ public class ThreadedNewCpdBenchmark extends Benchmark {
     singleRun(files, threadsCount, blockSize);
   }
 
-  private static void singleRun(List<File> files, int threadsCount, int blockSize) throws Exception {
-    MemoryCloneIndex cloneIndex = new MemoryCloneIndex();
-    populateIndex(files, threadsCount, blockSize, cloneIndex);
-    // find clones
-    CloneReporterAlgorithm cloneReporter = new AdvancedGroupCloneReporter(cloneIndex);
-    for (File file : files) {
-      List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
-      FileBlockGroup fileBlockGroup = new FileBlockGroup(file.getAbsolutePath(), candidateBlockList);
-      cloneReporter.reportClones(fileBlockGroup);
-    }
-  }
-
   /**
    * Notes about implementation:
    * <ul>
    * <li>We don't know amount of work required to process each file, so we can't define list of files for each thread, thus we should use queue.</li>
-   * <li>We can't directly use {@link CloneIndex} in {@link Worker}, because {@link MemoryCloneIndex} is not thread-safe for update operations.
-   * Thus worker returns results of his work to caller thread via {@link Future},
-   * which means that results from all workers would be kept in memory until they would not processed in this method.</li>
+   * <li>We can't directly use {@link CloneIndex} in {@link Worker}, because {@link MemoryCloneIndex} is not thread-safe for update operations,
+   * thus we use {@link IndexUpdater}.</li>
    * </ul>
    */
-  private static void populateIndex(List<File> files, int threadsCount, int blockSize, MemoryCloneIndex cloneIndex) throws InterruptedException, ExecutionException {
-    ChunkersFactory chunkersFactory = new ChunkersFactory(blockSize);
-    // create one task per thread
-    ConcurrentLinkedQueue<File> filesQueue = new ConcurrentLinkedQueue<File>(files);
-    List<Future<List<Block>>> futureResults = Lists.newArrayList();
+  private static void singleRun(List<File> files, int threadsCount, int blockSize) throws Exception {
+    MemoryCloneIndex index = new MemoryCloneIndex();
+
     ExecutorService executor = Executors.newFixedThreadPool(threadsCount);
-    for (int i = 0; i < threadsCount; i++) {
-      futureResults.add(executor.submit(new Worker(chunkersFactory, filesQueue)));
-    }
-    // wait for completion of all tasks and save results into index
-    for (Future<List<Block>> result : futureResults) {
-      for (Block block : result.get()) {
-        cloneIndex.insert(block);
-      }
-    }
+    populateIndex(executor, threadsCount, files, new IndexUpdater(index), blockSize);
+    search(executor, threadsCount, files, index);
+
     // shutdown executor for proper shutdown of JVM
     executor.shutdownNow();
+  }
+
+  private static void search(ExecutorService executor, int threadsCount, List<File> files, CloneIndex index) throws InterruptedException, ExecutionException {
+    ConcurrentLinkedQueue<File> filesQueue = new ConcurrentLinkedQueue<File>(files);
+    List<Future> futures = Lists.newArrayList();
+    for (int i = 0; i < threadsCount; i++) {
+      futures.add(executor.submit(new Worker2(filesQueue, index)));
+    }
+    // wait for completion of all tasks
+    for (Future future : futures) {
+      future.get();
+    }
+  }
+
+  private static void populateIndex(ExecutorService executor, int threadsCount, List<File> files, IndexUpdater index, int blockSize) throws InterruptedException, ExecutionException {
+    ChunkersFactory chunkersFactory = new ChunkersFactory(blockSize);
+    ConcurrentLinkedQueue<File> filesQueue = new ConcurrentLinkedQueue<File>(files);
+    List<Future> futures = Lists.newArrayList();
+    for (int i = 0; i < threadsCount; i++) {
+      futures.add(executor.submit(new Worker(chunkersFactory, filesQueue, index)));
+    }
+    // wait for completion of all tasks
+    for (Future future : futures) {
+      future.get();
+    }
   }
 
   /**
@@ -120,32 +130,83 @@ public class ThreadedNewCpdBenchmark extends Benchmark {
     }
   }
 
-  private static class Worker implements Callable<List<Block>> {
-    private final ChunkersFactory factory;
+  public static class IndexUpdater {
+    private final CloneIndex index;
+
+    public IndexUpdater(CloneIndex index) {
+      this.index = index;
+    }
+
+    public void save(String resourceId, List<Block> blocks) {
+      synchronized (this) {
+        for (Block block : blocks) {
+          index.insert(block);
+        }
+      }
+    }
+  }
+
+  private static abstract class AbstractWorker implements Callable<Object> {
     private final ConcurrentLinkedQueue<File> filesQueue;
 
-    public Worker(ChunkersFactory factory, ConcurrentLinkedQueue<File> filesQueue) {
-      this.factory = factory;
+    public AbstractWorker(ConcurrentLinkedQueue<File> filesQueue) {
       this.filesQueue = filesQueue;
     }
 
-    public List<Block> call() throws Exception {
-      TokenChunker tokenChunker = factory.createTokenChunker();
-      StatementChunker statementChunker = factory.createStatementChunker();
-      BlockChunker blockChunker = factory.createBlockChunker();
-
-      List<Block> blocks = Lists.newArrayList();
+    public final Object call() throws Exception {
       File file;
       while ((file = filesQueue.poll()) != null) {
         try {
-          TokenQueue tokenQueue = tokenChunker.chunk(file);
-          List<Statement> statements = statementChunker.chunk(tokenQueue);
-          blocks.addAll(blockChunker.chunk(file.getAbsolutePath(), statements));
+          processFile(file);
         } catch (Exception e) {
           throw new DuplicationsException("Exception during processing of file: " + file, e);
         }
       }
-      return blocks;
+      return null;
+    }
+
+    protected abstract void processFile(File file);
+  }
+
+  private static class Worker extends AbstractWorker {
+    private final IndexUpdater index;
+
+    private final TokenChunker tokenChunker;
+    private final StatementChunker statementChunker;
+    private final BlockChunker blockChunker;
+
+    public Worker(ChunkersFactory factory, ConcurrentLinkedQueue<File> filesQueue, IndexUpdater index) {
+      super(filesQueue);
+      this.index = index;
+      tokenChunker = factory.createTokenChunker();
+      statementChunker = factory.createStatementChunker();
+      blockChunker = factory.createBlockChunker();
+    }
+
+    @Override
+    protected void processFile(File file) {
+      TokenQueue tokenQueue = tokenChunker.chunk(file);
+      List<Statement> statements = statementChunker.chunk(tokenQueue);
+      List<Block> blocks = blockChunker.chunk(file.getAbsolutePath(), statements);
+      index.save(file.getAbsolutePath(), blocks);
+    }
+  }
+
+  private static class Worker2 extends AbstractWorker {
+    private final CloneIndex cloneIndex;
+    private final CloneReporterAlgorithm cloneReporter;
+
+    public Worker2(ConcurrentLinkedQueue<File> filesQueue, CloneIndex cloneIndex) {
+      super(filesQueue);
+      this.cloneIndex = cloneIndex;
+      cloneReporter = new AdvancedGroupCloneReporter(cloneIndex);
+    }
+
+    @Override
+    protected void processFile(File file) {
+      List<Block> fileBlocks = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
+      FileBlockGroup fileBlockGroup = new FileBlockGroup(file.getAbsolutePath(), fileBlocks);
+      cloneReporter.reportClones(fileBlockGroup);
     }
   }
 
