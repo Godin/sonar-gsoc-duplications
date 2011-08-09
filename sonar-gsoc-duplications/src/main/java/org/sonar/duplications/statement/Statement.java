@@ -20,41 +20,38 @@
  */
 package org.sonar.duplications.statement;
 
-import org.sonar.duplications.DuplicationsException;
-import org.sonar.duplications.token.Token;
-
 import java.util.List;
+
+import org.sonar.duplications.token.Token;
 
 public class Statement {
 
   private final int startLine;
   private final int endLine;
   private final String value;
-  private int indexInFile;
 
+  /**
+   * Cache for hash code.
+   */
   private int hash;
 
-  public Statement(int startLine, int endLine, String value, int indexInFile) {
-    super();
+  public Statement(int startLine, int endLine, String value) {
     this.startLine = startLine;
     this.endLine = endLine;
     this.value = value;
-    this.indexInFile = indexInFile;
   }
 
-  public Statement(List<Token> tokenList) {
-    if (tokenList == null || tokenList.isEmpty()) {
-      throw new DuplicationsException("A statement can't be initialized with an empty list of token");
+  public Statement(List<Token> tokens) {
+    if (tokens == null || tokens.isEmpty()) {
+      throw new IllegalArgumentException("A statement can't be initialized with an empty list of token");
     }
-    int fromLine = tokenList.get(0).getLine();
-    int toLine = tokenList.get(tokenList.size() - 1).getLine();
-    StringBuilder tmpValue = new StringBuilder();
-    for (int i = 0; i < tokenList.size(); i++) {
-      tmpValue.append(tokenList.get(i).getValue());
+    StringBuilder sb = new StringBuilder();
+    for (Token token : tokens) {
+      sb.append(token.getValue());
     }
-    this.startLine = fromLine;
-    this.endLine = toLine;
-    this.value = tmpValue.toString();
+    this.value = sb.toString();
+    this.startLine = tokens.get(0).getLine();
+    this.endLine = tokens.get(tokens.size() - 1).getLine();
   }
 
   public int getStartLine() {
@@ -63,14 +60,6 @@ public class Statement {
 
   public int getEndLine() {
     return endLine;
-  }
-
-  public int getIndexInFile() {
-    return indexInFile;
-  }
-
-  public void setIndexInFile(int indexInFile) {
-    this.indexInFile = indexInFile;
   }
 
   public String getValue() {
@@ -84,7 +73,6 @@ public class Statement {
       h = value.hashCode();
       h = 31 * h + startLine;
       h = 31 * h + endLine;
-      h = 31 * h + indexInFile;
       hash = h;
     }
     return h;
@@ -92,17 +80,18 @@ public class Statement {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof Statement) {
-      Statement other = (Statement) obj;
-      return indexInFile == other.indexInFile && value.equals(other.value);
+    if (!(obj instanceof Statement)) {
+      return false;
     }
-    return false;
-
+    Statement other = (Statement) obj;
+    return startLine == other.startLine
+        && endLine == other.endLine
+        && value.equals(other.value);
   }
 
   @Override
   public String toString() {
-    return "[" + getStartLine() + "-" + getEndLine() + "][index:" + getIndexInFile() + "] [" + getValue() + "]";
+    return "[" + getStartLine() + "-" + getEndLine() + "] [" + getValue() + "]";
   }
 
 }

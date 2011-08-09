@@ -188,7 +188,7 @@ public class OriginalCloneDetectionAlgorithmTest {
   }
 
   /**
-   * FIXME Godin: this problem was described in original paper - same clone would be reported twice
+   * Test for problem, which was described in original paper - same clone would be reported twice.
    */
   @Test
   public void clonesInFileItself() {
@@ -198,19 +198,13 @@ public class OriginalCloneDetectionAlgorithmTest {
     List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
     print(clones);
 
-    assertThat(clones.size(), is(2));
+    assertThat(clones.size(), is(1));
 
     CloneGroup clone1 = clones.get(0);
     assertThat(clone1.getCloneUnitLength(), is(2));
     assertThat(clone1.getCloneParts().size(), is(2));
     assertThat(clone1.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
     assertThat(clone1.getCloneParts(), hasItem(newClonePart("a", 3, 2)));
-
-    CloneGroup clone2 = clones.get(1);
-    assertThat(clone2.getCloneUnitLength(), is(2));
-    assertThat(clone2.getCloneParts().size(), is(2));
-    assertThat(clone2.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
-    assertThat(clone2.getCloneParts(), hasItem(newClonePart("a", 3, 2)));
   }
 
   @Ignore("as in original paper - we don't have filter for nested clone groups")

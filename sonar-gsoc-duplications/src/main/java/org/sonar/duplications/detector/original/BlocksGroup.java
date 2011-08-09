@@ -54,11 +54,7 @@ class BlocksGroup {
    * @return true, if this group subsumed by specified group
    * @see #subsumedBy(BlocksGroup, BlocksGroup, int)
    */
-  public boolean subsumedBy(BlocksGroup other) {
-    if (other.size() == 0) {
-      return false;
-    }
-    int indexCorrection = this.blocks.get(0).getIndexInFile() - other.blocks.get(0).getIndexInFile();
+  public boolean subsumedBy(BlocksGroup other, int indexCorrection) {
     return subsumedBy(this, other, indexCorrection);
   }
 
@@ -88,7 +84,7 @@ class BlocksGroup {
     while (i < list1.size() && j < list2.size()) {
       Block block1 = list1.get(i);
       Block block2 = list2.get(j);
-      int c = block1.getResourceId().compareTo(block2.getResourceId());
+      int c = RESOURCE_ID_COMPARATOR.compare(block1.getResourceId(), block2.getResourceId());
       if (c > 0) {
         j++;
         continue;
@@ -126,7 +122,7 @@ class BlocksGroup {
     while (i < list1.size() && j < list2.size()) {
       Block block1 = list1.get(i);
       Block block2 = list2.get(j);
-      int c = block1.getResourceId().compareTo(block2.getResourceId());
+      int c = RESOURCE_ID_COMPARATOR.compare(block1.getResourceId(), block2.getResourceId());
       if (c != 0) {
         j++;
         continue;
@@ -157,7 +153,7 @@ class BlocksGroup {
     while (i < beginBlocks.size() && j < endBlocks.size()) {
       Block beginBlock = beginBlocks.get(i);
       Block endBlock = endBlocks.get(j);
-      int c = beginBlock.getResourceId().compareTo(endBlock.getResourceId());
+      int c = RESOURCE_ID_COMPARATOR.compare(beginBlock.getResourceId(), endBlock.getResourceId());
       if (c == 0) {
         c = beginBlock.getIndexInFile() + len - 1 - endBlock.getIndexInFile();
       }
@@ -176,6 +172,8 @@ class BlocksGroup {
     return result;
   }
 
+  private static final Comparator<String> RESOURCE_ID_COMPARATOR = FastStringComparator.INSTANCE;
+
   /**
    * Compares {@link Block}s first using {@link Block#getResourceId() resource id} and then using {@link Block#getIndexInFile() index in file}.
    */
@@ -184,7 +182,7 @@ class BlocksGroup {
     public static final BlockComparator INSTANCE = new BlockComparator();
 
     public int compare(Block b1, Block b2) {
-      int c = b1.getResourceId().compareTo(b2.getResourceId());
+      int c = RESOURCE_ID_COMPARATOR.compare(b1.getResourceId(), b2.getResourceId());
       if (c == 0) {
         return b1.getIndexInFile() - b2.getIndexInFile();
       }

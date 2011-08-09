@@ -20,7 +20,6 @@
 package org.sonar.duplications.statement;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -47,16 +46,6 @@ public class StatementChannelTest {
 	  List<Statement> output = consume(TokenMatcherFactory.from("b"));
 	  assertThat(tokenQueue.size(), is(1));
 	  assertThat(output.size(), is(0));
-  }
-  
-  @Test
-  public void outputShouldNotDependOnAmountOfInvocations() {
-    List<Statement> output = consume(TokenMatcherFactory.anyToken());
-    List<Statement> secondOutput = consume(TokenMatcherFactory.anyToken());
-
-    assertThat(output.size(), is(1));
-    assertThat(output.get(0).getIndexInFile(), is(0));
-    assertEquals(output, secondOutput);
   }
 
   private List<Statement> consume(TokenMatcher tokenMatcher) {

@@ -37,19 +37,19 @@ public class BlockChunkerTest {
   public void shouldBuildBlocksFromStatements() {
     BlockChunker blockChunker = new BlockChunker(2);
     List<Statement> statements = Arrays.asList(
-        new Statement(1, 1, "package example;", 1),
-        new Statement(2, 2, "class Example {", 2),
-        new Statement(3, 3, "}", 3));
+        new Statement(1, 1, "package example;"),
+        new Statement(2, 2, "class Example {"),
+        new Statement(3, 3, "}"));
 
     List<Block> blocks = blockChunker.chunk("foo", statements);
 
     assertThat(blocks.size(), is(2));
 
-    assertThat(blocks.get(0).getIndexInFile(), is(1));
+    assertThat(blocks.get(0).getIndexInFile(), is(0));
     assertThat(blocks.get(0).getFirstLineNumber(), is(1));
     assertThat(blocks.get(0).getLastLineNumber(), is(2));
 
-    assertThat(blocks.get(1).getIndexInFile(), is(2));
+    assertThat(blocks.get(1).getIndexInFile(), is(1));
     assertThat(blocks.get(1).getFirstLineNumber(), is(2));
     assertThat(blocks.get(1).getLastLineNumber(), is(3));
 
@@ -60,11 +60,11 @@ public class BlockChunkerTest {
   public void shouldCalculateHashes() {
     BlockChunker blockChunker = new BlockChunker(2);
     List<Statement> statements = Arrays.asList(
-        new Statement(1, 1, "if (a)", 1),
-        new Statement(2, 2, "doWork();", 2),
-        new Statement(3, 3, "if (a)", 3),
-        new Statement(4, 4, "doWork();", 4),
-        new Statement(5, 5, "doWork();", 5));
+        new Statement(1, 1, "if (a)"),
+        new Statement(2, 2, "doWork();"),
+        new Statement(3, 3, "if (a)"),
+        new Statement(4, 4, "doWork();"),
+        new Statement(5, 5, "doWork();"));
 
     List<Block> blocks = blockChunker.chunk("foo", statements);
     assertThat(blocks.size(), is(4));
@@ -91,7 +91,7 @@ public class BlockChunkerTest {
   @Test
   public void shouldNotBuildBlocksWhenNotEnoughStatements() {
     BlockChunker blockChunker = new BlockChunker(2);
-    List<Statement> statements = Arrays.asList(new Statement(1, 1, "package example;", 1));
+    List<Statement> statements = Arrays.asList(new Statement(1, 1, "package example;"));
 
     List<Block> blocks = blockChunker.chunk("foo", statements);
 

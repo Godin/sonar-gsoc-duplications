@@ -75,7 +75,7 @@ public class BlockChunker {
       // create block
       if (j >= 0) {
         Statement first = statements.get(j);
-        blockList.add(new Block(resourceId, Long.toHexString(hash), first.getIndexInFile(), first.getStartLine(), current.getEndLine()));
+        blockList.add(new Block(resourceId, Long.toHexString(hash), j, first.getStartLine(), current.getEndLine()));
       }
     }
     return blockList;

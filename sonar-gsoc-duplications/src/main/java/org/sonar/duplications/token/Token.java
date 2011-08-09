@@ -25,6 +25,9 @@ public class Token {
   private final int column;
   private final String value;
 
+  /**
+   * Cache for hash code.
+   */
   private int hash;
 
   public Token(String value, int line, int column) {

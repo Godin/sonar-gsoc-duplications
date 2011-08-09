@@ -56,6 +56,11 @@ public class OriginalCloneDetectionAlgorithm {
   }
 
   private void findClones(List<Block> fileBlocks) {
+    if (fileBlocks.size() == 0) {
+      return;
+    }
+    String resourceId = fileBlocks.get(0).getResourceId();
+
     // 2: let f be the list of tuples corresponding to filename sorted by statement index
     // either read from the index or calculated on the fly
 
@@ -120,7 +125,7 @@ public class OriginalCloneDetectionAlgorithm {
       // and the hash and info fields will differ.
 
       // 8: if |c(i)| < 2 or c(i) subsumed by c(i - 1) then
-      if (sameHashBlocksGroups[i].size() < 2 || sameHashBlocksGroups[i].subsumedBy(sameHashBlocksGroups[i - 1])) {
+      if (sameHashBlocksGroups[i].size() < 2 || sameHashBlocksGroups[i].subsumedBy(sameHashBlocksGroups[i - 1], 1)) {
         // 9: continue with next loop iteration
         continue;
       }
@@ -149,7 +154,6 @@ public class OriginalCloneDetectionAlgorithm {
         if (intersectedBlocksGroup.size() < currentBlocksGroup.size()) {
           // 14: report clones from c(i) to a (see text)
 
-          // TODO Godin: problem described in original paper
           // One problem of this algorithm is that clone classes with
           // multiple instances in the same file are encountered and
           // reported multiple times. Furthermore, when calculating the clone
@@ -158,7 +162,13 @@ public class OriginalCloneDetectionAlgorithm {
           // checking whether the first element of a0 (with respect to a
           // fixed order) is equal to f(j) and only report in this case.
 
-          reportClones(sameHashBlocksGroups[i], currentBlocksGroup, j - i);
+          Block first = currentBlocksGroup.blocks.get(0);
+          if (!resourceId.equals(first.getResourceId())) {
+            throw new IllegalStateException();
+          }
+          if (first.getIndexInFile() == j - 2) {
+            reportClones(sameHashBlocksGroups[i], currentBlocksGroup, j - i);
+          }
         }
         // 15: a := a0
         currentBlocksGroup = intersectedBlocksGroup;
@@ -173,7 +183,7 @@ public class OriginalCloneDetectionAlgorithm {
         // so method subsumedBy should take this into account
 
         // 16: if |a| < 2 or a subsumed by c(i-1) then
-        if (currentBlocksGroup.size() < 2 || currentBlocksGroup.subsumedBy(sameHashBlocksGroups[i - 1])) {
+        if (currentBlocksGroup.size() < 2 || currentBlocksGroup.subsumedBy(sameHashBlocksGroups[i - 1], j - i + 1)) {
           // 17: break inner loop
           break;
         }
