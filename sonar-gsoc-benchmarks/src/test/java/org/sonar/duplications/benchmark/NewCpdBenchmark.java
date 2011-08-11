@@ -19,37 +19,38 @@
  */
 package org.sonar.duplications.benchmark;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.List;
+
 import org.sonar.duplications.CloneFinder;
+import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneIndex;
+import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 
-import java.io.File;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 public class NewCpdBenchmark extends Benchmark {
 
   private final List<File> files;
   private final int blockSize;
-  private final CloneIndex cloneIndex;
-  private final CloneReporterAlgorithm cloneReporter;
 
-  public NewCpdBenchmark(List<File> files, int blockSize, CloneIndex index, CloneReporterAlgorithm cloneReporter) {
+  public NewCpdBenchmark(List<File> files, int blockSize) {
     this.files = files;
     this.blockSize = blockSize;
-    this.cloneIndex = index;
-    this.cloneReporter = cloneReporter;
   }
 
   @Override
   public void runRound() throws Exception {
-    singleRun(files, blockSize, cloneIndex, cloneReporter);
+    CloneIndex index = new MemoryCloneIndex();
+    CloneReporterAlgorithm reporter = new AdvancedGroupCloneReporter(index);
+    singleRun(files, blockSize, index, reporter);
   }
 
-  private static void singleRun(List<File> files, int blockSize, CloneIndex index, CloneReporterAlgorithm reporter) {
+  protected static void singleRun(List<File> files, int blockSize, CloneIndex index, CloneReporterAlgorithm reporter) {
     reporter.resetStatistics();
     CloneFinder cf = JavaCloneFinder.build(index, blockSize);
     for (File file : files) {

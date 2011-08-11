@@ -19,18 +19,28 @@
  */
 package org.sonar.duplications.benchmark.perf;
 
-import org.junit.*;
-import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
-import org.sonar.duplications.algorithm.AdvancedPairCloneReporter;
-import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
-import org.sonar.duplications.benchmark.*;
-import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.MemoryCloneIndex;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 import java.io.File;
 import java.util.List;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.duplications.algorithm.AdvancedPairCloneReporter;
+import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
+import org.sonar.duplications.benchmark.Benchmark;
+import org.sonar.duplications.benchmark.BenchmarkResult;
+import org.sonar.duplications.benchmark.BenchmarksDiff;
+import org.sonar.duplications.benchmark.MemoryUtils;
+import org.sonar.duplications.benchmark.NewCpdBenchmark;
+import org.sonar.duplications.benchmark.OldCpdBenchmark;
+import org.sonar.duplications.benchmark.OriginalAlgorithmBenchmark;
+import org.sonar.duplications.benchmark.ThreadedNewCpdBenchmark;
+import org.sonar.duplications.index.CloneIndex;
+import org.sonar.duplications.index.MemoryCloneIndex;
 
 public class AbstractTestCase {
 
@@ -64,16 +74,19 @@ public class AbstractTestCase {
 
   @Test
   public void newCpdGrouped() {
-    CloneIndex index = new MemoryCloneIndex();
-    CloneReporterAlgorithm reporter = new AdvancedGroupCloneReporter(index);
-    results.add(run(new NewCpdBenchmark(files, BLOCK_SIZE, index, reporter)));
+    results.add(run(new NewCpdBenchmark(files, BLOCK_SIZE)));
   }
 
   @Test
   public void newCpdPaired() {
-    CloneIndex index = new MemoryCloneIndex();
-    CloneReporterAlgorithm reporter = new AdvancedPairCloneReporter(index);
-    results.add(run(new NewCpdBenchmark(files, BLOCK_SIZE, index, reporter)));
+    results.add(run(new NewCpdBenchmark(files, BLOCK_SIZE) {
+      @Override
+      public void runRound() throws Exception {
+        CloneIndex index = new MemoryCloneIndex();
+        CloneReporterAlgorithm reporter = new AdvancedPairCloneReporter(index);
+        singleRun(files, BLOCK_SIZE, index, reporter);
+      }
+    }));
   }
 
   @Test
