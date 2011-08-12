@@ -22,10 +22,12 @@ package org.sonar.duplications.benchmark;
 import java.io.File;
 import java.util.List;
 
+import org.sonar.duplications.benchmark.index.TimingIndex;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
-import org.sonar.duplications.index.MemoryCloneIndex;
+import org.sonar.duplications.index.CloneIndex;
+import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.java.JavaStatementBuilder;
 import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.Statement;
@@ -47,11 +49,13 @@ public class OriginalAlgorithmBenchmark extends Benchmark {
 
   @Override
   public void runRound() throws Exception {
-    singleRun(files, blockSize);
+    System.out.println("Count: " + singleRun(files, blockSize));
   }
 
-  public static void singleRun(List<File> files, int blockSize) {
-    MemoryCloneIndex cloneIndex = new MemoryCloneIndex();
+  public static int singleRun(List<File> files, int blockSize) {
+    CloneIndex delegate = new PackedMemoryCloneIndex();
+    // CloneIndex index = new MemoryCloneIndex();
+    TimingIndex index = new TimingIndex(delegate);
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();
     BlockChunker blockChunker = new BlockChunker(blockSize);
@@ -61,14 +65,17 @@ public class OriginalAlgorithmBenchmark extends Benchmark {
       List<Statement> statements = statementChunker.chunk(tokenQueue);
       List<Block> blocks = blockChunker.chunk(file.getAbsolutePath(), statements);
       for (Block block : blocks) {
-        cloneIndex.insert(block);
+        index.insert(block);
       }
     }
 
+    int count = 0;
     for (File file : files) {
-      List<Block> fileBlocks = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
-      OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+      List<Block> fileBlocks = Lists.newArrayList(index.getByResourceId(file.getAbsolutePath()));
+      count += OriginalCloneDetectionAlgorithm.detect(index, fileBlocks).size();
     }
+    index.print();
+    return count;
   }
 
   @Override

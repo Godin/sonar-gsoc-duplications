@@ -59,6 +59,7 @@ public class OriginalCloneDetectionAlgorithm {
     if (fileBlocks.size() == 0) {
       return;
     }
+    Collections.sort(fileBlocks, BlocksGroup.BlockComparator.INSTANCE);
     String resourceId = fileBlocks.get(0).getResourceId();
 
     // 2: let f be the list of tuples corresponding to filename sorted by statement index
