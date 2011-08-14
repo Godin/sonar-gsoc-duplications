@@ -43,12 +43,6 @@ public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
   public static final String FILTER_KEY = "filter covered";
   public static final String GROUPS_KEY = "report clones";
 
-  private static final Comparator<ClonePair> CLONEPAIR_COMPARATOR = new Comparator<ClonePair>() {
-    public int compare(ClonePair o1, ClonePair o2) {
-      return o1.getOriginPart().getUnitStart() - o2.getOriginPart().getUnitStart();
-    }
-  };
-
   public AdvancedGroupCloneReporter(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
     this.statsCollector = new StatsCollector("AdvancedGrouped");

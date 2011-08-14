@@ -29,10 +29,17 @@ import org.sonar.duplications.index.ClonePair;
 import org.sonar.duplications.index.ClonePart;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgorithm {
+
+  protected static final Comparator<ClonePair> CLONEPAIR_COMPARATOR = new Comparator<ClonePair>() {
+    public int compare(ClonePair o1, ClonePair o2) {
+      return o1.getOriginPart().getUnitStart() - o2.getOriginPart().getUnitStart();
+    }
+  };
 
   protected CloneIndex cloneIndex;
   protected StatsCollector statsCollector;
