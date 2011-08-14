@@ -117,7 +117,6 @@ public final class CloneFinder {
     FileBlockGroup fileBlockGroup = new FileBlockGroup(absolutePath);
     for (Block block : blocks) {
       fileBlockGroup.addBlock(block);
-      cloneIndex.insert(block);
     }
 
     return fileBlockGroup;
