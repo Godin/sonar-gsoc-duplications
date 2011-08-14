@@ -33,7 +33,6 @@ public class ClonePair {
   public ClonePair(ClonePart originPart, ClonePart anotherPart, int cloneLength) {
     this.originPart = originPart;
     this.anotherPart = anotherPart;
-    this.parts = Lists.newArrayList(originPart, anotherPart);
     this.cloneLength = cloneLength;
   }
 
@@ -46,6 +45,9 @@ public class ClonePair {
   }
 
   public List<ClonePart> getCloneParts() {
+    if (parts == null) {
+      parts = Lists.newArrayList(originPart, anotherPart);
+    }
     return parts;
   }
 
