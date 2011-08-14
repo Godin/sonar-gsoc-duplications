@@ -51,7 +51,7 @@ public class AdvancedPairCloneReporter extends AbstractAdvancedCloneReporter {
   public List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup) {
     statsCollector.startTime(INIT_KEY);
     ArrayList<ClonePair> clones = Lists.newArrayList();
-    List<Block> fileBlocks = fileBlockGroup.getBlockList();
+    SortedSet<Block> fileBlocks = fileBlockGroup.getBlockList();
     List<List<Block>> sameHashBlockGroups = getIndexedBlockGroups(fileBlockGroup);
 
     //an empty list is needed a the end to report clone at the end of file

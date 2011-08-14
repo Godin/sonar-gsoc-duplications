@@ -19,15 +19,7 @@
  */
 package org.sonar.duplications.benchmark;
 
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
+import com.google.common.collect.Lists;
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
@@ -43,7 +35,9 @@ import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class ThreadedNewCpdBenchmark extends Benchmark {
 
@@ -205,7 +199,7 @@ public class ThreadedNewCpdBenchmark extends Benchmark {
     @Override
     protected void processFile(File file) {
       List<Block> fileBlocks = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
-      FileBlockGroup fileBlockGroup = new FileBlockGroup(file.getAbsolutePath(), fileBlocks);
+      FileBlockGroup fileBlockGroup = FileBlockGroup.create(file.getAbsolutePath(), fileBlocks);
       cloneReporter.reportClones(fileBlockGroup);
     }
   }

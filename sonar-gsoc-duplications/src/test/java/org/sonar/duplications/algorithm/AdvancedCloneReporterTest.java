@@ -42,7 +42,7 @@ public class AdvancedCloneReporterTest {
     cloneIndex.insert(new Block("c", "6", 2, 2, 7));
     cloneIndex.insert(new Block("c", "7", 3, 3, 8));
     List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
-    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    FileBlockGroup blockGroup = FileBlockGroup.create("a", blocks);
     List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(2));
 
@@ -77,7 +77,7 @@ public class AdvancedCloneReporterTest {
     cloneIndex.insert(new Block("c", "3", 3, 3, 8));
 
     List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
-    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    FileBlockGroup blockGroup = FileBlockGroup.create("a", blocks);
     List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
     CloneGroup expected = new CloneGroup(3)
@@ -98,7 +98,7 @@ public class AdvancedCloneReporterTest {
     cloneIndex.insert(new Block("b", "1", 1, 1, 6));
 
     List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
-    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    FileBlockGroup blockGroup = FileBlockGroup.create("a", blocks);
     List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
 
@@ -121,7 +121,7 @@ public class AdvancedCloneReporterTest {
     cloneIndex.insert(new Block("b", "2", 2, 2, 7));
 
     List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
-    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    FileBlockGroup blockGroup = FileBlockGroup.create("a", blocks);
     List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
     ClonePart part1 = new ClonePart("a", 1, 1, 7);
@@ -144,7 +144,7 @@ public class AdvancedCloneReporterTest {
     cloneIndex.insert(new Block("a", "4", 5, 5, 10));
 
     List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
-    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    FileBlockGroup blockGroup = FileBlockGroup.create("a", blocks);
     List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
 
@@ -168,7 +168,7 @@ public class AdvancedCloneReporterTest {
     cloneIndex.insert(new Block("a", "0", 5, 5, 10));
 
     List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
-    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    FileBlockGroup blockGroup = FileBlockGroup.create("a", blocks);
     List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     assertThat(items.size(), is(1));
     ClonePart part1 = new ClonePart("a", 0, 0, 5);
@@ -195,7 +195,7 @@ public class AdvancedCloneReporterTest {
     cloneIndex.insert(new Block("a", "6", 8, 8, 13));
 
     List<Block> blocks = new ArrayList<Block>(cloneIndex.getByResourceId("a"));
-    FileBlockGroup blockGroup = new FileBlockGroup("a", blocks);
+    FileBlockGroup blockGroup = FileBlockGroup.create("a", blocks);
     List<CloneGroup> items = cloneReporter.reportClones(blockGroup);
     // TODO fix situation with duplicated clone
     assertThat(items.size(), is(1));

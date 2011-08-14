@@ -133,7 +133,7 @@ public class CompareResultsTest {
     for (File file : files) {
       String fileResourceId = file.getAbsolutePath();
       List<Block> candidateBlockList = Lists.newArrayList(cloneIndex.getByResourceId(file.getAbsolutePath()));
-      FileBlockGroup fileBlockGroup = new FileBlockGroup(fileResourceId, candidateBlockList);
+      FileBlockGroup fileBlockGroup = FileBlockGroup.create(fileResourceId, candidateBlockList);
       List<CloneGroup> clones = cloneReporter.reportClones(fileBlockGroup);
 
       for (CloneGroup clone : clones) {

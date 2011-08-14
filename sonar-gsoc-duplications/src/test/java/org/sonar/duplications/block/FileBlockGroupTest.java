@@ -21,8 +21,7 @@ public class FileBlockGroupTest {
 
   @Before
   public void pubicInitTest() {
-    fci = new FileBlockGroup(testFile.getPath());
-    init(fci, testFile);
+    init(new FileBlockGroup.Builder().setResurceId(testFile.getPath()), testFile);
   }
 
   @Test
@@ -32,23 +31,29 @@ public class FileBlockGroupTest {
 
   @Test
   public void shouldAddBlockWithSameResourceId() {
-    fci.addBlock(new Block(testFile.getPath(), "13dws2324d", 1, 1, 7));
+    FileBlockGroup file = new FileBlockGroup.Builder()
+        .setResurceId("a")
+        .addBlock(new Block("a", "13dws2324d", 1, 1, 7))
+        .build();
   }
 
   @Test(expected = DuplicationsException.class)
   public void shouldNotAddBlockWithDifferentResourceId() {
-    FileBlockGroup file = new FileBlockGroup("a");
-    file.addBlock(new Block("b", "13dws2324d", 1, 1, 7));
+    FileBlockGroup file = new FileBlockGroup.Builder()
+        .setResurceId("a")
+        .addBlock(new Block("b", "13dws2324d", 1, 1, 7))
+        .build();
   }
 
-  public void init(FileBlockGroup fci, File file) {
+  public void init(FileBlockGroup.Builder builder, File file) {
     try {
       TokenChunker lexer = JavaTokenProducer.build();
       StatementChunker statementBuilder = JavaStatementBuilder.build();
       BlockChunker blockBuilder = new BlockChunker(5);
       for (Block block : blockBuilder.chunk(file.getPath(), statementBuilder.chunk(lexer.chunk(file)))) {
-        fci.addBlock(block);
+        builder.addBlock(block);
       }
+      fci = builder.build();
     } catch (Exception e) {
       throw new DuplicationsException("Error in initialization", e);
     }

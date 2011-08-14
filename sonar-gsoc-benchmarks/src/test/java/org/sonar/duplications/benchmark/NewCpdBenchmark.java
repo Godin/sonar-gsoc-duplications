@@ -19,9 +19,7 @@
  */
 package org.sonar.duplications.benchmark;
 
-import java.io.File;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
@@ -31,7 +29,8 @@ import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.List;
 
 public class NewCpdBenchmark extends Benchmark {
 
@@ -59,7 +58,7 @@ public class NewCpdBenchmark extends Benchmark {
     for (File file : files) {
       String resourceId = file.getAbsolutePath();
       List<Block> candidateBlockList = Lists.newArrayList(index.getByResourceId(resourceId));
-      FileBlockGroup fileBlockGroup = new FileBlockGroup(resourceId, candidateBlockList);
+      FileBlockGroup fileBlockGroup = FileBlockGroup.create(resourceId, candidateBlockList);
       reporter.reportClones(fileBlockGroup);
     }
     reporter.printStatistics();
