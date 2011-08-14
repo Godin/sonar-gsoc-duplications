@@ -71,6 +71,14 @@ public class HashCollisionsTest {
     printStatistics(benchmark);
   }
 
+  @Test
+  public void murmurHash() {
+    BlockChunker chunker = new MurmurHashBlockChunker(BLOCK_SIZE);
+    HashCollisionsBenchmark benchmark = new HashCollisionsBenchmark("Murmur", files, chunker);
+    results.add(run(benchmark));
+    printStatistics(benchmark);
+  }
+
   @AfterClass
   public static void after() {
     results.print();

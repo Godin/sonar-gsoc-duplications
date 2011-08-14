@@ -1,33 +1,20 @@
 package org.sonar.duplications.benchmark.hash;
 
-import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.statement.Statement;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DigestHashBlockChunker extends BlockChunker {
+public class MurmurHashBlockChunker extends BlockChunker {
 
-  protected final MessageDigest digest;
   private int blockSize;
 
-  public static enum Algorithm {
-    MD5, SHA;
-  }
-
-  public DigestHashBlockChunker(Algorithm algorithm, int blockSize) {
+  public MurmurHashBlockChunker(int blockSize) {
     super(blockSize);
     this.blockSize = blockSize;
-    try {
-      this.digest = MessageDigest.getInstance(algorithm.toString());
-    } catch (NoSuchAlgorithmException e) {
-      throw new DuplicationsException("Unable to create a digest generator", e);
-    }
   }
 
   @Override
@@ -52,26 +39,20 @@ public class DigestHashBlockChunker extends BlockChunker {
     return blockList;
   }
 
-  private static final String HEXES = "0123456789abcdef";
-
-  private String getHex(byte[] raw) {
-    if (raw == null) {
-      return null;
-    }
-    final StringBuilder hex = new StringBuilder(2 * raw.length);
-    for (final byte b : raw) {
-      hex.append(HEXES.charAt((b & 0xF0) >> 4))
-          .append(HEXES.charAt((b & 0x0F)));
-    }
-    return hex.toString();
-  }
-
   private String buildBlockHash(List<Statement> statementList) {
-    digest.reset();
+    int totalLen = 0;
     for (Statement statement : statementList) {
-      digest.update(statement.getValue().getBytes());
+      totalLen += statement.getValue().getBytes().length;
     }
-    byte[] messageDigest = digest.digest();
-    return getHex(messageDigest);
+    byte[] bytes = new byte[totalLen];
+    int current = 0;
+    for (Statement statement : statementList) {
+      byte[] stmtBytes = statement.getValue().getBytes();
+      int length = stmtBytes.length;
+      System.arraycopy(stmtBytes, 0, bytes, current, length);
+      current += length;
+    }
+    int messageDigest = MurmurHash2.hash(bytes, 0x1234ABCD);
+    return Integer.toHexString(messageDigest).toLowerCase();
   }
 }
