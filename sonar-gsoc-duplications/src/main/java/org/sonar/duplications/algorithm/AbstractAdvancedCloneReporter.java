@@ -90,9 +90,9 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
     int cloneLength = 0;
 
     CloneKey curKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile());
-    if (prevActiveMap.containsKey(curKey)) {
-      ClonePair prevPair = prevActiveMap.get(curKey);
 
+    ClonePair prevPair = prevActiveMap.remove(curKey);
+    if (prevPair != null) {
       originPart.setLineStart(prevPair.getOriginPart().getLineStart())
           .setUnitStart(prevPair.getOriginPart().getUnitStart());
 
@@ -100,8 +100,6 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
           .setUnitStart(prevPair.getAnotherPart().getUnitStart());
 
       cloneLength = prevPair.getCloneLength();
-
-      prevActiveMap.remove(curKey);
     }
 
     ClonePair tempClone = new ClonePair(originPart, anotherPart, cloneLength + 1);
