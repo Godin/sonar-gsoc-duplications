@@ -22,7 +22,6 @@ package org.sonar.duplications.algorithm;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.sonar.duplications.algorithm.filter.CloneGroupFilter;
 import org.sonar.duplications.algorithm.filter.IntervalTreeCloneGroupFilter;
 import org.sonar.duplications.block.Block;
@@ -39,7 +38,6 @@ public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
 
   public static final String ALGORITHM_KEY = "main algorithm";
   public static final String INIT_KEY = "initialization";
-  public static final String DUPLIACATES_KEY = "remove duplicates";
   public static final String FILTER_KEY = "filter covered";
   public static final String GROUPS_KEY = "report clones";
 
@@ -84,13 +82,6 @@ public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
     statsCollector.addNumber("reported clones", clones.size());
 
     int sizeBefore = clones.size();
-    statsCollector.startTime(DUPLIACATES_KEY);
-    clones = removeDuplicates(clones);
-    statsCollector.stopTime(DUPLIACATES_KEY);
-
-    statsCollector.addNumber("removed duplicates", sizeBefore - clones.size());
-
-    sizeBefore = clones.size();
     statsCollector.startTime(FILTER_KEY);
     clones = INTERVAL_FILTER.filter(clones);
     statsCollector.stopTime(FILTER_KEY);
@@ -99,11 +90,6 @@ public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
     statsCollector.addNumber("total clone groups", clones.size());
 
     return clones;
-  }
-
-  private static List<CloneGroup> removeDuplicates(List<CloneGroup> clones) {
-    HashSet<CloneGroup> set = Sets.newHashSet(clones);
-    return Lists.newArrayList(set);
   }
 
   /**

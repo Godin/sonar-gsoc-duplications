@@ -22,7 +22,6 @@ package org.sonar.duplications.algorithm;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.sonar.duplications.algorithm.filter.ClonePairFilter;
 import org.sonar.duplications.algorithm.filter.IntervalTreeClonePairFilter;
 import org.sonar.duplications.block.Block;
@@ -39,7 +38,6 @@ public class AdvancedPairCloneReporter extends AbstractAdvancedCloneReporter {
 
   public static final String ALGORITHM_KEY = "algorithm";
   public static final String INIT_KEY = "init";
-  public static final String DUPLIACATES_KEY = "duplicates";
   public static final String FILTER_KEY = "filter";
   public static final String GROUPS_KEY = "groups";
 
@@ -73,22 +71,15 @@ public class AdvancedPairCloneReporter extends AbstractAdvancedCloneReporter {
         processBlock(prevActiveMap, nextActiveMap, origBlock, block);
       }
       clones.addAll(prevActiveMap.values());
+      statsCollector.addNumber("reported pairs", prevActiveMap.values().size());
 
       prevActiveMap = nextActiveMap;
     }
     statsCollector.stopTime(ALGORITHM_KEY);
 
-    statsCollector.addNumber("clones", clones.size());
-
-    statsCollector.startTime(DUPLIACATES_KEY);
-    List<ClonePair> filtered = removeDuplicates(clones);
-    statsCollector.stopTime(DUPLIACATES_KEY);
-
-    statsCollector.addNumber("removed duplicates", clones.size() - filtered.size());
-
-    int sizeBefore = filtered.size();
+    int sizeBefore = clones.size();
     statsCollector.startTime(FILTER_KEY);
-    filtered = INTERVAL_FILTER.filter(filtered);
+    List<ClonePair> filtered = INTERVAL_FILTER.filter(clones);
     statsCollector.stopTime(FILTER_KEY);
 
     statsCollector.addNumber("removed covered", sizeBefore - filtered.size());
@@ -99,11 +90,6 @@ public class AdvancedPairCloneReporter extends AbstractAdvancedCloneReporter {
 
     statsCollector.addNumber("total clone groups", groups.size());
     return groups;
-  }
-
-  private List<ClonePair> removeDuplicates(List<ClonePair> clones) {
-    HashSet<ClonePair> set = Sets.newHashSet(clones);
-    return Lists.newArrayList(set);
   }
 
   /**
