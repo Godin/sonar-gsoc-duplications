@@ -51,6 +51,10 @@ public class ClonePair {
     return parts;
   }
 
+  public void setCloneLength(int cloneLength) {
+    this.cloneLength = cloneLength;
+  }
+
   public int getCloneLength() {
     return cloneLength;
   }

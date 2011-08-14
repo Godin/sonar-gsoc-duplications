@@ -79,33 +79,31 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
    *
    * @param prevActiveMap, map with active block sequences from previous cycle iteration
    * @param nextActiveMap, map with active block sequences after current cycle iteration
-   * @param originBlock,   block of original file
-   * @param anotherBlock,  one of blocks with same hash as <tt>originBlock</tt>
+   * @param originBlock,   ClonePart of block of original file
+   * @param anotherBlock,  ClonePart of one of blocks with same hash as <tt>originBlock</tt>
    */
   protected void processBlock(Map<CloneKey, ClonePair> prevActiveMap,
                               Map<CloneKey, ClonePair> nextActiveMap,
                               Block originBlock, Block anotherBlock) {
-    ClonePart originPart = new ClonePart(originBlock);
-    ClonePart anotherPart = new ClonePart(anotherBlock);
-    int cloneLength = 0;
+    ClonePair clonePair;
 
-    CloneKey curKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile());
+    String resourceId = anotherBlock.getResourceId();
+    int unitStart = anotherBlock.getIndexInFile();
+
+    CloneKey curKey = new CloneKey(resourceId, unitStart);
+    CloneKey nextKey = new CloneKey(resourceId, unitStart + 1);
 
     ClonePair prevPair = prevActiveMap.remove(curKey);
-    if (prevPair != null) {
-      originPart.setLineStart(prevPair.getOriginPart().getLineStart())
-          .setUnitStart(prevPair.getOriginPart().getUnitStart());
-
-      anotherPart.setLineStart(prevPair.getAnotherPart().getLineStart())
-          .setUnitStart(prevPair.getAnotherPart().getUnitStart());
-
-      cloneLength = prevPair.getCloneLength();
+    if (prevPair == null) {
+      clonePair = new ClonePair(new ClonePart(originBlock), new ClonePart(anotherBlock), 1);
+    } else {
+      clonePair = prevPair;
+      clonePair.getOriginPart().setLineEnd(originBlock.getLastLineNumber());
+      clonePair.getAnotherPart().setLineEnd(anotherBlock.getLastLineNumber());
+      clonePair.setCloneLength(clonePair.getCloneLength() + 1);
     }
 
-    ClonePair tempClone = new ClonePair(originPart, anotherPart, cloneLength + 1);
-
-    CloneKey nextKey = new CloneKey(anotherBlock.getResourceId(), anotherBlock.getIndexInFile() + 1);
-    nextActiveMap.put(nextKey, tempClone);
+    nextActiveMap.put(nextKey, clonePair);
   }
 
 }
