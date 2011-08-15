@@ -78,9 +78,11 @@ public class HashCollisionsBenchmark extends Benchmark {
     this.totalBlocks = totalBlocks;
     this.uniqueHashes = hashBlocks.size();
     this.hashesChecksum = 0;
-    for (List<Block> blocks : fileBlocks.values()) {
-      for (Block block : blocks) {
-        this.hashesChecksum += this.hashesChecksum * 31 + hashBlocks.get(block.getBlockHash()).size();
+
+    for (Map.Entry<String, List<Block>> entry : fileBlocks.entrySet()) {
+      for (Block block : entry.getValue()) {
+        int currentValue = hashBlocks.get(block.getBlockHash()).size();
+        this.hashesChecksum = this.hashesChecksum * 31 + currentValue;
       }
     }
   }
