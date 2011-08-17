@@ -2,6 +2,7 @@ package org.sonar.duplications;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.duplications.algorithm.CloneReporterAlgorithmBuilder;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
@@ -15,7 +16,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class DuplicationTest {
+public class DuplicationTest extends BaseCloneReporterTest {
 
   private File file1 = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
   private File file2 = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/CPDFile2.java");
@@ -25,10 +26,14 @@ public class DuplicationTest {
   private MemoryCloneIndex mci;
   private CloneFinder cf;
 
+  public DuplicationTest(CloneReporterAlgorithmBuilder builder) {
+    super(builder);
+  }
+
   @Before
   public void setUp() {
     mci = new MemoryCloneIndex();
-    cf = JavaCloneFinder.build(mci);
+    cf = JavaCloneFinder.build(mci, 5, cloneReporterBuilder.build(mci));
   }
 
   @Test

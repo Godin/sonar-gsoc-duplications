@@ -1,6 +1,8 @@
 package org.sonar.duplications;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.duplications.algorithm.CloneReporterAlgorithmBuilder;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
@@ -13,24 +15,32 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-public class CloneGroupDuplicationTest {
+public class CloneGroupDuplicationTest extends BaseCloneReporterTest {
 
-  MemoryCloneIndex mci = new MemoryCloneIndex();
   File file1 = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
   File file2 = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/CPDFile2.java");
   File file3 = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/CPDFile3.java");
   File dir = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest/");
-
   //for bigger clone
   File file21 = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest2/CPDFile21.java");
+
   File file22 = DuplicationsTestUtil.findFile("/org/sonar/duplications/cpd/CPDTest2/CPDFile22.java");
 
+  MemoryCloneIndex mci;
+  CloneFinder cf;
 
-  CloneFinder cf = JavaCloneFinder.build(mci);
+  public CloneGroupDuplicationTest(CloneReporterAlgorithmBuilder builder) {
+    super(builder);
+  }
+
+  @Before
+  public void setUp() {
+    mci = new MemoryCloneIndex();
+    cf = JavaCloneFinder.build(mci, 5, cloneReporterBuilder.build(mci));
+  }
 
   @Test
   public void shouldFindDuplicateInFile() {
-
     initTestData();
 
     FileBlockGroup fileBlockGroup = cf.tokenize(file1);
@@ -51,7 +61,6 @@ public class CloneGroupDuplicationTest {
 
   @Test
   public void shouldFindTriplicateInFile() {
-
     initTestData();
 
     FileBlockGroup fileBlockGroup = cf.tokenize(file1);
@@ -175,9 +184,6 @@ public class CloneGroupDuplicationTest {
 
   @Test
   public void shouldNotReportCloneSmallerThanBlockSize() {
-    //find clone with minimum block size 5
-    cf = JavaCloneFinder.build(mci, 5);
-
     initTestData();
 
     FileBlockGroup fileBlockGroup1 = cf.tokenize(file1);
@@ -198,8 +204,8 @@ public class CloneGroupDuplicationTest {
   }
 
   private void initTestData(File... files) {
-    mci.removeAll();
-    for (File file : files)
+    for (File file : files) {
       cf.register(file);
+    }
   }
 }
