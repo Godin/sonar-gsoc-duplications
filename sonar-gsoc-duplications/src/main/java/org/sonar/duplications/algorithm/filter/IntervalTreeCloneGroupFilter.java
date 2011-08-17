@@ -25,9 +25,6 @@ public class IntervalTreeCloneGroupFilter implements CloneGroupFilter {
       return clone;
     }
 
-    public ClonePart getPart() {
-      return part;
-    }
   }
 
 

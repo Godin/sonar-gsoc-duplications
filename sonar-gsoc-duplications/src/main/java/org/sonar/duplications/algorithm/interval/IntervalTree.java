@@ -75,11 +75,6 @@ public class IntervalTree<T> {
     }
   }
 
-  @Override
-  public String toString() {
-    return nodeString(head, 0);
-  }
-
   /**
    * @param set the set to look on
    * @return the median of the set
@@ -168,22 +163,6 @@ public class IntervalTree<T> {
     newNode.setLeft(left);
     newNode.setRight(right);
     return newNode;
-  }
-
-
-  private String nodeString(IntervalNode<T> node, int level) {
-    if (node == null) {
-      return "";
-    }
-
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < level; i++) {
-      sb.append("\t");
-    }
-    sb.append(node + "\n");
-    sb.append(nodeString(node.getLeft(), level + 1));
-    sb.append(nodeString(node.getRight(), level + 1));
-    return sb.toString();
   }
 
 }

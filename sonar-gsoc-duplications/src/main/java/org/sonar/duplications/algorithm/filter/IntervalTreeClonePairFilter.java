@@ -46,9 +46,6 @@ public class IntervalTreeClonePairFilter implements ClonePairFilter {
       return clone;
     }
 
-    public ClonePart getPart() {
-      return part;
-    }
   }
 
   private Map<String, IntervalTree> buildTrees(List<ClonePair> clones) {

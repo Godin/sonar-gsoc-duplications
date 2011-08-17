@@ -22,7 +22,6 @@ package org.sonar.duplications.algorithm.interval;
 
 
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -67,19 +66,5 @@ public class IntervalNode<T> {
 
   public void setIntervals(SortedMap<Interval<T>, List<Interval<T>>> intervals) {
     this.intervals = intervals;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(center + ": ");
-    for (Map.Entry<Interval<T>, List<Interval<T>>> entry : intervals.entrySet()) {
-      sb.append("[" + entry.getKey().getStart() + "-" + entry.getKey().getEnd() + "]:{");
-      for (Interval<T> interval : entry.getValue()) {
-        sb.append("(" + interval.getStart() + "-" + interval.getEnd() + ")");
-      }
-      sb.append("} ");
-    }
-    return sb.toString();
   }
 }
