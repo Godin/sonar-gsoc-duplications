@@ -20,29 +20,10 @@
  */
 package org.sonar.duplications.algorithm.filter;
 
-import org.sonar.duplications.index.ClonePair;
+import org.sonar.duplications.index.ClonePartContainerBase;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class BruteforceClonePairFilter implements ClonePairFilter {
-  public List<ClonePair> filter(List<ClonePair> clones) {
-    List<ClonePair> filtered = new ArrayList<ClonePair>();
-    for (ClonePair first : clones) {
-      boolean covered = false;
-      for (ClonePair second : clones) {
-        if (first.equals(second)) {
-          continue;
-        }
-        covered |= first.containsIn(second);
-        if (covered) {
-          break;
-        }
-      }
-      if (!covered) {
-        filtered.add(first);
-      }
-    }
-    return filtered;
-  }
+public interface CloneFilter {
+  public <T extends ClonePartContainerBase> List<T> filter(List<T> clones);
 }

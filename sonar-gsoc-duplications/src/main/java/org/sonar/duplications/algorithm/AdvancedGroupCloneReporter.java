@@ -22,8 +22,8 @@ package org.sonar.duplications.algorithm;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.duplications.algorithm.filter.CloneGroupFilter;
-import org.sonar.duplications.algorithm.filter.IntervalTreeCloneGroupFilter;
+import org.sonar.duplications.algorithm.filter.CloneFilter;
+import org.sonar.duplications.algorithm.filter.IntervalTreeCloneFilter;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
@@ -34,7 +34,7 @@ import java.util.*;
 
 public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
 
-  public static final CloneGroupFilter INTERVAL_FILTER = new IntervalTreeCloneGroupFilter();
+  public static final CloneFilter INTERVAL_FILTER = new IntervalTreeCloneFilter();
 
   public static final String ALGORITHM_KEY = "main algorithm";
   public static final String INIT_KEY = "initialization";
@@ -110,7 +110,7 @@ public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
       //if current sequence matches with different sequence in original file
       if (curUnitStart != prevUnitStart) {
         curClone = new CloneGroup()
-            .setCloneUnitLength(clonePair.getCloneLength())
+            .setCloneUnitLength(clonePair.getCloneUnitLength())
             .setOriginPart(clonePair.getOriginPart())
             .addPart(clonePair.getOriginPart())
             .addPart(clonePair.getAnotherPart());

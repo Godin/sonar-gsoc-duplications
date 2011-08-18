@@ -24,20 +24,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CloneGroup {
-
-  private final List<ClonePart> parts;
-
-  private ClonePart originPart;
-
-  private int cloneUnitLength;
+public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
 
   private boolean sorted = true;
-
-  /**
-   * Cache for hash code.
-   */
-  private int hash;
 
   public CloneGroup() {
     this(new ArrayList<ClonePart>());
@@ -53,16 +42,7 @@ public class CloneGroup {
 
   public CloneGroup(int cloneUnitLength) {
     this();
-    this.cloneUnitLength = cloneUnitLength;
-  }
-
-  public CloneGroup setOriginPart(ClonePart originPart) {
-    this.originPart = originPart;
-    return this;
-  }
-
-  public ClonePart getOriginPart() {
-    return originPart;
+    this.cloneLength = cloneUnitLength;
   }
 
   public CloneGroup addPart(ClonePart part) {
@@ -75,6 +55,10 @@ public class CloneGroup {
     Collections.sort(parts, null);
   }
 
+  boolean isSorted() {
+    return sorted;
+  }
+
   public List<ClonePart> getCloneParts() {
     if (!sorted) {
       sortParts();
@@ -83,97 +67,4 @@ public class CloneGroup {
     return Collections.unmodifiableList(parts);
   }
 
-  /**
-   * @return clone length in units (not in lines)
-   */
-  public int getCloneUnitLength() {
-    return cloneUnitLength;
-  }
-
-  /**
-   * @param cloneUnitLength clone length in units (not in lines)
-   */
-  public CloneGroup setCloneUnitLength(int cloneUnitLength) {
-    this.cloneUnitLength = cloneUnitLength;
-    return this;
-  }
-
-
-  boolean isSorted() {
-    return sorted;
-  }
-
-  public boolean containsIn(CloneGroup second) {
-    if (!this.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
-      return false;
-    }
-
-    for (ClonePart firstPart : this.getCloneParts()) {
-      boolean found = false;
-
-      for (ClonePart secondPart : second.getCloneParts()) {
-        int firstUnitEnd = firstPart.getUnitStart() + this.getCloneUnitLength();
-        int secondUnitEnd = secondPart.getUnitStart() + second.getCloneUnitLength();
-
-        if (firstPart.getResourceId().equals(secondPart.getResourceId()) &&
-            firstPart.getUnitStart() >= secondPart.getUnitStart() &&
-            firstUnitEnd <= secondUnitEnd) {
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-
-  @Override
-  public boolean equals(Object object) {
-    if (object instanceof CloneGroup) {
-      CloneGroup another = (CloneGroup) object;
-
-      if (another.cloneUnitLength != cloneUnitLength ||
-          getCloneParts().size() != another.getCloneParts().size()) {
-        return false;
-      }
-
-      boolean result = true;
-      for (int i = 0; i < getCloneParts().size(); i++) {
-        result &= another.getCloneParts().get(i).equals(getCloneParts().get(i));
-      }
-
-      result &= another.getOriginPart().equals(getOriginPart());
-
-      return result;
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int h = hash;
-    if (h == 0 && cloneUnitLength != 0) {
-      for (ClonePart part : getCloneParts()) {
-        h = 31 * h + part.hashCode();
-      }
-      h = 31 * h + getOriginPart().hashCode();
-      h = 31 * h + cloneUnitLength;
-      hash = h;
-    }
-    return h;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    for (ClonePart part : getCloneParts()) {
-      builder.append(part).append(" - ");
-    }
-    builder.append(cloneUnitLength);
-    return builder.toString();
-  }
 }

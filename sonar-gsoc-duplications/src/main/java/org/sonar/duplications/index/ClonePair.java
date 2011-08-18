@@ -22,22 +22,17 @@ package org.sonar.duplications.index;
 
 import com.google.common.collect.Lists;
 
+import java.util.Collections;
 import java.util.List;
 
-public class ClonePair {
-  private ClonePart originPart;
+public class ClonePair extends ClonePartContainerBase<ClonePair> {
+
   private ClonePart anotherPart;
-  private List<ClonePart> parts;
-  private int cloneLength;
 
   public ClonePair(ClonePart originPart, ClonePart anotherPart, int cloneLength) {
     this.originPart = originPart;
     this.anotherPart = anotherPart;
     this.cloneLength = cloneLength;
-  }
-
-  public ClonePart getOriginPart() {
-    return originPart;
   }
 
   public ClonePart getAnotherPart() {
@@ -48,44 +43,7 @@ public class ClonePair {
     if (parts == null) {
       parts = Lists.newArrayList(originPart, anotherPart);
     }
-    return parts;
+    return Collections.unmodifiableList(parts);
   }
 
-  public void setCloneLength(int cloneLength) {
-    this.cloneLength = cloneLength;
-  }
-
-  public int getCloneLength() {
-    return cloneLength;
-  }
-
-  /**
-   * Checks if first <tt>Clone</tt> is contained in second <tt>Clone</tt>. Clone A is contained in another
-   * Clone B if every ClonePart pA from A has ClonePart pB in B which satisfy the conditions
-   * pA.resourceId == pB.resourceId and pA.unitStart >= pB.unitStart and pA.unitEnd <= pb.unitEnd
-   *
-   * @param other Clone where current Clone should be contained
-   * @return
-   */
-  public boolean containsIn(ClonePair other) {
-    if (!getOriginPart().getResourceId().equals(other.getOriginPart().getResourceId())) {
-      return false;
-    }
-    for (ClonePart first : this.getCloneParts()) {
-      int firstUnitEnd = first.getUnitStart() + getCloneLength();
-      boolean found = false;
-      for (ClonePart second : other.getCloneParts()) {
-        int secondUnitEnd = second.getUnitStart() + other.getCloneLength();
-        if (first.getResourceId().equals(second.getResourceId()) &&
-            first.getUnitStart() >= second.getUnitStart() && firstUnitEnd <= secondUnitEnd) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        return false;
-      }
-    }
-    return true;
-  }
 }

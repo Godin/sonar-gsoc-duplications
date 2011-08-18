@@ -100,7 +100,7 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
       clonePair = prevPair;
       clonePair.getOriginPart().setLineEnd(originBlock.getLastLineNumber());
       clonePair.getAnotherPart().setLineEnd(anotherBlock.getLastLineNumber());
-      clonePair.setCloneLength(clonePair.getCloneLength() + 1);
+      clonePair.setCloneUnitLength(clonePair.getCloneUnitLength() + 1);
     }
 
     nextActiveMap.put(nextKey, clonePair);
