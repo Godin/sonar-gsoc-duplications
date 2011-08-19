@@ -27,8 +27,10 @@ public class IntervalTreeCloneFilter implements CloneFilter {
 
   }
 
-  private static Map<String, IntervalTree> buildTrees(List<? extends ClonePartContainerBase> clones) {
+  private static IntervalTree buildTrees(List<? extends ClonePartContainerBase> clones) {
     Map<String, IntervalTree> trees = Maps.newHashMap();
+
+    IntervalTree originTree = new IntervalTree();
 
     //populate interval tree structure
     for (ClonePartContainerBase clone : clones) {
@@ -37,29 +39,23 @@ public class IntervalTreeCloneFilter implements CloneFilter {
       for (ClonePart part : parts) {
         if (part.getResourceId().equals(originResourceId)) {
           PartWrapper partWrap = new PartWrapper(clone, part);
-          IntervalTree tree = trees.get(part.getResourceId());
-          if (tree == null) {
-            tree = new IntervalTree();
-            trees.put(part.getResourceId(), tree);
-          }
           int unitStart = part.getUnitStart();
           int unitEnd = part.getUnitStart() + clone.getCloneUnitLength() - 1;
 
-          tree.addInterval(new Interval(unitStart, unitEnd, partWrap));
+          originTree.addInterval(new Interval(unitStart, unitEnd, partWrap));
         }
       }
     }
 
-    return trees;
+    return originTree;
   }
 
   public <T extends ClonePartContainerBase> List<T> filter(List<T> clones) {
     List<T> filtered = Lists.newArrayList();
-    Map<String, IntervalTree> trees = buildTrees(clones);
+    IntervalTree tree = buildTrees(clones);
 
     for (T clone : clones) {
       ClonePart originPart = clone.getOriginPart();
-      IntervalTree tree = trees.get(originPart.getResourceId());
 
       int unitStart = originPart.getUnitStart();
       int unitEnd = originPart.getUnitStart() + clone.getCloneUnitLength() - 1;
@@ -71,9 +67,8 @@ public class IntervalTreeCloneFilter implements CloneFilter {
         if (foundClone.equals(clone)) {
           continue;
         }
-
-        covered |= clone.containsIn(foundClone);
-        if (covered) {
+        if (clone.containsIn(foundClone)) {
+          covered = true;
           break;
         }
       }
