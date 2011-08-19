@@ -105,16 +105,17 @@ public class CloneGroupDuplicationTest extends BaseCloneReporterTest {
     cf.register(file22);
     List<CloneGroup> cloneList21 = cf.findClones(fileBlockGroup21);
 
-    ClonePart part21 = new ClonePart(file21.getAbsolutePath(), 3, 4, 19);
-    ClonePart part22 = new ClonePart(file22.getAbsolutePath(), 9, 25, 40);
+    ClonePart part1 = new ClonePart(file21.getAbsolutePath(), 3, 4, 19);
+    ClonePart part2 = new ClonePart(file22.getAbsolutePath(), 9, 25, 40);
 
-    CloneGroup expected = new CloneGroup(12)
-        .addPart(part21)
-        .addPart(part22);
-    expected.setOriginPart(part21);
+    CloneGroup expected1 = new CloneGroup()
+        .addPart(part1)
+        .addPart(part2)
+        .setCloneUnitLength(12);
+    expected1.setOriginPart(part1);
 
-    assertThat(cloneList21, hasItem(expected));
-    assertThat(cloneList21.size(), is(1));
+    assertThat(cloneList21, hasItem(expected1));
+    assertThat(cloneList21.size(), is(2));
   }
 
   @Test

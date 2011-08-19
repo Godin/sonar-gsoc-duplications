@@ -51,7 +51,7 @@ public class CloneGroupTest {
     ClonePart part22 = new ClonePart("b", 2, 2, 4);
     CloneGroup group2 = new CloneGroup(1)
         .setCloneUnitLength(1)
-        .setOriginPart(part11)
+        .setOriginPart(part21)
         .addPart(part21)
         .addPart(part22);
 

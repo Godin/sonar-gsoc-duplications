@@ -20,6 +20,7 @@
  */
 package org.sonar.duplications.index;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -75,18 +76,27 @@ public abstract class ClonePartContainerBase<E> {
     if (!getOriginPart().getResourceId().equals(other.getOriginPart().getResourceId())) {
       return false;
     }
+    boolean[] used = new boolean[other.getCloneParts().size()];
+    Arrays.fill(used, false);
     for (ClonePart first : this.getCloneParts()) {
       int firstUnitEnd = first.getUnitStart() + getCloneUnitLength();
       boolean found = false;
+      int counter = 0;
       for (ClonePart second : other.getCloneParts()) {
+        if (used[counter]) {
+          counter++;
+          continue;
+        }
         int secondUnitEnd = second.getUnitStart() + other.getCloneUnitLength();
 
         if (first.getResourceId().equals(second.getResourceId()) &&
             first.getUnitStart() >= second.getUnitStart() &&
             firstUnitEnd <= secondUnitEnd) {
           found = true;
+          used[counter] = true;
           break;
         }
+        counter++;
       }
       if (!found) {
         return false;

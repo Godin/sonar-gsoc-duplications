@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.duplications.algorithm.filter.CloneFilter;
 import org.sonar.duplications.algorithm.filter.IntervalTreeCloneFilter;
+import org.sonar.duplications.algorithm.filter.IntervalTreeClonePairFilter;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
@@ -35,6 +36,7 @@ import java.util.*;
 public class AdvancedPairCloneReporter extends AbstractAdvancedCloneReporter {
 
   private static final CloneFilter INTERVAL_FILTER = new IntervalTreeCloneFilter();
+  private static final CloneFilter INTERVAL_PAIR_FILTER = new IntervalTreeClonePairFilter();
 
   public static final String ALGORITHM_KEY = "algorithm";
   public static final String INIT_KEY = "init";
@@ -79,7 +81,7 @@ public class AdvancedPairCloneReporter extends AbstractAdvancedCloneReporter {
 
     int sizeBefore = clones.size();
     statsCollector.startTime(FILTER_KEY);
-    List<ClonePair> filtered = INTERVAL_FILTER.filter(clones);
+    List<ClonePair> filtered = INTERVAL_PAIR_FILTER.filter(clones);
     statsCollector.stopTime(FILTER_KEY);
 
     statsCollector.addNumber("removed covered", sizeBefore - filtered.size());
