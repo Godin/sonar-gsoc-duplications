@@ -23,48 +23,57 @@ package org.sonar.duplications.algorithm.interval;
 
 import java.util.List;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 public class IntervalNode<T> {
 
-  private SortedMap<Interval<T>, List<Interval<T>>> intervals;
+  private SortedMap<Interval<T>, List<Interval<T>>> startIntervals;
+  private SortedMap<Interval<T>, List<Interval<T>>> endIntervals;
   private int center = 0;
   private IntervalNode<T> left = null;
   private IntervalNode<T> right = null;
-
-  public IntervalNode() {
-    intervals = new TreeMap<Interval<T>, List<Interval<T>>>();
-  }
 
   public int getCenter() {
     return center;
   }
 
-  public void setCenter(int center) {
+  public IntervalNode<T> setCenter(int center) {
     this.center = center;
+    return this;
   }
 
   public IntervalNode<T> getLeft() {
     return left;
   }
 
-  public void setLeft(IntervalNode<T> left) {
+  public IntervalNode<T> setLeft(IntervalNode<T> left) {
     this.left = left;
+    return this;
   }
 
   public IntervalNode<T> getRight() {
     return right;
   }
 
-  public void setRight(IntervalNode<T> right) {
+  public IntervalNode<T> setRight(IntervalNode<T> right) {
     this.right = right;
+    return this;
   }
 
-  public SortedMap<Interval<T>, List<Interval<T>>> getIntervals() {
-    return intervals;
+  public SortedMap<Interval<T>, List<Interval<T>>> getStartIntervals() {
+    return startIntervals;
   }
 
-  public void setIntervals(SortedMap<Interval<T>, List<Interval<T>>> intervals) {
-    this.intervals = intervals;
+  public IntervalNode<T> setStartIntervals(SortedMap<Interval<T>, List<Interval<T>>> startIntervals) {
+    this.startIntervals = startIntervals;
+    return this;
+  }
+
+  public SortedMap<Interval<T>, List<Interval<T>>> getEndIntervals() {
+    return endIntervals;
+  }
+
+  public IntervalNode<T> setEndIntervals(SortedMap<Interval<T>, List<Interval<T>>> endIntervals) {
+    this.endIntervals = endIntervals;
+    return this;
   }
 }

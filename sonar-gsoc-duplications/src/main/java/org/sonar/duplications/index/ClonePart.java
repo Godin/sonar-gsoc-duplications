@@ -31,9 +31,6 @@ public class ClonePart implements Comparable<ClonePart> {
 
   private int hash;
 
-  public ClonePart() {
-  }
-
   public ClonePart(Block block) {
     this.resourceId = block.getResourceId();
     this.unitStart = block.getIndexInFile();

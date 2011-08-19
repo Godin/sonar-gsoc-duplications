@@ -20,10 +20,44 @@
  */
 package org.sonar.duplications.algorithm.interval;
 
+import java.util.Comparator;
+
 public class Interval<T> implements Comparable<Interval<T>> {
   private int start;
   private int end;
   private T data;
+
+  public static final Comparator<Interval> START_COMPARATOR = new Comparator<Interval>() {
+
+    public int compare(Interval o1, Interval o2) {
+      if (o1.getStart() < o2.getStart()) {
+        return -1;
+      } else if (o1.getStart() > o2.getStart()) {
+        return 1;
+      } else if (o1.getEnd() < o2.getEnd()) {
+        return -1;
+      } else if (o1.getEnd() > o2.getEnd()) {
+        return 1;
+      }
+      return 0;
+    }
+  };
+
+  public static final Comparator<Interval> END_COMPARATOR = new Comparator<Interval>() {
+
+    public int compare(Interval o1, Interval o2) {
+      if (o1.getEnd() > o2.getEnd()) {
+        return -1;
+      } else if (o1.getEnd() < o2.getEnd()) {
+        return 1;
+      } else if (o1.getStart() < o2.getStart()) {
+        return -1;
+      } else if (o1.getStart() > o2.getStart()) {
+        return 1;
+      }
+      return 0;
+    }
+  };
 
   public Interval(int start, int end, T data) {
     this.start = start;
@@ -35,24 +69,12 @@ public class Interval<T> implements Comparable<Interval<T>> {
     return start;
   }
 
-  public void setStart(int start) {
-    this.start = start;
-  }
-
   public int getEnd() {
     return end;
   }
 
-  public void setEnd(int end) {
-    this.end = end;
-  }
-
   public T getData() {
     return data;
-  }
-
-  public void setData(T data) {
-    this.data = data;
   }
 
   public boolean contains(int point) {
@@ -64,16 +86,7 @@ public class Interval<T> implements Comparable<Interval<T>> {
   }
 
   public int compareTo(Interval<T> other) {
-    if (start < other.getStart()) {
-      return -1;
-    } else if (start > other.getStart()) {
-      return 1;
-    } else if (end < other.getEnd()) {
-      return -1;
-    } else if (end > other.getEnd()) {
-      return 1;
-    }
-    return 0;
+    return START_COMPARATOR.compare(this, other);
   }
 
   @Override

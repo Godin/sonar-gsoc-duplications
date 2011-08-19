@@ -20,6 +20,10 @@
  */
 package org.sonar.duplications.algorithm.interval;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import java.util.*;
 
 public class IntervalTree<T> {
@@ -29,33 +33,26 @@ public class IntervalTree<T> {
   private boolean inSync;
 
   public IntervalTree() {
-    this.head = new IntervalNode<T>();
-    this.intervalList = new ArrayList<Interval<T>>();
+    SortedMap<Interval<T>, List<Interval<T>>> left = Maps.newTreeMap();
+    SortedMap<Interval<T>, List<Interval<T>>> right = Maps.newTreeMap();
+    this.head = new IntervalNode<T>()
+        .setStartIntervals(left)
+        .setEndIntervals(right);
+    this.intervalList = Lists.newArrayList();
     this.inSync = true;
-  }
-
-  public IntervalTree(List<Interval<T>> intervalList) {
-    this.head = createNode(intervalList);
-    this.intervalList = new ArrayList<Interval<T>>();
-    this.intervalList.addAll(intervalList);
-    this.inSync = true;
-  }
-
-  List<Interval<T>> getIntervals(int point) {
-    build();
-    return query(head, point);
   }
 
   public List<Interval<T>> getCoveringIntervals(int start, int end) {
-    List<Interval<T>> result = new ArrayList<Interval<T>>();
-    List<Interval<T>> intervals = getIntervals(start);
-
-    for (Interval<T> interval : intervals) {
-      if (interval.contains(end)) {
-        result.add(interval);
-      }
-    }
-
+    build();
+    List<Interval<T>> result = queryRange(head, start, end);
+    // old implementation with query one point:
+    // List<Interval<T>> result = Lists.newArrayList();
+    // List<Interval<T>> tmp = query(head, start);
+    // for (Interval interval : tmp) {
+    //   if (interval.contains(end)) {
+    //     result.add(interval);
+    //   }
+    // }
     return result;
   }
 
@@ -68,7 +65,7 @@ public class IntervalTree<T> {
    * Build the interval tree to reflect the list of intervals,
    * Will not run if this is currently in sync
    */
-  public void build() {
+  void build() {
     if (!inSync) {
       head = createNode(intervalList);
       inSync = true;
@@ -91,22 +88,68 @@ public class IntervalTree<T> {
     return 0;
   }
 
+  private List<Interval<T>> queryRange(IntervalNode<T> node, int start, int end) {
+    List<Interval<T>> result = Lists.newArrayList();
+
+    if (start < node.getCenter()) {
+      for (Map.Entry<Interval<T>, List<Interval<T>>> entry : node.getStartIntervals().entrySet()) {
+        if (entry.getKey().contains(start) && entry.getKey().contains(end)) {
+          for (Interval<T> interval : entry.getValue()) {
+            result.add(interval);
+          }
+        } else if (entry.getKey().getStart() > start) {
+          break;
+        }
+      }
+    } else { // point >= node.getCenter()
+      for (Map.Entry<Interval<T>, List<Interval<T>>> entry : node.getEndIntervals().entrySet()) {
+        if (entry.getKey().contains(start) && entry.getKey().contains(end)) {
+          for (Interval<T> interval : entry.getValue()) {
+            result.add(interval);
+          }
+        } else if (entry.getKey().getEnd() < end) {
+          break;
+        }
+      }
+    }
+
+    if (end < node.getCenter() && node.getLeft() != null) {
+      result.addAll(queryRange(node.getLeft(), start, end));
+    } else if (start > node.getCenter() && node.getRight() != null) {
+      result.addAll(queryRange(node.getRight(), start, end));
+    }
+    return result;
+  }
+
+
   /**
    * Perform a stabbing query on the node
    *
    * @param point the point to query at
    * @return all intervals containing point
    */
-  public List<Interval<T>> query(IntervalNode<T> node, int point) {
-    List<Interval<T>> result = new ArrayList<Interval<T>>();
+  private List<Interval<T>> query(IntervalNode<T> node, int point) {
+    List<Interval<T>> result = Lists.newArrayList();
 
-    for (Map.Entry<Interval<T>, List<Interval<T>>> entry : node.getIntervals().entrySet()) {
-      if (entry.getKey().contains(point)) {
-        for (Interval<T> interval : entry.getValue()) {
-          result.add(interval);
+    if (point < node.getCenter()) {
+      for (Map.Entry<Interval<T>, List<Interval<T>>> entry : node.getStartIntervals().entrySet()) {
+        if (entry.getKey().contains(point)) {
+          for (Interval<T> interval : entry.getValue()) {
+            result.add(interval);
+          }
+        } else if (entry.getKey().getStart() > point) {
+          break;
         }
-      } else if (entry.getKey().getStart() > point) {
-        break;
+      }
+    } else { // point >= node.getCenter()
+      for (Map.Entry<Interval<T>, List<Interval<T>>> entry : node.getEndIntervals().entrySet()) {
+        if (entry.getKey().contains(point)) {
+          for (Interval<T> interval : entry.getValue()) {
+            result.add(interval);
+          }
+        } else if (entry.getKey().getEnd() < point) {
+          break;
+        }
       }
     }
 
@@ -120,9 +163,10 @@ public class IntervalTree<T> {
 
 
   private IntervalNode<T> createNode(List<Interval<T>> intervalList) {
-    SortedMap<Interval<T>, List<Interval<T>>> intervals = new TreeMap<Interval<T>, List<Interval<T>>>();
+    SortedMap<Interval<T>, List<Interval<T>>> startIntervals = Maps.newTreeMap(Interval.START_COMPARATOR);
+    SortedMap<Interval<T>, List<Interval<T>>> endIntervals = Maps.newTreeMap(Interval.END_COMPARATOR);
 
-    SortedSet<Integer> endpoints = new TreeSet<Integer>();
+    SortedSet<Integer> endpoints = Sets.newTreeSet();
 
     for (Interval<T> interval : intervalList) {
       endpoints.add(interval.getStart());
@@ -140,10 +184,11 @@ public class IntervalTree<T> {
       } else if (interval.getStart() > median) {
         rightIntervals.add(interval);
       } else {
-        List<Interval<T>> current = intervals.get(interval);
+        List<Interval<T>> current = startIntervals.get(interval);
         if (current == null) {
-          current = new ArrayList<Interval<T>>();
-          intervals.put(interval, current);
+          current = Lists.newArrayList();
+          startIntervals.put(interval, current);
+          endIntervals.put(interval, current);
         }
         current.add(interval);
       }
@@ -157,11 +202,12 @@ public class IntervalTree<T> {
       right = createNode(rightIntervals);
     }
 
-    IntervalNode<T> newNode = new IntervalNode<T>();
-    newNode.setCenter(median);
-    newNode.setIntervals(intervals);
-    newNode.setLeft(left);
-    newNode.setRight(right);
+    IntervalNode<T> newNode = new IntervalNode<T>()
+        .setCenter(median)
+        .setStartIntervals(startIntervals)
+        .setEndIntervals(endIntervals)
+        .setLeft(left)
+        .setRight(right);
     return newNode;
   }
 
