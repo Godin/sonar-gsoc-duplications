@@ -28,7 +28,7 @@ public final class CSharpStatementBuilder {
   private CSharpStatementBuilder() {
   }
 
-  public static final StatementChunker build() {
+  public static StatementChunker build() {
     StatementChunker.Builder builder = StatementChunker
         .builder()
         .addChannel(from("using"), bridge("(", ")"))

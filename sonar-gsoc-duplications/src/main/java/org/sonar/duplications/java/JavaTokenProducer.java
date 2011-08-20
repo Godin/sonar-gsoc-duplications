@@ -26,7 +26,7 @@ public final class JavaTokenProducer {
   private JavaTokenProducer() {
   }
 
-  public static final TokenChunker build() {
+  public static TokenChunker build() {
     TokenChunker.Builder builder = TokenChunker.builder()
         .addBlackHoleChannel("\\s")
         .addBlackHoleChannel("//[^\\n\\r]*+")

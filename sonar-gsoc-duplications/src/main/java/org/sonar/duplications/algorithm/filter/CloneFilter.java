@@ -25,5 +25,5 @@ import org.sonar.duplications.index.ClonePartContainerBase;
 import java.util.List;
 
 public interface CloneFilter {
-  public <T extends ClonePartContainerBase> List<T> filter(List<T> clones);
+  <T extends ClonePartContainerBase> List<T> filter(List<T> clones);
 }

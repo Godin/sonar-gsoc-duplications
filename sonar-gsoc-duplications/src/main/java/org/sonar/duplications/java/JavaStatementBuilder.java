@@ -28,7 +28,7 @@ public final class JavaStatementBuilder {
   private JavaStatementBuilder() {
   }
 
-  public static final StatementChunker build() {
+  public static StatementChunker build() {
     StatementChunker.Builder builder = StatementChunker
         .builder()
         .addBlackHoleChannel(from("import"), to(";"))
