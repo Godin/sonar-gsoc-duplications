@@ -114,8 +114,7 @@ public final class CloneFinder {
     } catch (Exception e) {
       throw new DuplicationsException("Exception during registering file: " + absolutePath, e);
     }
-    FileBlockGroup fileBlockGroup = FileBlockGroup.create(absolutePath, blocks);
-    return fileBlockGroup;
+    return FileBlockGroup.create(absolutePath, blocks);
   }
 
   public void printCloneReporterStatistics() {
