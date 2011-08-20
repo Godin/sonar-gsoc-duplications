@@ -19,23 +19,23 @@
  */
 package org.sonar.duplications.detector.original;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.junit.TestNamePrinter;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class OriginalCloneDetectionAlgorithmTest {
 
@@ -45,10 +45,10 @@ public class OriginalCloneDetectionAlgorithmTest {
   private static int LINES_PER_BLOCK = 5;
 
   /**
-   * To simplify testing we assume that each block starts from a new line and contains {@link #LINES_PER_BLOCK} lines, 
+   * To simplify testing we assume that each block starts from a new line and contains {@link #LINES_PER_BLOCK} lines,
    * so we can simply use index and hash.
    */
-  private static Block newBlock(String resourceId, String hash, int index) {
+  private static Block newBlock(String resourceId, ByteArray hash, int index) {
     return new Block(resourceId, hash, index, index, index + LINES_PER_BLOCK);
   }
 
@@ -282,9 +282,17 @@ public class OriginalCloneDetectionAlgorithmTest {
     }
 
     List<Block> withHashes(String... hashes) {
+      ByteArray[] arrays = new ByteArray[hashes.length];
+      for (int i = 0; i < hashes.length; i++) {
+        arrays[i] = new ByteArray(hashes[i].getBytes());
+      }
+      return withHashes(arrays);
+    }
+
+    List<Block> withHashes(ByteArray... hashes) {
       List<Block> result = Lists.newArrayList();
       int index = 0;
-      for (String hash : hashes) {
+      for (ByteArray hash : hashes) {
         result.add(newBlock(resourceId, hash, index));
         index++;
       }

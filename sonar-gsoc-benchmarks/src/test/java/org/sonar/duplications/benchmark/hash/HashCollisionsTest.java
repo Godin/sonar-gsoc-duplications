@@ -16,7 +16,7 @@ public class HashCollisionsTest {
 
   protected static int BLOCK_SIZE = 13;
   protected static int WARMUP_ROUNDS = 1;
-  protected static int BENCHMARK_ROUNDS = 2;
+  protected static int BENCHMARK_ROUNDS = 10;
 
   protected static List<File> files;
   protected static BenchmarksDiff results = new BenchmarksDiff();

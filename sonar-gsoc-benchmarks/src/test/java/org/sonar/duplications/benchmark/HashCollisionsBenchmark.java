@@ -1,8 +1,10 @@
 package org.sonar.duplications.benchmark;
 
+import com.google.common.collect.Maps;
 import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.java.JavaStatementBuilder;
 import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.Statement;
@@ -12,7 +14,6 @@ import org.sonar.duplications.token.TokenQueue;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,8 +54,8 @@ public class HashCollisionsBenchmark extends Benchmark {
   public void runRound() throws Exception {
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker stmtChunker = JavaStatementBuilder.build();
-    Map<String, List<Block>> fileBlocks = new LinkedHashMap<String, List<Block>>();
-    Map<String, List<Block>> hashBlocks = new LinkedHashMap<String, List<Block>>();
+    Map<String, List<Block>> fileBlocks = Maps.newLinkedHashMap();
+    Map<ByteArray, List<Block>> hashBlocks = Maps.newLinkedHashMap();
     int totalBlocks = 0;
     for (File file : files) {
       try {

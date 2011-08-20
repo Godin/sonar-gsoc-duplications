@@ -23,6 +23,7 @@ package org.sonar.duplications.index;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.TreeMultimap;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -32,7 +33,7 @@ import java.util.Set;
 public class MemoryCloneIndex implements CloneIndex {
 
   private final TreeMultimap<String, Block> filenameIndex;
-  private final HashMultimap<String, Block> sequenceHashIndex;
+  private final HashMultimap<ByteArray, Block> sequenceHashIndex;
 
   private static final class ValueComparator implements Comparator<Block>, Serializable {
 
@@ -72,7 +73,7 @@ public class MemoryCloneIndex implements CloneIndex {
     return filenameIndex.get(fileName);
   }
 
-  public Collection<Block> getBySequenceHash(String sequenceHash) {
+  public Collection<Block> getBySequenceHash(ByteArray sequenceHash) {
     return sequenceHashIndex.get(sequenceHash);
   }
 

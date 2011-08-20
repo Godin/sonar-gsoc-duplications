@@ -19,15 +19,10 @@
  */
 package org.sonar.duplications.block;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class BlockTest {
 
@@ -35,7 +30,7 @@ public class BlockTest {
   public void fieldsTest() {
     String fileName = "someFile";
     int statementIndex = 4;
-    String hash = "123456";
+    ByteArray hash = new ByteArray(12345);
     Block tuple = new Block(fileName, hash, statementIndex, 0, 10);
     assertThat(tuple.getResourceId(), equalTo(fileName));
     assertThat(tuple.getIndexInFile(), equalTo(statementIndex));
@@ -44,11 +39,11 @@ public class BlockTest {
 
   @Test
   public void tupleEqualsTest() {
-    Block tuple1 = new Block("somefile", "abc123", 1, 1, 10);
-    Block tuple2 = new Block("somefile", "abc123", 1, 1, 10);
-    Block tupleArr = new Block("somefile", "xyz", 1, 1, 10);
-    Block tupleIndex = new Block("somefile", "abc123", 2, 1, 10);
-    Block tupleName = new Block("other", "abc123", 1, 1, 10);
+    Block tuple1 = new Block("somefile", new ByteArray(123), 1, 1, 10);
+    Block tuple2 = new Block("somefile", new ByteArray(123), 1, 1, 10);
+    Block tupleArr = new Block("somefile", new ByteArray(333), 1, 1, 10);
+    Block tupleIndex = new Block("somefile", new ByteArray(123), 2, 1, 10);
+    Block tupleName = new Block("other", new ByteArray(123), 1, 1, 10);
 
     assertTrue(tuple1.equals(tuple2));
     assertThat(tuple1.toString(), is(tuple2.toString()));
@@ -65,9 +60,9 @@ public class BlockTest {
 
   @Test
   public void hashCodeTest() {
-    String[] files = { "file1", "file2" };
-    int[] unitIndexes = { 1, 2 };
-    String[] arrays = { "123", "321" };
+    String[] files = {"file1", "file2"};
+    int[] unitIndexes = {1, 2};
+    ByteArray[] arrays = {new ByteArray(123), new ByteArray(321)};
 
     // fileName is in hashCode()
     int defaultTupleHashCode = new Block(files[0], arrays[0], unitIndexes[0], 1, 10).hashCode();

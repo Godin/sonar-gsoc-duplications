@@ -20,11 +20,11 @@
  */
 package org.sonar.duplications.block;
 
+import org.sonar.duplications.statement.Statement;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.sonar.duplications.statement.Statement;
 
 /**
  * Creates blocks from statements.
@@ -75,7 +75,7 @@ public class BlockChunker {
       // create block
       if (j >= 0) {
         Statement first = statements.get(j);
-        blockList.add(new Block(resourceId, Long.toHexString(hash), j, first.getStartLine(), current.getEndLine()));
+        blockList.add(new Block(resourceId, new ByteArray(hash), j, first.getStartLine(), current.getEndLine()));
       }
     }
     return blockList;

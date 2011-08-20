@@ -2,6 +2,7 @@ package org.sonar.duplications.benchmark.hash;
 
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.statement.Statement;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class IntRabinKarpBlockChunker extends BlockChunker {
       // create block
       if (j >= 0) {
         Statement first = statements.get(j);
-        blockList.add(new Block(resourceId, Long.toHexString(hash), j, first.getStartLine(), current.getEndLine()));
+        blockList.add(new Block(resourceId, new ByteArray(hash), j, first.getStartLine(), current.getEndLine()));
       }
     }
     return blockList;

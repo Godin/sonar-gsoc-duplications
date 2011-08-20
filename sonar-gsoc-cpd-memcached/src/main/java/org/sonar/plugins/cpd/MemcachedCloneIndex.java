@@ -21,6 +21,7 @@ package org.sonar.plugins.cpd;
 
 import net.spy.memcached.MemcachedClient;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneIndex;
 
 import java.util.Collection;
@@ -49,7 +50,7 @@ public class MemcachedCloneIndex implements CloneIndex {
     return null;
   }
 
-  public Collection<Block> getBySequenceHash(String sequenceHash) {
+  public Collection<Block> getBySequenceHash(ByteArray sequenceHash) {
     return null;
   }
 

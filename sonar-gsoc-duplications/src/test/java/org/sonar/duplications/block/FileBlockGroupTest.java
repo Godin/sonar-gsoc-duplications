@@ -33,7 +33,7 @@ public class FileBlockGroupTest {
   public void shouldAddBlockWithSameResourceId() {
     FileBlockGroup file = new FileBlockGroup.Builder()
         .setResurceId("a")
-        .addBlock(new Block("a", "13dws2324d", 1, 1, 7))
+        .addBlock(new Block("a", new ByteArray(new byte[]{1, 2, 3, 4, 5}), 1, 1, 7))
         .build();
   }
 
@@ -41,7 +41,7 @@ public class FileBlockGroupTest {
   public void shouldNotAddBlockWithDifferentResourceId() {
     FileBlockGroup file = new FileBlockGroup.Builder()
         .setResurceId("a")
-        .addBlock(new Block("b", "13dws2324d", 1, 1, 7))
+        .addBlock(new Block("b", new ByteArray(new byte[]{1, 2, 3, 4, 5}), 1, 1, 7))
         .build();
   }
 

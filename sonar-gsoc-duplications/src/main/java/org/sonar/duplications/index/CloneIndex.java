@@ -21,6 +21,7 @@
 package org.sonar.duplications.index;
 
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 
 import java.util.Collection;
 
@@ -47,7 +48,7 @@ public interface CloneIndex {
    * @param sequenceHash - hash of statement sequence
    * @return set of <tt>Block</tt> from index and empty list if nothing found
    */
-  Collection<Block> getBySequenceHash(String sequenceHash);
+  Collection<Block> getBySequenceHash(ByteArray sequenceHash);
 
   void insert(Block block);
 

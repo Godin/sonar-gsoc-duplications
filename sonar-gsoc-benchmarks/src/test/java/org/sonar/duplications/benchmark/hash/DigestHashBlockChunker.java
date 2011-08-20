@@ -1,6 +1,7 @@
 package org.sonar.duplications.benchmark.hash;
 
 import org.sonar.duplications.DuplicationsException;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.statement.Statement;
 
 import java.security.MessageDigest;
@@ -24,26 +25,12 @@ public class DigestHashBlockChunker extends AbstractHashBlockChunker {
     }
   }
 
-  private static final String HEXES = "0123456789abcdef";
-
-  private String getHex(byte[] raw) {
-    if (raw == null) {
-      return null;
-    }
-    final StringBuilder hex = new StringBuilder(2 * raw.length);
-    for (final byte b : raw) {
-      hex.append(HEXES.charAt((b & 0xF0) >> 4))
-          .append(HEXES.charAt((b & 0x0F)));
-    }
-    return hex.toString();
-  }
-
-  protected String buildBlockHash(List<Statement> statementList) {
+  protected ByteArray buildBlockHash(List<Statement> statementList) {
     digest.reset();
     for (Statement statement : statementList) {
       digest.update(statement.getValue().getBytes());
     }
     byte[] messageDigest = digest.digest();
-    return getHex(messageDigest);
+    return new ByteArray(messageDigest);
   }
 }

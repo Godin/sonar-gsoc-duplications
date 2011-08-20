@@ -1,5 +1,6 @@
 package org.sonar.duplications.benchmark.hash;
 
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.statement.Statement;
 
 import java.util.List;
@@ -10,7 +11,7 @@ public class MurmurHashBlockChunker extends AbstractHashBlockChunker {
     super(blockSize);
   }
 
-  protected String buildBlockHash(List<Statement> statementList) {
+  protected ByteArray buildBlockHash(List<Statement> statementList) {
     int totalLen = 0;
     for (Statement statement : statementList) {
       totalLen += statement.getValue().getBytes().length;
@@ -24,6 +25,6 @@ public class MurmurHashBlockChunker extends AbstractHashBlockChunker {
       current += length;
     }
     int messageDigest = MurmurHash2.hash(bytes, 0x1234ABCD);
-    return Integer.toHexString(messageDigest).toLowerCase();
+    return new ByteArray(messageDigest);
   }
 }

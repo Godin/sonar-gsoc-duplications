@@ -2,6 +2,7 @@ package org.sonar.duplications.benchmark.hash;
 
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.statement.Statement;
 
 import java.util.ArrayList;
@@ -40,6 +41,6 @@ public abstract class AbstractHashBlockChunker extends BlockChunker {
     return blockList;
   }
 
-  protected abstract String buildBlockHash(List<Statement> statements);
+  protected abstract ByteArray buildBlockHash(List<Statement> statements);
 
 }

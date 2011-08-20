@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.SortedSet;
 
-public class FileBlockGroup {
+public final class FileBlockGroup {
 
   private final String resourceId;
   private final SortedSet<Block> fileBlocks;

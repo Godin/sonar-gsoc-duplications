@@ -22,6 +22,7 @@ package org.sonar.plugins.cpd.backends;
 import org.sonar.api.cpd.IndexBlock;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneIndex;
 
 import java.util.ArrayList;
@@ -64,14 +65,14 @@ public class DbCloneIndex implements CloneIndex {
     List<Block> blocks = new ArrayList<Block>(list.size());
     for (IndexBlock indexBlock : list) {
       Block block = new Block(indexBlock.getResourceId(),
-          indexBlock.getBlockHash(), indexBlock.getIndexInFile(),
+          new ByteArray(indexBlock.getBlockHash()), indexBlock.getIndexInFile(),
           indexBlock.getStartLine(), indexBlock.getEndLine());
       blocks.add(block);
     }
     return blocks;
   }
 
-  public Collection<Block> getBySequenceHash(String blockHash) {
+  public Collection<Block> getBySequenceHash(ByteArray blockHash) {
     String sql = "SELECT * from index_blocks WHERE block_hash=:block_hash";
     List<IndexBlock> list = session.getEntityManager()
         .createNativeQuery(sql, IndexBlock.class)
@@ -80,7 +81,7 @@ public class DbCloneIndex implements CloneIndex {
     List<Block> blocks = new ArrayList<Block>(list.size());
     for (IndexBlock indexBlock : list) {
       Block block = new Block(indexBlock.getResourceId(),
-          indexBlock.getBlockHash(), indexBlock.getIndexInFile(),
+          new ByteArray(indexBlock.getBlockHash()), indexBlock.getIndexInFile(),
           indexBlock.getStartLine(), indexBlock.getEndLine());
       blocks.add(block);
     }
@@ -89,7 +90,7 @@ public class DbCloneIndex implements CloneIndex {
 
   public void insert(Block block) {
     IndexBlock indexBlock = new IndexBlock(block.getResourceId(),
-        block.getBlockHash(), block.getIndexInFile(),
+        block.getBlockHash().toString(), block.getIndexInFile(),
         block.getFirstLineNumber(), block.getLastLineNumber());
     session.save(indexBlock);
   }

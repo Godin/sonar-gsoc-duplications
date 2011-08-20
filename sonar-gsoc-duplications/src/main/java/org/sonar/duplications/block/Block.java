@@ -23,7 +23,7 @@ package org.sonar.duplications.block;
 public class Block {
 
   private final String resourceId;
-  private final String blockHash;
+  private final ByteArray blockHash;
   private final int indexInFile;
   private final int firstLineNumber;
   private final int lastLineNumber;
@@ -33,7 +33,7 @@ public class Block {
    */
   private int hash;
 
-  public Block(String resourceId, String blockHash, int indexInFile, int firstLineNumber, int lastLineNumber) {
+  public Block(String resourceId, ByteArray blockHash, int indexInFile, int firstLineNumber, int lastLineNumber) {
     this.resourceId = resourceId;
     this.blockHash = blockHash;
     this.indexInFile = indexInFile;
@@ -45,7 +45,7 @@ public class Block {
     return resourceId;
   }
 
-  public String getBlockHash() {
+  public ByteArray getBlockHash() {
     return blockHash;
   }
 

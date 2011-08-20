@@ -19,17 +19,15 @@
  */
 package org.sonar.duplications.block;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import org.sonar.duplications.statement.Statement;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
-import org.sonar.duplications.statement.Statement;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class BlockChunkerTest {
 
@@ -72,10 +70,10 @@ public class BlockChunkerTest {
     // System.out.println(block.getBlockHash());
     // }
     assertThat("same value as for block 2", blocks.get(0).getBlockHash(), equalTo(blocks.get(2).getBlockHash()));
-    assertThat("same value as for block 2", blocks.get(0).getBlockHash(), is("fffffff715d0c4b1"));
-    assertThat(blocks.get(1).getBlockHash(), is("fffffff6750ec0af"));
-    assertThat("same value as for block 0", blocks.get(2).getBlockHash(), is("fffffff715d0c4b1"));
-    assertThat(blocks.get(3).getBlockHash(), is("fffffff66fb2f3c0"));
+    assertThat("same value as for block 2", blocks.get(0).getBlockHash(), is(new ByteArray("fffffff715d0c4b1")));
+    assertThat(blocks.get(1).getBlockHash(), is(new ByteArray("fffffff6750ec0af")));
+    assertThat("same value as for block 0", blocks.get(2).getBlockHash(), is(new ByteArray("fffffff715d0c4b1")));
+    assertThat(blocks.get(3).getBlockHash(), is(new ByteArray("fffffff66fb2f3c0")));
   }
 
   @Test

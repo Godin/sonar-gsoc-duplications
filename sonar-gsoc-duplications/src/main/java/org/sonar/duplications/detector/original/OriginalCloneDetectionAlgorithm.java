@@ -19,17 +19,17 @@
  */
 package org.sonar.duplications.detector.original;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of algorithm described in paper
@@ -64,7 +64,7 @@ public class OriginalCloneDetectionAlgorithm {
     // 2: let f be the list of tuples corresponding to filename sorted by statement index
     // either read from the index or calculated on the fly
 
-    Map<String, List<Block>> fileBlocksByHash = Maps.newHashMap();
+    Map<ByteArray, List<Block>> fileBlocksByHash = Maps.newHashMap();
     for (Block fileBlock : fileBlocks) {
       List<Block> sameHash = fileBlocksByHash.get(fileBlock.getBlockHash());
       if (sameHash == null) {
