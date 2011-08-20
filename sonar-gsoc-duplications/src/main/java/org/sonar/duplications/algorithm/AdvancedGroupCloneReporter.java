@@ -33,8 +33,6 @@ public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
 
   public static final CloneFilter INTERVAL_FILTER = new IntervalTreeCloneFilter();
 
-  public static final String ALGORITHM_KEY = "main algorithm";
-  public static final String INIT_KEY = "initialization";
   public static final String FILTER_KEY = "filter covered";
   public static final String GROUPS_KEY = "report clones";
 
@@ -47,10 +45,13 @@ public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
 
     List<ClonePair> reportedPairs = reportClonePairs(fileBlockGroup);
 
+    statsCollector.addNumber("reported pairs", reportedPairs.size());
+
     statsCollector.startTime(GROUPS_KEY);
     List<CloneGroup> clones = groupClonePairs(reportedPairs);
-    statsCollector.addNumber("reported clones", clones.size());
     statsCollector.stopTime(GROUPS_KEY);
+
+    statsCollector.addNumber("reported clone groups", clones.size());
 
     int sizeBefore = clones.size();
     statsCollector.startTime(FILTER_KEY);
@@ -58,6 +59,7 @@ public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
     statsCollector.stopTime(FILTER_KEY);
 
     statsCollector.addNumber("removed covered", sizeBefore - clones.size());
+
     statsCollector.addNumber("total clone groups", clones.size());
 
     return clones;

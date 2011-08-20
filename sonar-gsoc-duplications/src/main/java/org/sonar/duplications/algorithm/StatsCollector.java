@@ -32,7 +32,8 @@ public class StatsCollector {
   private Logger logger;
   private Map<String, Long> workingTimes;
   private Map<String, Long> startTimes;
-  private Map<String, Double> statNumbers;
+  private Map<String, Double> statNumbersDouble;
+  private Map<String, Long> statNumbersLong;
 
   private String name;
   private boolean debug = false;
@@ -40,7 +41,7 @@ public class StatsCollector {
   public StatsCollector(String name) {
     this.workingTimes = Maps.newLinkedHashMap();
     this.startTimes = Maps.newLinkedHashMap();
-    this.statNumbers = Maps.newLinkedHashMap();
+    this.statNumbersDouble = Maps.newLinkedHashMap();
     this.name = name;
     this.logger = LoggerFactory.getLogger(StatsCollector.class);
   }
@@ -48,11 +49,6 @@ public class StatsCollector {
   public StatsCollector(String name, Logger logger) {
     this(name);
     this.logger = logger;
-  }
-
-  public StatsCollector(String name, Class clazz) {
-    this(name);
-    this.logger = LoggerFactory.getLogger(clazz);
   }
 
   public StatsCollector setLogger(Logger logger) {
@@ -82,10 +78,19 @@ public class StatsCollector {
 
   public StatsCollector addNumber(String key, double value) {
     double prev = 0;
-    if (statNumbers.containsKey(key)) {
-      prev = statNumbers.get(key);
+    if (statNumbersDouble.containsKey(key)) {
+      prev = statNumbersDouble.get(key);
     }
-    statNumbers.put(key, prev + value);
+    statNumbersDouble.put(key, prev + value);
+    return this;
+  }
+
+  public StatsCollector addNumber(String key, long value) {
+    long prev = 0;
+    if (statNumbersLong.containsKey(key)) {
+      prev = statNumbersLong.get(key);
+    }
+    statNumbersLong.put(key, prev + value);
     return this;
   }
 
@@ -97,7 +102,7 @@ public class StatsCollector {
   public StatsCollector reset() {
     workingTimes.clear();
     startTimes.clear();
-    statNumbers.clear();
+    statNumbersDouble.clear();
     return this;
   }
 
@@ -135,8 +140,17 @@ public class StatsCollector {
       logger.info("---- Number statistics for {}", name);
     }
 
-    for (String key : statNumbers.keySet()) {
-      double val = statNumbers.get(key);
+    for (String key : statNumbersDouble.keySet()) {
+      double val = statNumbersDouble.get(key);
+      if (debug) {
+        logger.debug("Number statistics for '{}': {}", key, val);
+      } else {
+        logger.info("Number statistics for '{}': {}", key, val);
+      }
+    }
+
+    for (String key : statNumbersLong.keySet()) {
+      double val = statNumbersLong.get(key);
       if (debug) {
         logger.debug("Number statistics for '{}': {}", key, val);
       } else {

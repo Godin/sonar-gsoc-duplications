@@ -107,7 +107,6 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
         }
 
         processBlock(prevActiveMap, nextActiveMap, origBlock, block);
-        statsCollector.addNumber("reported pairs", prevActiveMap.values().size());
       }
       for (Map<CloneKey, ClonePair> prevActiveMap : prevActiveChains.values()) {
         reportedPairs.addAll(prevActiveMap.values());
