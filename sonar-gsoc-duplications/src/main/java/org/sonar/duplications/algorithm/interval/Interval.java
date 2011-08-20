@@ -81,10 +81,6 @@ public class Interval<T> implements Comparable<Interval<T>> {
     return point <= end && point >= start;
   }
 
-  public boolean intersects(Interval<?> other) {
-    return other.getEnd() >= start && other.getStart() <= end;
-  }
-
   public int compareTo(Interval<T> other) {
     return START_COMPARATOR.compare(this, other);
   }
