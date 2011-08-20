@@ -193,12 +193,11 @@ public class OriginalCloneDetectionAlgorithm {
 
   private void reportClones(BlocksGroup beginGroup, BlocksGroup endGroup, int cloneLength) {
     List<Block[]> pairs = beginGroup.pairs(endGroup, cloneLength);
-    List<ClonePart> parts = Lists.newArrayListWithCapacity(pairs.size());
-    CloneGroup clone = new CloneGroup(parts);
+    CloneGroup clone = new CloneGroup();
     clone.setCloneUnitLength(cloneLength);
     for (Block[] pair : pairs) {
       ClonePart part = new ClonePart(pair[0].getResourceId(), pair[0].getIndexInFile(), pair[0].getFirstLineNumber(), pair[1].getLastLineNumber());
-      parts.add(part);
+      clone.addPart(part);
     }
     clones.add(clone);
   }

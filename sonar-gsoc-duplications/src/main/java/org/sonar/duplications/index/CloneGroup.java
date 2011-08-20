@@ -20,7 +20,8 @@
  */
 package org.sonar.duplications.index;
 
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -29,19 +30,11 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
   private boolean sorted = true;
 
   public CloneGroup() {
-    this(new ArrayList<ClonePart>());
-  }
-
-  /**
-   * TODO Godin: Hack - this code stores a reference to an externally mutable object into the internal representation of the object.
-   * However allows creation with initial capacity and what's more important - avoid invocations of method {@link #addPart(ClonePart)}, which performs sorting.
-   */
-  public CloneGroup(List<ClonePart> parts) {
-    this.parts = parts;
+    this.parts = Lists.newArrayList();
   }
 
   public CloneGroup(int cloneUnitLength) {
-    this();
+    this.parts = Lists.newArrayList();
     this.cloneLength = cloneUnitLength;
   }
 
