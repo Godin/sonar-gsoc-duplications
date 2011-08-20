@@ -42,6 +42,7 @@ public class StatsCollector {
     this.workingTimes = Maps.newLinkedHashMap();
     this.startTimes = Maps.newLinkedHashMap();
     this.statNumbersDouble = Maps.newLinkedHashMap();
+    this.statNumbersLong = Maps.newLinkedHashMap();
     this.name = name;
     this.logger = LoggerFactory.getLogger(StatsCollector.class);
   }
