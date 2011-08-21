@@ -6,22 +6,7 @@ import org.sonar.duplications.index.ClonePartContainerBase;
 
 import java.util.List;
 
-public class IntervalTreeCloneFilter implements CloneFilter {
-
-  private final static class PartWrapper<T extends ClonePartContainerBase> {
-    public T clone;
-    public ClonePart part;
-
-    private PartWrapper(T clone, ClonePart part) {
-      this.clone = clone;
-      this.part = part;
-    }
-
-    public T getClone() {
-      return clone;
-    }
-
-  }
+public class IntervalTreeCloneFilter extends AbstractIntervalTreeCloneFilter {
 
   private static <T extends ClonePartContainerBase> IntervalTree buildTrees(List<T> clones) {
     IntervalTree originTree = new IntervalTree();
@@ -40,7 +25,6 @@ public class IntervalTreeCloneFilter implements CloneFilter {
         }
       }
     }
-
     return originTree;
   }
 
@@ -49,25 +33,7 @@ public class IntervalTreeCloneFilter implements CloneFilter {
     IntervalTree tree = buildTrees(clones);
 
     for (T clone : clones) {
-      ClonePart originPart = clone.getOriginPart();
-
-      int unitStart = originPart.getUnitStart();
-      int unitEnd = originPart.getUnitStart() + clone.getCloneUnitLength() - 1;
-      List<Interval> intervals = tree.getCoveringIntervals(unitStart, unitEnd);
-
-      boolean covered = false;
-      for (Interval<PartWrapper<T>> interval : intervals) {
-        T foundClone = interval.getData().getClone();
-        if (foundClone.equals(clone)) {
-          continue;
-        }
-        if (clone.containsIn(foundClone)) {
-          covered = true;
-          break;
-        }
-      }
-
-      if (!covered) {
+      if (!isCovered(tree, clone)) {
         filtered.add(clone);
       }
     }
