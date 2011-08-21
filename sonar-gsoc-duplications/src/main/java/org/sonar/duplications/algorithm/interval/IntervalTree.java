@@ -44,16 +44,7 @@ public class IntervalTree<T> {
 
   public List<Interval<T>> getCoveringIntervals(int start, int end) {
     build();
-    List<Interval<T>> result = queryRange(head, start, end);
-    // old implementation with query one point:
-    // List<Interval<T>> result = Lists.newArrayList();
-    // List<Interval<T>> tmp = query(head, start);
-    // for (Interval interval : tmp) {
-    //   if (interval.contains(end)) {
-    //     result.add(interval);
-    //   }
-    // }
-    return result;
+    return queryRange(head, start, end);
   }
 
   public void addInterval(Interval<T> interval) {
