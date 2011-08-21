@@ -20,9 +20,9 @@
  */
 package org.sonar.duplications.block;
 
+import com.google.common.collect.Lists;
 import org.sonar.duplications.statement.Statement;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,28 +53,25 @@ public class BlockChunker {
     }
   }
 
-  /**
-   * TODO Godin: The <tt>List</tt> interface doesn't guarantee running time O(1) on access to elements by index (e.g. <tt>LinkedList</tt>).
-   * So in fact we expect <tt>ArrayList</tt> here in order to have linear running time.
-   */
   public List<Block> chunk(String resourceId, List<Statement> statements) {
     if (statements.size() < blockSize) {
       return Collections.emptyList();
     }
-    List<Block> blockList = new ArrayList<Block>();
+    Statement[] statementsArr = statements.toArray(new Statement[0]);
+    List<Block> blockList = Lists.newArrayListWithCapacity(statements.size() - blockSize + 1);
     long hash = 0;
-    for (int i = 0; i < statements.size(); i++) {
+    for (int i = 0; i < statementsArr.length; i++) {
       // add current statement to hash
-      Statement current = statements.get(i);
+      Statement current = statementsArr[i];
       hash = hash * PRIME_BASE + current.getValue().hashCode();
       // remove first statement from hash, if needed
       int j = i - blockSize + 1;
       if (j > 0) {
-        hash -= power * statements.get(j - 1).getValue().hashCode();
+        hash -= power * statementsArr[j - 1].getValue().hashCode();
       }
       // create block
       if (j >= 0) {
-        Statement first = statements.get(j);
+        Statement first = statementsArr[j];
         blockList.add(new Block(resourceId, new ByteArray(hash), j, first.getStartLine(), current.getEndLine()));
       }
     }
