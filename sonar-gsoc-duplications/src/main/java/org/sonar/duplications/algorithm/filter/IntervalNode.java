@@ -18,13 +18,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.algorithm.interval;
+package org.sonar.duplications.algorithm.filter;
 
 
 import java.util.List;
 import java.util.SortedMap;
 
-public class IntervalNode<T> {
+class IntervalNode<T> {
 
   private SortedMap<Interval<T>, List<Interval<T>>> startIntervals;
   private SortedMap<Interval<T>, List<Interval<T>>> endIntervals;

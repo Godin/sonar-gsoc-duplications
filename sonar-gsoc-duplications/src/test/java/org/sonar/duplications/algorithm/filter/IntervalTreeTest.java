@@ -1,4 +1,4 @@
-package org.sonar.duplications.algorithm.interval;
+package org.sonar.duplications.algorithm.filter;
 
 
 import org.junit.Before;

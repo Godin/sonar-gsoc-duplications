@@ -1,8 +1,6 @@
 package org.sonar.duplications.algorithm.filter;
 
 import com.google.common.collect.Lists;
-import org.sonar.duplications.algorithm.interval.Interval;
-import org.sonar.duplications.algorithm.interval.IntervalTree;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.ClonePartContainerBase;
 
