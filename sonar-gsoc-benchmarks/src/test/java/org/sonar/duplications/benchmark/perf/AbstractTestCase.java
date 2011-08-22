@@ -28,6 +28,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.duplications.algorithm.AdvancedPairCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
@@ -77,6 +78,7 @@ public class AbstractTestCase {
     results.add(run(new NewCpdBenchmark(files, BLOCK_SIZE)));
   }
 
+  @Ignore("Irrelevant for the moment")
   @Test
   public void newCpdPaired() {
     results.add(run(new NewCpdBenchmark(files, BLOCK_SIZE) {

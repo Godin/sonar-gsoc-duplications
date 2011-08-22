@@ -4,6 +4,7 @@ import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.sonar.duplications.benchmark.*;
 import org.sonar.duplications.block.BlockChunker;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.greaterThan;
 
+@Ignore("Irrelevant for the moment")
 public class HashCollisionsTest {
 
   protected static int BLOCK_SIZE = 13;
