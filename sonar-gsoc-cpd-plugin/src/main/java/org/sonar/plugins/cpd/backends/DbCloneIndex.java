@@ -19,19 +19,31 @@
  */
 package org.sonar.plugins.cpd.backends;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.cpd.IndexBlock;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
+import org.sonar.duplications.index.CacheSequenceHashQuery;
 import org.sonar.duplications.index.CloneIndex;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
-public class DbCloneIndex implements CloneIndex {
+public class DbCloneIndex implements CloneIndex, CacheSequenceHashQuery {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DbCloneIndex.class);
 
   private final DatabaseSession session;
+
+  private int cachedNextBlock;
+  private Block[] cachedResourceBlocks;
+  private HashMap<ByteArray, List<Block>> cachedFoundBlocks;
+  private String cachedResourceId;
+  private boolean cached = false;
 
   public DbCloneIndex(DatabaseSession session) {
     this.session = session;
@@ -73,10 +85,26 @@ public class DbCloneIndex implements CloneIndex {
   }
 
   public Collection<Block> getBySequenceHash(ByteArray blockHash) {
+    if (cached) {
+      if (!cachedResourceBlocks[cachedNextBlock].getBlockHash().equals(blockHash)) {
+        cachedNextBlock++;
+        if (cachedNextBlock >= cachedResourceBlocks.length) {
+          cachedNextBlock = cachedResourceBlocks.length - 1;
+        }
+      }
+      if (cachedResourceBlocks[cachedNextBlock].getBlockHash().equals(blockHash)) {
+        List<Block> blocks = cachedFoundBlocks.get(blockHash);
+        return blocks;
+      } else {
+        LOG.info("BlockHash " + blockHash.toString() + " not found in cache for file " + cachedResourceId);
+        cached = false;
+      }
+    }
+
     String sql = "SELECT * from index_blocks WHERE block_hash=:block_hash";
     List<IndexBlock> list = session.getEntityManager()
         .createNativeQuery(sql, IndexBlock.class)
-        .setParameter("block_hash", blockHash)
+        .setParameter("block_hash", blockHash.toString())
         .getResultList();
     List<Block> blocks = new ArrayList<Block>(list.size());
     for (IndexBlock indexBlock : list) {
@@ -120,5 +148,46 @@ public class DbCloneIndex implements CloneIndex {
   public int size() {
     return session.createQuery("SELECT d FROM IndexBlock d")
         .getResultList().size();
+  }
+
+  public void cacheResourceIdForSequenceHashQueries(String resourceId) {
+    cachedNextBlock = 0;
+    cachedResourceId = resourceId;
+    cached = true;
+
+    String sql1 = "SELECT * FROM index_blocks WHERE resource_id = :resource_id";
+    sql1 += " ORDER BY index_in_file ASC";
+    List<IndexBlock> resource_blocks = session.getEntityManager()
+        .createNativeQuery(sql1, IndexBlock.class)
+        .setParameter("resource_id", resourceId)
+        .getResultList();
+    cachedResourceBlocks = new Block[resource_blocks.size()];
+    cachedFoundBlocks = new HashMap<ByteArray, List<Block>>(resource_blocks.size());
+    int counter = 0;
+    for (IndexBlock indexBlock : resource_blocks) {
+      Block block = new Block(indexBlock.getResourceId(),
+          new ByteArray(indexBlock.getBlockHash()),
+          indexBlock.getIndexInFile(),
+          indexBlock.getStartLine(),
+          indexBlock.getEndLine());
+      cachedResourceBlocks[counter++] = block;
+      cachedFoundBlocks.put(block.getBlockHash(), new ArrayList<Block>());
+    }
+
+    String sql2 = "SELECT * FROM index_blocks WHERE block_hash in";
+    sql2 += " ( SELECT block_hash FROM index_blocks WHERE resource_id = :resource_id )";
+    List<IndexBlock> found_blocks = session.getEntityManager()
+        .createNativeQuery(sql2, IndexBlock.class)
+        .setParameter("resource_id", resourceId)
+        .getResultList();
+    for (IndexBlock indexBlock : found_blocks) {
+      Block block = new Block(indexBlock.getResourceId(),
+          new ByteArray(indexBlock.getBlockHash()),
+          indexBlock.getIndexInFile(),
+          indexBlock.getStartLine(),
+          indexBlock.getEndLine());
+      List<Block> blocks = cachedFoundBlocks.get(block.getBlockHash());
+      blocks.add(block);
+    }
   }
 }
