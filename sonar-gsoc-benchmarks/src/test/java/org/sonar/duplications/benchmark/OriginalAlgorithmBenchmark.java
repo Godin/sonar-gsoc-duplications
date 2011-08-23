@@ -22,7 +22,6 @@ package org.sonar.duplications.benchmark;
 import java.io.File;
 import java.util.List;
 
-import org.sonar.duplications.benchmark.index.TimingIndex;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
@@ -55,7 +54,7 @@ public class OriginalAlgorithmBenchmark extends Benchmark {
   public static int singleRun(List<File> files, int blockSize) {
     CloneIndex delegate = new PackedMemoryCloneIndex();
     // CloneIndex index = new MemoryCloneIndex();
-    TimingIndex index = new TimingIndex(delegate);
+    CloneIndex index = TimingProxy.newInstance(delegate);
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();
     BlockChunker blockChunker = new BlockChunker(blockSize);
@@ -74,7 +73,7 @@ public class OriginalAlgorithmBenchmark extends Benchmark {
       List<Block> fileBlocks = Lists.newArrayList(index.getByResourceId(file.getAbsolutePath()));
       count += OriginalCloneDetectionAlgorithm.detect(index, fileBlocks).size();
     }
-    index.print();
+    TimingProxy.getHandlerFor(index).printTimings();
     return count;
   }
 

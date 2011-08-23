@@ -13,6 +13,7 @@ import org.sonar.duplications.benchmark.BenchmarkResult;
 import org.sonar.duplications.benchmark.BenchmarksDiff;
 import org.sonar.duplications.benchmark.MemoryUtils;
 import org.sonar.duplications.benchmark.SizeOf;
+import org.sonar.duplications.benchmark.TimingProxy;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.index.CloneIndex;
@@ -108,7 +109,7 @@ public abstract class AbstractIndexesTestCase {
 
     @Override
     public void runRound() throws Exception {
-      TimingIndex index = new TimingIndex(createIndex());
+      CloneIndex index = TimingProxy.newInstance(createIndex());
       TokenChunker tokenChunker = JavaTokenProducer.build();
       StatementChunker statementChunker = JavaStatementBuilder.build();
       BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
@@ -129,7 +130,7 @@ public abstract class AbstractIndexesTestCase {
         }
       }
 
-      index.print();
+      TimingProxy.getHandlerFor(index).printTimings();
 
       if (isLastRound()) {
         System.out.println("Size of index on 32bit / 64bit : " + SizeOf.sizeOf(index) / 1024 / 1024 + " / " + SizeOf.sizeOfOn64(index) / 1024 / 1024);
