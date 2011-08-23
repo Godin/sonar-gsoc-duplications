@@ -84,12 +84,13 @@ public class CpdSensor implements Sensor {
 
       List<Block> fileBlocks = Lists.newArrayList(index.getByResourceId(resource.getKey()));
       List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
-
-      DuplicationsData data = new DuplicationsData();
-      for (CloneGroup clone : clones) {
-        poplulateData(data, clone);
+      if (!clones.isEmpty()) {
+        DuplicationsData data = new DuplicationsData();
+        for (CloneGroup clone : clones) {
+          poplulateData(data, clone);
+        }
+        data.save(context, resource);
       }
-      data.save(context, resource);
     }
   }
 
