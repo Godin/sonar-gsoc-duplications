@@ -19,17 +19,18 @@
  */
 package org.sonar.duplications.detector.original;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Implementation of algorithm described in paper
@@ -196,8 +197,14 @@ public class OriginalCloneDetectionAlgorithm {
     List<Block[]> pairs = beginGroup.pairs(endGroup, cloneLength);
     CloneGroup clone = new CloneGroup();
     clone.setCloneUnitLength(cloneLength);
-    for (Block[] pair : pairs) {
+    for (int i = 0; i < pairs.size(); i++) {
+      Block[] pair = pairs.get(i);
       ClonePart part = new ClonePart(pair[0].getResourceId(), pair[0].getIndexInFile(), pair[0].getFirstLineNumber(), pair[1].getLastLineNumber());
+      if (i == 0) {
+        // TODO Godin: in this implementation - origin is always first,
+        // however CloneGroup#getCloneParts() performs sorting, so must explicitly set origin for sonar-new-cpd-plugin:
+        clone.setOriginPart(part);
+      }
       clone.addPart(part);
     }
     clones.add(clone);

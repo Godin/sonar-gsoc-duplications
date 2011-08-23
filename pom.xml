@@ -15,6 +15,7 @@
     <module>sonar-gsoc-cpd-plugin</module>
     -->
     <module>sonar-gsoc-duplications</module>
+    <module>sonar-new-cpd-plugin</module>
   </modules>
 
   <scm>
