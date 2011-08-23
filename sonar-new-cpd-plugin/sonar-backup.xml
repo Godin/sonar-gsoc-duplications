@@ -4,7 +4,12 @@
   <version><![CDATA[120]]></version>
   <date><![CDATA[2010-07-24]]></date>
   <metrics/>
-  <properties/>
+  <properties>
+    <property>
+      <key><![CDATA[sonar.core.projectsdashboard.columns]]></key>
+      <value><![CDATA[METRIC.duplicated_blocks;METRIC.duplicated_files;METRIC.duplicated_lines;]]></value>
+    </property>
+  </properties>
   <profiles>
     <profile>
       <name><![CDATA[Empty]]></name>
