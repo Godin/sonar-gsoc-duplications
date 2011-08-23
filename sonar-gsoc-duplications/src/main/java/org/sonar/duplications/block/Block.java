@@ -41,6 +41,14 @@ public class Block {
     this.lastLineNumber = lastLineNumber;
   }
 
+  public Block(int indexInFile, int firstLineNumber, int lastLineNumber, String resourceId, String hash) {
+    this(resourceId, new ByteArray(hash), indexInFile, firstLineNumber, lastLineNumber);
+  }
+
+  public String getHashHex() {
+    return getBlockHash().toString();
+  }
+
   public String getResourceId() {
     return resourceId;
   }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.duplications.benchmark.db.Mapper">
+
+  <resultMap id="result" type="org.sonar.duplications.block.Block">
+    <constructor>
+      <arg column="index" javaType="_integer"/>
+      <arg column="first" javaType="_integer"/>
+      <arg column="last" javaType="_integer"/>
+      <arg column="resource" javaType="String"/>
+      <arg column="hash" javaType="String"/>
+    </constructor>
+  </resultMap>
+
+  <insert id="insert" parameterType="org.sonar.duplications.block.Block">
+    INSERT INTO blocks (hash, resource, index, first, last)
+    VALUES (#{hashHex}, #{resourceId}, #{indexInFile}, #{firstLineNumber}, #{lastLineNumber});
+  </insert>
+
+  <select id="get" parameterType="String" resultMap="result">
+    SELECT resource, hash, index, first, last
+    FROM blocks WHERE hash IN ( SELECT hash FROM blocks WHERE resource = #{resource} )
+  </select>
+
+  <update id="createTable">
+    DROP TABLE IF EXISTS blocks;
+    CREATE TABLE blocks (
+      hash CHAR(16) NOT NULL,
+      resource VARCHAR(255) NOT NULL,
+      index INTEGER NOT NULL,
+      first INTEGER NOT NULL,
+      last INTEGER NOT NULL
+    );
+    CREATE INDEX hash_idx ON blocks(hash);
+    CREATE INDEX resource_idx ON blocks(resource);
+  </update>
+
+</mapper>
