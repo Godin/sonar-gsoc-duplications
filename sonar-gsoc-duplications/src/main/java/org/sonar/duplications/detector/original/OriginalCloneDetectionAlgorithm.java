@@ -57,7 +57,7 @@ public class OriginalCloneDetectionAlgorithm {
   }
 
   private void findClones(List<Block> fileBlocks) {
-    if (fileBlocks.size() == 0) {
+    if (fileBlocks.isEmpty()) {
       return;
     }
     Collections.sort(fileBlocks, BlocksGroup.BlockComparator.INSTANCE);

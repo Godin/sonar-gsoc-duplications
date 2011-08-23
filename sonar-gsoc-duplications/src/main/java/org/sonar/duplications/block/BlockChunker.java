@@ -57,7 +57,7 @@ public class BlockChunker {
     if (statements.size() < blockSize) {
       return Collections.emptyList();
     }
-    Statement[] statementsArr = statements.toArray(new Statement[0]);
+    Statement[] statementsArr = statements.toArray(new Statement[statements.size()]);
     List<Block> blockList = Lists.newArrayListWithCapacity(statements.size() - blockSize + 1);
     long hash = 0;
     for (int i = 0; i < statementsArr.length; i++) {

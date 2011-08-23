@@ -3,7 +3,7 @@ package org.sonar.duplications.index;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class DataUtils {
+public final class DataUtils {
 
   public interface Sortable {
 

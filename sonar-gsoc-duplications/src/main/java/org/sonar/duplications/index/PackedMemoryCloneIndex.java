@@ -16,9 +16,9 @@ import com.google.common.collect.Lists;
  */
 public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
-  private static int INITIAL_SIZE = 1024;
+  private static final int INITIAL_SIZE = 1024;
 
-  private static int BLOCK_INTS = 3;
+  private static final int BLOCK_INTS = 3;
 
   private final int hashInts;
 
