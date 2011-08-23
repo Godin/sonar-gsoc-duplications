@@ -21,6 +21,8 @@ package org.sonar.duplications.benchmark;
 
 public abstract class Benchmark {
 
+  private boolean lastRound;
+
   public final BenchmarkResult runBenchmark(int benchmarkRounds, int warmupRounds) {
     return runBenchmark(benchmarkRounds, warmupRounds, true);
   }
@@ -48,6 +50,7 @@ public abstract class Benchmark {
       }
       MemoryUtils.resetPeakUsage();
       long time = System.currentTimeMillis();
+      lastRound = i == benchmarkRounds - 1;
       internalRunRound();
       time = System.currentTimeMillis() - time;
       roundTime[i] = time;
@@ -65,6 +68,10 @@ public abstract class Benchmark {
         Average.from(peakMemory));
     System.out.println(result);
     return result;
+  }
+
+  public boolean isLastRound() {
+    return lastRound;
   }
 
   private void internalRunRound() {

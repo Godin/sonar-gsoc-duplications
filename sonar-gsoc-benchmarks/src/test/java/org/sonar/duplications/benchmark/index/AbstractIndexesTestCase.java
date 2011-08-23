@@ -12,11 +12,12 @@ import org.sonar.duplications.benchmark.Benchmark;
 import org.sonar.duplications.benchmark.BenchmarkResult;
 import org.sonar.duplications.benchmark.BenchmarksDiff;
 import org.sonar.duplications.benchmark.MemoryUtils;
+import org.sonar.duplications.benchmark.SizeOf;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.MemoryCloneIndex2;
 import org.sonar.duplications.index.MemoryCloneIndex;
+import org.sonar.duplications.index.MemoryCloneIndex2;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.java.JavaStatementBuilder;
 import org.sonar.duplications.java.JavaTokenProducer;
@@ -28,13 +29,13 @@ import org.sonar.duplications.token.TokenQueue;
 public abstract class AbstractIndexesTestCase {
 
   protected static int BLOCK_SIZE = 13;
-  protected static int WARMUP_ROUNDS = 3;
-  protected static int BENCHMARK_ROUNDS = 10;
+  protected static int WARMUP_ROUNDS = 1;
+  protected static int BENCHMARK_ROUNDS = 2;
 
   protected static List<File> files;
   protected static BenchmarksDiff results = new BenchmarksDiff();
 
-  protected BenchmarkResult run(Benchmark benchmark) {
+  protected BenchmarkResult run(IndexBenchmark benchmark) {
     return benchmark.runBenchmark(BENCHMARK_ROUNDS, WARMUP_ROUNDS);
   }
 
@@ -129,6 +130,10 @@ public abstract class AbstractIndexesTestCase {
       }
 
       index.print();
+
+      if (isLastRound()) {
+        System.out.println("Size of index on 32bit / 64bit : " + SizeOf.sizeOf(index) / 1024 / 1024 + " / " + SizeOf.sizeOfOn64(index) / 1024 / 1024);
+      }
     }
 
     protected abstract CloneIndex createIndex();
