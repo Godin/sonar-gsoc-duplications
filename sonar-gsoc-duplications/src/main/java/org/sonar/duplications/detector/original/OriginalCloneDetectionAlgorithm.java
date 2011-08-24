@@ -20,6 +20,8 @@
 package org.sonar.duplications.detector.original;
 
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +52,7 @@ public class OriginalCloneDetectionAlgorithm {
   }
 
   private final CloneIndex cloneIndex;
-  private final List<CloneGroup> clones = Lists.newArrayList();
+  private final List<CloneGroup> clones = Lists.newLinkedList();
 
   private OriginalCloneDetectionAlgorithm(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
@@ -207,7 +209,43 @@ public class OriginalCloneDetectionAlgorithm {
       }
       clone.addPart(part);
     }
-    clones.add(clone);
+    filterAndSave(clone);
+  }
+
+  /**
+   * Performs incremental and brute force algorithm in order to filter clones, which are fully covered by other clones.
+   * Running time - O(N*2*C), where N - number of clones, which was found earlier and C - time of {@link CloneGroup#containsIn(org.sonar.duplications.index.ClonePartContainerBase)}.
+   * 
+   * TODO Godin: we can try to optimize containsIn by using fact that all parts already sorted because of {@link BlocksGroup}.
+   *
+   * TODO Godin: This implementation was chosen because it simple and I wasn't able to find big difference in performance with other ways:
+   * <ul>
+   * <li>{@link org.sonar.duplications.algorithm.filter.IntervalTreeCloneFilter} - 47 seconds on JDK and 4 seconds on different projects</li>
+   * <li>{@link org.sonar.duplications.algorithm.filter.BruteForceCloneFilter} - 48 seconds on JDK and 4 seconds on different projects</li>
+   * <li>this implementation - 48 seconds on JDK and 4 seconds on different projects</li>
+   * </ul>
+   * Whereas in fact I expected that interval tree would be better for this task.
+   * Moreover with interval tree we also can use incremental approach, but current implementation of it doesn't support remove operation.
+   */
+  private void filterAndSave(CloneGroup current) {
+    assert clones instanceof LinkedList; // LinkedList should provide better performance here, because of use of operation remove
+    Iterator<CloneGroup> i = clones.iterator();
+    while (i.hasNext()) {
+      CloneGroup earlier = i.next();
+      // Note that following two conditions cannot be true together - proof by contradiction:
+      // let C be the current clone and A and B were found earlier
+      // then since relation is transitive - (A in C) and (C in B) => (A in B)
+      // so A should be filtered earlier
+      if (current.containsIn(earlier)) {
+        // current clone fully covered by clone, which was found earlier
+        return;
+      }
+      if (earlier.containsIn(current)) {
+        // current clone fully covers clone, which was found earlier
+        i.remove();
+      }
+    }
+    clones.add(current);
   }
 
 }

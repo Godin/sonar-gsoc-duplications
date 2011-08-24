@@ -26,7 +26,6 @@ import static org.junit.Assert.assertThat;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
@@ -283,9 +282,8 @@ public class OriginalCloneDetectionAlgorithmTest {
    * a-b-b (1 2)
    * a-b (1 2 1)
    * </pre>
-   * TODO "a-a-b-b (1)" should not be reported, because fully covered by "a-b (1 2 1)".
+   * "a-a-b-b (1)" should not be reported, because fully covered by "a-b (1 2 1)"
    */
-  @Ignore
   @Test
   public void covered() {
     CloneIndex cloneIndex = createIndex(
@@ -322,7 +320,6 @@ public class OriginalCloneDetectionAlgorithmTest {
    * a-b (1 2 1 2 1 2)
    * </pre>
    */
-  @Ignore("as in original paper - we don't have filter for nested clone groups")
   @Test
   public void problemWithNestedCloneGroups() {
     CloneIndex cloneIndex = createIndex(

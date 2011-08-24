@@ -54,6 +54,9 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
     return sorted;
   }
 
+  /**
+   * IMPORTANT: this method might perform sorting of parts
+   */
   @Override
   public List<ClonePart> getCloneParts() {
     if (!sorted) {
@@ -75,6 +78,13 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
    * <pre>
    * (pA.resourceId == pb.resourceId) and (pB.unitStart <= pA.unitStart) and (pA.unitEnd <= pb.unitEnd)
    * </pre>
+   * So this relation is:
+   * <ul>
+   * <li>reflexive - A in A</li>
+   * <li>transitive - (A in B) and (B in C) => (A in C)</li>
+   * <li>antisymmetric - (A in B) and (B in A) <=> (A = B)</li>
+   * </ul>
+   * Running time - O(|A|*|B|).
    * TODO Godin: maybe {@link FastStringComparator} can be used here to increase performance
    */
   private static boolean containsIn(CloneGroup first, CloneGroup second) {
