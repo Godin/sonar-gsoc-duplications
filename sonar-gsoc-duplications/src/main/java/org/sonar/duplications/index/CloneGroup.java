@@ -20,10 +20,12 @@
  */
 package org.sonar.duplications.index;
 
-import com.google.common.collect.Lists;
-
 import java.util.Collections;
 import java.util.List;
+
+import org.sonar.duplications.detector.original.FastStringComparator;
+
+import com.google.common.collect.Lists;
 
 public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
 
@@ -52,12 +54,57 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
     return sorted;
   }
 
+  @Override
   public List<ClonePart> getCloneParts() {
     if (!sorted) {
       sortParts();
       sorted = true;
     }
     return Collections.unmodifiableList(parts);
+  }
+
+  @Override
+  public boolean containsIn(ClonePartContainerBase<CloneGroup> other) {
+    // TODO Godin: method from superclass overridden in order to fix bug
+    return containsIn(this, (CloneGroup) other);
+  }
+
+  /**
+   * Clone A is contained in another clone B, if every part pA from A has part pB in B,
+   * which satisfy the conditions:
+   * <pre>
+   * (pA.resourceId == pb.resourceId) and (pB.unitStart <= pA.unitStart) and (pA.unitEnd <= pb.unitEnd)
+   * </pre>
+   * TODO Godin: maybe {@link FastStringComparator} can be used here to increase performance
+   */
+  private static boolean containsIn(CloneGroup first, CloneGroup second) {
+    if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
+      return false;
+    }
+
+    List<ClonePart> firstParts = first.getCloneParts();
+    List<ClonePart> secondParts = second.getCloneParts();
+
+    for (int i = 0; i < firstParts.size(); i++) {
+      ClonePart firstPart = firstParts.get(i);
+      int firstPartUnitEnd = firstPart.getUnitStart() + first.getCloneUnitLength();
+      boolean found = false;
+
+      for (int j = 0; j < secondParts.size(); j++) {
+        ClonePart secondPart = secondParts.get(j);
+        int secondPartUnitEnd = secondPart.getUnitStart() + second.getCloneUnitLength();
+        if ((firstPart.getResourceId().equals(secondPart.getResourceId())) &&
+            (secondPart.getUnitStart() <= firstPart.getUnitStart()) &&
+            (firstPartUnitEnd <= secondPartUnitEnd)) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }
