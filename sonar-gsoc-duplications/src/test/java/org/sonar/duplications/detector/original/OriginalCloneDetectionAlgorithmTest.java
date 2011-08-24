@@ -19,7 +19,12 @@
  */
 package org.sonar.duplications.detector.original;
 
-import com.google.common.collect.Lists;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
+
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,11 +36,7 @@ import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.junit.TestNamePrinter;
 
-import java.util.List;
-
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import com.google.common.collect.Lists;
 
 public class OriginalCloneDetectionAlgorithmTest {
 
@@ -57,10 +58,16 @@ public class OriginalCloneDetectionAlgorithmTest {
   }
 
   /**
+   * Given:
    * <pre>
-   * x: 1 2 3 4 5 6
    * y:   2 3 4 5
    * z:     3 4
+   * x: 1 2 3 4 5 6
+   * </pre>
+   * Expected:
+   * <pre>
+   * x-y (2 3 4 5)
+   * x-y-z (3 4)
    * </pre>
    */
   @Test
@@ -87,6 +94,19 @@ public class OriginalCloneDetectionAlgorithmTest {
     assertThat(clone2.getCloneParts(), hasItem(newClonePart("z", 0, 2)));
   }
 
+  /**
+   * Given:
+   * <pre>
+   * a:   2 3 4 5
+   * b:     3 4
+   * c: 1 2 3 4 5 6
+   * </pre>
+   * Expected:
+   * <pre>
+   * c-a (2 3 4 5)
+   * c-a-b (3 4)
+   * </pre>
+   */
   @Test
   public void exampleFromPaperWithModifiedResourceIds() {
     CloneIndex cloneIndex = createIndex(
@@ -112,10 +132,17 @@ public class OriginalCloneDetectionAlgorithmTest {
   }
 
   /**
+   * Given:
    * <pre>
-   * a: 1 2 3 4 5 6 7 8 9
    * b:     3 4 5 6
    * c:         5 6 7
+   * a: 1 2 3 4 5 6 7 8 9
+   * </pre>
+   * Expected:
+   * <pre>
+   * a-b (3 4 5 6)
+   * a-b-c (5 6)
+   * a-c (5 6 7)
    * </pre>
    */
   @Test
@@ -149,6 +176,18 @@ public class OriginalCloneDetectionAlgorithmTest {
     assertThat(clone3.getCloneParts(), hasItem(newClonePart("c", 0, 3)));
   }
 
+  /**
+   * Given:
+   * <pre>
+   * b: 1 2 3 4 1 2 3 4 1 2 3 4
+   * c: 1 2 3 4
+   * a: 1 2 3 4 5
+   * </pre>
+   * Expected:
+   * <pre>
+   * a-b-b-b-c (1 2 3 4)
+   * </pre>
+   */
   @Test
   public void example2() {
     CloneIndex cloneIndex = createIndex(
@@ -170,6 +209,17 @@ public class OriginalCloneDetectionAlgorithmTest {
     assertThat(clone1.getCloneParts(), hasItem(newClonePart("c", 0, 3)));
   }
 
+  /**
+   * Given:
+   * <pre>
+   * b: 1 2 3 4
+   * a: 1 2 3
+   * </pre>
+   * Expected clone which ends at the end of file "a":
+   * <pre>
+   * a-b (1 2 3)
+   * </pre>
+   */
   @Test
   public void problemWithEndOfFile() {
     CloneIndex cloneIndex = createIndex(
@@ -189,6 +239,14 @@ public class OriginalCloneDetectionAlgorithmTest {
 
   /**
    * Test for problem, which was described in original paper - same clone would be reported twice.
+   * Given:
+   * <pre>
+   * a: 1 2 3 1 2 4
+   * </pre>
+   * Expected only one clone:
+   * <pre>
+   * a-a (1 2)
+   * </pre>
    */
   @Test
   public void clonesInFileItself() {
@@ -233,6 +291,18 @@ public class OriginalCloneDetectionAlgorithmTest {
     assertThat(clone2.getCloneParts(), hasItem(newClonePart("b", 0, 6)));
   }
 
+  /**
+   * Given:
+   * <pre>
+   * a: 0
+   * b: 1 2 3
+   * a: 1 2 4
+   * </pre>
+   * Expected:
+   * <pre>
+   * a-b (1 2)
+   * </pre>
+   */
   @Test
   public void fileAlreadyInIndex() {
     CloneIndex cloneIndex = createIndex(
