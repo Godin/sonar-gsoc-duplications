@@ -20,15 +20,23 @@
  */
 package org.sonar.duplications.index;
 
+import java.util.Collection;
+
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 
-import java.util.Collection;
-
 public interface CloneIndex {
 
+  /**
+   * @deprecated Godin: I don't think that we need such method, moreover currently it used only from tests
+   */
+  @Deprecated
   Collection<String> getAllUniqueResourceId();
 
+  /**
+   * @deprecated Godin: I don't think that we need such method
+   */
+  @Deprecated
   boolean containsResourceId(String resourceId);
 
   /**
@@ -63,7 +71,9 @@ public interface CloneIndex {
    * Remove all elements from index that are equals to <tt>block</tt>
    *
    * @param block block to be removed from index
+   * @deprecated Godin: I don't think that we need such method, moreover currently it unused
    */
+  @Deprecated
   void remove(Block block);
 
   /**

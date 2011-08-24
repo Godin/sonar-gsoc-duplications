@@ -23,7 +23,7 @@
     FROM blocks WHERE hash IN ( SELECT hash FROM blocks WHERE resource = #{resource} )
   </select>
 
-  <update id="createTable">
+  <update id="recreateTable">
     DROP TABLE IF EXISTS blocks;
     CREATE TABLE blocks (
       hash CHAR(16) NOT NULL,

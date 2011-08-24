@@ -41,11 +41,12 @@ public class MyBatisIndex extends AbstractCloneIndex implements BatchIndex {
     }
   }
 
-  public void init() {
+  @Override
+  public void removeAll() {
     SqlSession session = sqlSessionFactory.openSession();
     try {
       Mapper mapper = session.getMapper(Mapper.class);
-      mapper.createTable();
+      mapper.recreateTable();
       session.commit();
     } finally {
       session.close();

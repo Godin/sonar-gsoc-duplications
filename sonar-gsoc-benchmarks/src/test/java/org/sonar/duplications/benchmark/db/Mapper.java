@@ -10,6 +10,6 @@ public interface Mapper {
 
   List<Block> get(String resource);
 
-  void createTable();
+  void recreateTable();
 
 }

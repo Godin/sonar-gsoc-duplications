@@ -66,13 +66,16 @@ public class ByteArray {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     ByteArray byteArray = (ByteArray) o;
-
-    if (!Arrays.equals(bytes, byteArray.bytes)) return false;
-
+    if (!Arrays.equals(bytes, byteArray.bytes)) {
+      return false;
+    }
     return true;
   }
 

@@ -37,7 +37,7 @@ import com.google.common.collect.Lists;
 
 public class CpdSensor implements Sensor {
 
-  private static int BLOCK_SIZE = 13;
+  private static final int BLOCK_SIZE = 13;
 
   public boolean shouldExecuteOnProject(Project project) {
     if (!Java.INSTANCE.equals(project.getLanguage())) {

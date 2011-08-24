@@ -17,6 +17,20 @@ import org.sonar.duplications.token.TokenQueue;
 
 import com.google.common.collect.Lists;
 
+/**
+ * This is example of usage of database to store index.
+ *
+ * TODO However incremental approach not covered here - table always cleared before analysis.
+ * Incremental approach for index maintenance requires:
+ * <ul>
+ * <li>removal of resources, for which associated file was removed from project</li>
+ * <li>renewal of blocks for files, to increase performance - only modified files should be processed</li>
+ * </ul>
+ * Distributed approach requires:
+ * <ul>
+ * <li>persistence of <tt>resourceId</tt> between different machines, which means that it can't be an absolute path to file, whereas this is a case now</li>
+ * </ul>
+ */
 public class MyBatisExample {
 
   public static void main(String[] args) {
@@ -26,7 +40,7 @@ public class MyBatisExample {
     String environment = "postgresql";
 
     BatchIndex index = TimingProxy.newInstance(new MyBatisIndex(environment));
-    index.init();
+    index.removeAll();
     System.out.println("Index initialized");
 
     TokenChunker tokenChunker = JavaTokenProducer.build();

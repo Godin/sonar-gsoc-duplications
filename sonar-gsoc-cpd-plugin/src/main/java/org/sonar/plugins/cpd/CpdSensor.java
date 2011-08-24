@@ -101,6 +101,7 @@ public class CpdSensor implements Sensor {
     profiler.start("CPD :: tokenize and update index");
     List<FileBlockGroup> fileBlockGroups = new ArrayList<FileBlockGroup>();
 
+    // FIXME next piece of code will not remove resources, for whose corresponding file was removed
     for (InputFile inputFile : inputFiles) {
       index.remove(inputFile.getFile().getAbsolutePath());
       FileBlockGroup fileBlockGroup = cf.tokenize(inputFile.getFile());

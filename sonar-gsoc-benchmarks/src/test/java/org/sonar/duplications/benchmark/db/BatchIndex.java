@@ -8,7 +8,7 @@ import org.sonar.duplications.index.CloneIndex;
 
 public interface BatchIndex extends CloneIndex {
 
-  void init();
+  void removeAll();
 
   void insert(Block block);
 

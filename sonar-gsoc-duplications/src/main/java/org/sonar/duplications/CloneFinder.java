@@ -33,6 +33,11 @@ import org.sonar.duplications.token.TokenQueue;
 import java.io.File;
 import java.util.List;
 
+/**
+ * TODO Godin: For better flexibility we must allow detection of clones for file, which is not in index (index maintenance and detection of clones are two different tasks).
+ * For example we can imagine to use local (e.g. in memory) index to store files for analysis and remote index to compare with.
+ * And this is not the case for the moment, because of implementation of method {@link #findClones(FileBlockGroup)}, which explicitly invokes {@link #register(FileBlockGroup)}.
+ */
 public final class CloneFinder {
 
   private TokenChunker tokenChunker;
