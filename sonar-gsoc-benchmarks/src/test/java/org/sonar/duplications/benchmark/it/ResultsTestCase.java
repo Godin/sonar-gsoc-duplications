@@ -68,6 +68,8 @@ public abstract class ResultsTestCase {
 
   private CloneIndex index;
 
+  protected Result result;
+
   @Before
   public void setUp() {
     index = new MemoryCloneIndex();
@@ -82,9 +84,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(275));
     assertThat("resources in index", resourcesInIndex, is(1079));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(490));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(47605));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(490));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(47605));
   }
 
   @Test
@@ -96,9 +98,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(113));
     assertThat("resources in index", resourcesInIndex, is(412));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(137));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(25039));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(137));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(25039));
   }
 
   @Test
@@ -110,9 +112,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(5));
     assertThat("resources in index", resourcesInIndex, is(101));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(66));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(13489));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(66));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(13489));
   }
 
   @Test
@@ -124,9 +126,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(291));
     assertThat("resources in index", resourcesInIndex, is(609));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(182));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(23081));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(182));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(23081));
   }
 
   @Test
@@ -138,9 +140,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(57));
     assertThat("resources in index", resourcesInIndex, is(131));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(17));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(960));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(17));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(960));
   }
 
   @Test
@@ -152,9 +154,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(70));
     assertThat("resources in index", resourcesInIndex, is(203));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(43));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(4272));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(43));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(4272));
   }
 
   @Test
@@ -166,9 +168,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(253));
     assertThat("resources in index", resourcesInIndex, is(469));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(80));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(23656));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(80));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(23656));
   }
 
   @Test
@@ -180,9 +182,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(125));
     assertThat("resources in index", resourcesInIndex, is(192));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(15));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(2143));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(15));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(2143));
   }
 
   @Test
@@ -194,9 +196,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(29));
     assertThat("resources in index", resourcesInIndex, is(283));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(56));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(8373));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(56));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(8373));
   }
 
   @Test
@@ -208,9 +210,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(43));
     assertThat("resources in index", resourcesInIndex, is(134));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(25));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(3098));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(25));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(3098));
   }
 
   @Test
@@ -222,9 +224,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(12));
     assertThat("resources in index", resourcesInIndex, is(70));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(9));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(4194));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(9));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(4194));
   }
 
   @Test
@@ -236,9 +238,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(19));
     assertThat("resources in index", resourcesInIndex, is(99));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(19));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(1929));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(19));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(1929));
   }
 
   @Ignore
@@ -252,9 +254,9 @@ public abstract class ResultsTestCase {
     assertThat("files without blocks", filesWithoutBlocks, is(2921));
     assertThat("resources in index", resourcesInIndex, is(4292));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
-    SetMultimap<String, Integer> duplicatedLines = analyse(index, files);
-    assertThat("resources with duplications", duplicatedLines.keySet().size(), is(1097));
-    assertThat("duplicated lines", duplicatedLines.entries().size(), is(180600));
+    analyse(index, files);
+    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(1097));
+    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(180600));
   }
 
   /**
@@ -279,10 +281,19 @@ public abstract class ResultsTestCase {
     return result;
   }
 
-  protected SetMultimap<String, Integer> analyse(CloneIndex index, List<File> files) {
-    SetMultimap<String, Integer> duplicatedLines = HashMultimap.create();
+  protected void analyse(CloneIndex index, List<File> files) {
+    result = new Result();
     for (File file : files) {
-      List<CloneGroup> clones = analyse(index, file.getAbsolutePath());
+      result.cumulate(analyse(index, file.getAbsolutePath()));
+    }
+  }
+
+  static class Result {
+    SetMultimap<String, Integer> duplicatedLines = HashMultimap.create();
+    int clonesCount;
+
+    public void cumulate(List<CloneGroup> clones) {
+      clonesCount += clones.size();
       for (CloneGroup clone : clones) {
         for (ClonePart clonePart : clone.getCloneParts()) {
           String resourceId = clonePart.getResourceId();
@@ -292,7 +303,6 @@ public abstract class ResultsTestCase {
         }
       }
     }
-    return duplicatedLines;
   }
 
   protected abstract List<CloneGroup> analyse(CloneIndex index, String resourceId);

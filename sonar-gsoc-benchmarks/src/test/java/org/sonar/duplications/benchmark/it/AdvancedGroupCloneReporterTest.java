@@ -19,17 +19,96 @@
  */
 package org.sonar.duplications.benchmark.it;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.util.List;
 
 import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
+import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 
 import com.google.common.collect.Lists;
 
+/**
+ * TODO Godin: explain difference in amount of clones between {@link AdvancedGroupCloneReporter} and {@link OriginalCloneDetectionAlgorithm}.
+ */
 public class AdvancedGroupCloneReporterTest extends ResultsTestCase {
+
+  @Override
+  public void activemq() {
+    super.activemq();
+    assertThat("clones", result.clonesCount, is(818));
+  }
+
+  @Override
+  public void struts() {
+    super.struts();
+    assertThat("clones", result.clonesCount, is(949));
+  }
+
+  @Override
+  public void strutsel() {
+    super.strutsel();
+    assertThat("clones", result.clonesCount, is(770));
+  }
+
+  @Override
+  public void openejb() {
+    super.openejb();
+    assertThat("clones", result.clonesCount, is(616));
+  }
+
+  @Override
+  public void easybeans() {
+    super.easybeans();
+    assertThat("clones", result.clonesCount, is(30));
+  }
+
+  @Override
+  public void commonsCollections() {
+    super.commonsCollections();
+    assertThat("clones", result.clonesCount, is(77));
+  }
+
+  @Override
+  public void jboss() {
+    super.jboss();
+    assertThat("clones", result.clonesCount, is(996));
+  }
+
+  @Override
+  public void neo4j() {
+    super.neo4j();
+    assertThat("clones", result.clonesCount, is(44));
+  }
+
+  @Override
+  public void jackrabbit() {
+    super.jackrabbit();
+    assertThat("clones", result.clonesCount, is(120));
+  }
+
+  @Override
+  public void struts2() {
+    super.struts2();
+    assertThat("clones", result.clonesCount, is(113));
+  }
+
+  @Override
+  public void empire() {
+    super.empire();
+    assertThat("clones", result.clonesCount, is(290));
+  }
+
+  @Override
+  public void tomcat() {
+    super.tomcat();
+    assertThat("clones", result.clonesCount, is(54));
+  }
 
   @Override
   protected List<CloneGroup> analyse(CloneIndex index, String resourceId) {
