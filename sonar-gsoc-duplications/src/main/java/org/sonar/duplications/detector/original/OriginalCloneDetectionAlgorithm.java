@@ -46,6 +46,9 @@ public class OriginalCloneDetectionAlgorithm {
    * Note that this method ignores blocks for this file, that will be retrieved from index.
    */
   public static List<CloneGroup> detect(CloneIndex cloneIndex, List<Block> fileBlocks) {
+    if (fileBlocks.isEmpty()) {
+      return Collections.EMPTY_LIST;
+    }
     OriginalCloneDetectionAlgorithm reporter = new OriginalCloneDetectionAlgorithm(cloneIndex);
     reporter.findClones(fileBlocks);
     return reporter.clones;
@@ -53,17 +56,14 @@ public class OriginalCloneDetectionAlgorithm {
 
   private final CloneIndex cloneIndex;
   private final List<CloneGroup> clones = Lists.newLinkedList();
+  private String originResourceId;
 
   private OriginalCloneDetectionAlgorithm(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
   }
 
   private void findClones(List<Block> fileBlocks) {
-    if (fileBlocks.isEmpty()) {
-      return;
-    }
-    Collections.sort(fileBlocks, BlocksGroup.BlockComparator.INSTANCE);
-    String resourceId = fileBlocks.get(0).getResourceId();
+    originResourceId = fileBlocks.get(0).getResourceId();
 
     // 2: let f be the list of tuples corresponding to filename sorted by statement index
     // either read from the index or calculated on the fly
@@ -90,18 +90,18 @@ public class OriginalCloneDetectionAlgorithm {
 
       // 5: retrieve tuples with same sequence hash as f(i)
 
-      // Godin: explicitly add blocks from this file (they already sorted by index)
+      // Godin: explicitly add blocks from this file
       group.blocks.addAll(fileBlocksByHash.get(block.getBlockHash()));
 
       // Godin: skip blocks for this file if they come from index
       List<Block> blocks = Lists.newArrayList();
       for (Block blockFromIndex : cloneIndex.getBySequenceHash(block.getBlockHash())) {
-        if (!blockFromIndex.getResourceId().equals(block.getResourceId())) {
+        if (!originResourceId.equals(blockFromIndex.getResourceId())) {
           blocks.add(blockFromIndex);
         }
       }
-      Collections.sort(blocks, BlocksGroup.BlockComparator.INSTANCE);
       group.blocks.addAll(blocks);
+      Collections.sort(group.blocks, BlocksGroup.BlockComparator.INSTANCE);
 
       // 6: store this set as c(i)
       sameHashBlocksGroups[i + 1] = group;
@@ -166,11 +166,14 @@ public class OriginalCloneDetectionAlgorithm {
           // checking whether the first element of a0 (with respect to a
           // fixed order) is equal to f(j) and only report in this case.
 
-          Block first = currentBlocksGroup.blocks.get(0);
-          if (!resourceId.equals(first.getResourceId())) {
-            throw new IllegalStateException();
+          Block first = null;
+          for (Block b : currentBlocksGroup.blocks) {
+            if (originResourceId.equals(b.getResourceId())) {
+              first = b;
+            }
           }
           if (first.getIndexInFile() == j - 2) {
+            // Godin: We report clones, which start in i-1 and end in j-2, so length is j-2-(i-1)+1=j-i
             reportClones(sameHashBlocksGroups[i], currentBlocksGroup, j - i);
           }
         }
@@ -202,12 +205,17 @@ public class OriginalCloneDetectionAlgorithm {
     for (int i = 0; i < pairs.size(); i++) {
       Block[] pair = pairs.get(i);
       ClonePart part = new ClonePart(pair[0].getResourceId(), pair[0].getIndexInFile(), pair[0].getFirstLineNumber(), pair[1].getLastLineNumber());
-      if (i == 0) {
-        // TODO Godin: in this implementation - origin is always first,
-        // however CloneGroup#getCloneParts() performs sorting, so must explicitly set origin for sonar-new-cpd-plugin:
-        clone.setOriginPart(part);
-      }
       clone.addPart(part);
+
+      if (originResourceId.equals(part.getResourceId())) {
+        if (clone.getOriginPart() == null) {
+          clone.setOriginPart(part);
+        } else {
+          if (part.getUnitStart() < clone.getOriginPart().getUnitStart()) {
+            clone.setOriginPart(part);
+          }
+        }
+      }
     }
     filterAndSave(clone);
   }

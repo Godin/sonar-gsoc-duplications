@@ -40,13 +40,15 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void activemq() {
     super.activemq();
-    assertThat("clones", result.clonesCount, is(811));
-    assertThat("parts", result.partsCount, is(4655));
+    assertThat("blocks", result.blocks, is(883));
+    assertThat("clones", result.clonesCount, is(810));
+    assertThat("parts", result.partsCount, is(4651));
   }
 
   @Override
   public void struts() {
     super.struts();
+    assertThat("blocks", result.blocks, is(1162));
     assertThat("clones", result.clonesCount, is(1098));
     assertThat("parts", result.partsCount, is(8682));
   }
@@ -54,6 +56,7 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void strutsel() {
     super.strutsel();
+    assertThat("blocks", result.blocks, is(962));
     assertThat("clones", result.clonesCount, is(923));
     assertThat("parts", result.partsCount, is(7452));
   }
@@ -61,6 +64,7 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void openejb() {
     super.openejb();
+    assertThat("blocks", result.blocks, is(621));
     assertThat("clones", result.clonesCount, is(619));
     assertThat("parts", result.partsCount, is(13523));
   }
@@ -68,6 +72,7 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void easybeans() {
     super.easybeans();
+    assertThat("blocks", result.blocks, is(33));
     assertThat("clones", result.clonesCount, is(31));
     assertThat("parts", result.partsCount, is(71));
   }
@@ -75,20 +80,23 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void commonsCollections() {
     super.commonsCollections();
-    assertThat("clones", result.clonesCount, is(78));
-    assertThat("parts", result.partsCount, is(230));
+    assertThat("blocks", result.blocks, is(80));
+    assertThat("clones", result.clonesCount, is(77));
+    assertThat("parts", result.partsCount, is(226));
   }
 
   @Override
   public void jboss() {
     super.jboss();
-    assertThat("clones", result.clonesCount, is(633));
-    assertThat("parts", result.partsCount, is(2568));
+    assertThat("blocks", result.blocks, is(1332));
+    assertThat("clones", result.clonesCount, is(639));
+    assertThat("parts", result.partsCount, is(2599));
   }
 
   @Override
   public void neo4j() {
     super.neo4j();
+    assertThat("blocks", result.blocks, is(57));
     assertThat("clones", result.clonesCount, is(41));
     assertThat("parts", result.partsCount, is(87));
   }
@@ -96,20 +104,23 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void jackrabbit() {
     super.jackrabbit();
-    assertThat("clones", result.clonesCount, is(149));
-    assertThat("parts", result.partsCount, is(475));
+    assertThat("blocks", result.blocks, is(156));
+    assertThat("clones", result.clonesCount, is(116));
+    assertThat("parts", result.partsCount, is(313));
   }
 
   @Override
   public void struts2() {
     super.struts2();
-    assertThat("clones", result.clonesCount, is(93));
-    assertThat("parts", result.partsCount, is(241));
+    assertThat("blocks", result.blocks, is(227));
+    assertThat("clones", result.clonesCount, is(92));
+    assertThat("parts", result.partsCount, is(237));
   }
 
   @Override
   public void empire() {
     super.empire();
+    assertThat("blocks", result.blocks, is(378));
     assertThat("clones", result.clonesCount, is(377));
     assertThat("parts", result.partsCount, is(1804));
   }
@@ -117,6 +128,7 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void tomcat() {
     super.tomcat();
+    assertThat("blocks", result.blocks, is(108));
     assertThat("clones", result.clonesCount, is(49));
     assertThat("parts", result.partsCount, is(116));
   }

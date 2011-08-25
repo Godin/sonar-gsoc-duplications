@@ -84,12 +84,14 @@ public class OriginalCloneDetectionAlgorithmTest {
     CloneGroup clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(4));
     assertThat(clone.getCloneParts().size(), is(2));
+    assertThat(clone.getOriginPart(), is(newClonePart("x", 1, 4)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("x", 1, 4)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("y", 0, 4)));
 
     clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(2));
     assertThat(clone.getCloneParts().size(), is(3));
+    assertThat(clone.getOriginPart(), is(newClonePart("x", 2, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("x", 2, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("y", 1, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("z", 0, 2)));
@@ -122,12 +124,14 @@ public class OriginalCloneDetectionAlgorithmTest {
     CloneGroup clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(4));
     assertThat(clone.getCloneParts().size(), is(2));
+    assertThat(clone.getOriginPart(), is(newClonePart("c", 1, 4)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("c", 1, 4)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 4)));
 
     clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(2));
     assertThat(clone.getCloneParts().size(), is(3));
+    assertThat(clone.getOriginPart(), is(newClonePart("c", 2, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("c", 2, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 1, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 2)));
@@ -162,12 +166,14 @@ public class OriginalCloneDetectionAlgorithmTest {
     CloneGroup clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(4));
     assertThat(clone.getCloneParts().size(), is(2));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 2, 4)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 2, 4)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 4)));
 
     clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(2));
     assertThat(clone.getCloneParts().size(), is(3));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 4, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 4, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 2, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("c", 0, 2)));
@@ -175,6 +181,7 @@ public class OriginalCloneDetectionAlgorithmTest {
     clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(3));
     assertThat(clone.getCloneParts().size(), is(2));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 4, 3)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 4, 3)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("c", 0, 3)));
   }
@@ -206,6 +213,7 @@ public class OriginalCloneDetectionAlgorithmTest {
     CloneGroup clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(3));
     assertThat(clone.getCloneParts().size(), is(5));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 3)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 3)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 3)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 4, 3)));
@@ -238,6 +246,7 @@ public class OriginalCloneDetectionAlgorithmTest {
     CloneGroup clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(3));
     assertThat(clone.getCloneParts().size(), is(2));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 3)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 3)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 3)));
   }
@@ -267,6 +276,7 @@ public class OriginalCloneDetectionAlgorithmTest {
     CloneGroup clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(2));
     assertThat(clone.getCloneParts().size(), is(2));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 3, 2)));
   }
@@ -298,12 +308,14 @@ public class OriginalCloneDetectionAlgorithmTest {
 
     CloneGroup clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(2));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 2, 2)));
 
     clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(3));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 3)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 3)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 3)));
   }
@@ -335,6 +347,7 @@ public class OriginalCloneDetectionAlgorithmTest {
     CloneGroup clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(5));
     assertThat(clone.getCloneParts().size(), is(3));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 5)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 5)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 5)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 2, 5)));
@@ -342,6 +355,7 @@ public class OriginalCloneDetectionAlgorithmTest {
     clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(6));
     assertThat(clone.getCloneParts().size(), is(2));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 6)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 6)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 6)));
   }
@@ -375,6 +389,7 @@ public class OriginalCloneDetectionAlgorithmTest {
     CloneGroup clone = clonesIterator.next();
     assertThat(clone.getCloneUnitLength(), is(2));
     assertThat(clone.getCloneParts().size(), is(2));
+    assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 2)));
   }
