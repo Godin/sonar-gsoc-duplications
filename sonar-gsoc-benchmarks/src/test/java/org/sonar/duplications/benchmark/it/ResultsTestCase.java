@@ -291,10 +291,12 @@ public abstract class ResultsTestCase {
   static class Result {
     SetMultimap<String, Integer> duplicatedLines = HashMultimap.create();
     int clonesCount;
+    int partsCount;
 
     public void cumulate(List<CloneGroup> clones) {
       clonesCount += clones.size();
       for (CloneGroup clone : clones) {
+        partsCount += clone.getCloneParts().size();
         for (ClonePart clonePart : clone.getCloneParts()) {
           String resourceId = clonePart.getResourceId();
           for (int line = clonePart.getLineStart(); line <= clonePart.getLineEnd(); line++) {

@@ -42,72 +42,84 @@ public class AdvancedGroupCloneReporterTest extends ResultsTestCase {
   public void activemq() {
     super.activemq();
     assertThat("clones", result.clonesCount, is(818));
+    assertThat("parts", result.partsCount, is(3730));
   }
 
   @Override
   public void struts() {
     super.struts();
     assertThat("clones", result.clonesCount, is(949));
+    assertThat("parts", result.partsCount, is(3592));
   }
 
   @Override
   public void strutsel() {
     super.strutsel();
     assertThat("clones", result.clonesCount, is(770));
+    assertThat("parts", result.partsCount, is(2385));
   }
 
   @Override
   public void openejb() {
     super.openejb();
     assertThat("clones", result.clonesCount, is(616));
+    assertThat("parts", result.partsCount, is(6372));
   }
 
   @Override
   public void easybeans() {
     super.easybeans();
     assertThat("clones", result.clonesCount, is(30));
+    assertThat("parts", result.partsCount, is(62));
   }
 
   @Override
   public void commonsCollections() {
     super.commonsCollections();
     assertThat("clones", result.clonesCount, is(77));
+    assertThat("parts", result.partsCount, is(206));
   }
 
   @Override
   public void jboss() {
     super.jboss();
     assertThat("clones", result.clonesCount, is(996));
+    assertThat("parts", result.partsCount, is(3672));
   }
 
   @Override
   public void neo4j() {
     super.neo4j();
     assertThat("clones", result.clonesCount, is(44));
+    assertThat("parts", result.partsCount, is(90));
   }
 
   @Override
   public void jackrabbit() {
     super.jackrabbit();
     assertThat("clones", result.clonesCount, is(120));
+    assertThat("parts", result.partsCount, is(295));
   }
 
   @Override
   public void struts2() {
     super.struts2();
     assertThat("clones", result.clonesCount, is(113));
+    assertThat("parts", result.partsCount, is(255));
   }
 
   @Override
   public void empire() {
     super.empire();
     assertThat("clones", result.clonesCount, is(290));
+    assertThat("parts", result.partsCount, is(693));
   }
 
   @Override
   public void tomcat() {
     super.tomcat();
     assertThat("clones", result.clonesCount, is(54));
+    assertThat("parts", result.partsCount, is(112));
   }
 
   @Override

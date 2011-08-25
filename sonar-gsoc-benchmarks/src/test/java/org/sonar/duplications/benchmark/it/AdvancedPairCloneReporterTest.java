@@ -25,7 +25,9 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 
 import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
+import org.sonar.duplications.algorithm.AdvancedPairCloneReporter;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
@@ -35,96 +37,97 @@ import com.google.common.collect.Lists;
 /**
  * TODO Godin: explain difference in amount of clones between {@link AdvancedGroupCloneReporter} and {@link OriginalCloneDetectionAlgorithm}.
  */
-public class OriginalAlgorithmTest extends ResultsTestCase {
+public class AdvancedPairCloneReporterTest extends ResultsTestCase {
 
   @Override
   public void activemq() {
     super.activemq();
-    assertThat("clones", result.clonesCount, is(811));
-    assertThat("parts", result.partsCount, is(4655));
+    assertThat("clones", result.clonesCount, is(825));
+    assertThat("parts", result.partsCount, is(3754));
   }
 
   @Override
   public void struts() {
     super.struts();
-    assertThat("clones", result.clonesCount, is(1098));
-    assertThat("parts", result.partsCount, is(8682));
+    assertThat("clones", result.clonesCount, is(952));
+    assertThat("parts", result.partsCount, is(3598));
   }
 
   @Override
   public void strutsel() {
     super.strutsel();
-    assertThat("clones", result.clonesCount, is(923));
-    assertThat("parts", result.partsCount, is(7452));
+    assertThat("clones", result.clonesCount, is(771));
+    assertThat("parts", result.partsCount, is(2387));
   }
 
   @Override
   public void openejb() {
     super.openejb();
-    assertThat("clones", result.clonesCount, is(619));
-    assertThat("parts", result.partsCount, is(13523));
+    assertThat("clones", result.clonesCount, is(616));
+    assertThat("parts", result.partsCount, is(6372));
   }
 
   @Override
   public void easybeans() {
     super.easybeans();
-    assertThat("clones", result.clonesCount, is(31));
-    assertThat("parts", result.partsCount, is(71));
+    assertThat("clones", result.clonesCount, is(30));
+    assertThat("parts", result.partsCount, is(62));
   }
 
   @Override
   public void commonsCollections() {
     super.commonsCollections();
-    assertThat("clones", result.clonesCount, is(78));
-    assertThat("parts", result.partsCount, is(230));
+    assertThat("clones", result.clonesCount, is(79));
+    assertThat("parts", result.partsCount, is(210));
   }
 
   @Override
   public void jboss() {
     super.jboss();
-    assertThat("clones", result.clonesCount, is(633));
-    assertThat("parts", result.partsCount, is(2568));
+    assertThat("clones", result.clonesCount, is(1066));
+    assertThat("parts", result.partsCount, is(3713));
   }
 
   @Override
   public void neo4j() {
     super.neo4j();
-    assertThat("clones", result.clonesCount, is(41));
-    assertThat("parts", result.partsCount, is(87));
+    assertThat("clones", result.clonesCount, is(45));
+    assertThat("parts", result.partsCount, is(92));
   }
 
   @Override
   public void jackrabbit() {
     super.jackrabbit();
-    assertThat("clones", result.clonesCount, is(149));
-    assertThat("parts", result.partsCount, is(475));
+    assertThat("clones", result.clonesCount, is(209));
+    assertThat("parts", result.partsCount, is(484));
   }
 
   @Override
   public void struts2() {
     super.struts2();
-    assertThat("clones", result.clonesCount, is(93));
-    assertThat("parts", result.partsCount, is(241));
+    assertThat("clones", result.clonesCount, is(127));
+    assertThat("parts", result.partsCount, is(293));
   }
 
   @Override
   public void empire() {
     super.empire();
-    assertThat("clones", result.clonesCount, is(377));
-    assertThat("parts", result.partsCount, is(1804));
+    assertThat("clones", result.clonesCount, is(290));
+    assertThat("parts", result.partsCount, is(693));
   }
 
   @Override
   public void tomcat() {
     super.tomcat();
-    assertThat("clones", result.clonesCount, is(49));
-    assertThat("parts", result.partsCount, is(116));
+    assertThat("clones", result.clonesCount, is(54));
+    assertThat("parts", result.partsCount, is(111));
   }
 
   @Override
   protected List<CloneGroup> analyse(CloneIndex index, String resourceId) {
+    AdvancedPairCloneReporter reporter = new AdvancedPairCloneReporter(index);
     List<Block> fileBlocks = Lists.newArrayList(index.getByResourceId(resourceId));
-    return OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
+    return reporter.reportClones(FileBlockGroup.create(resourceId, fileBlocks));
   }
 
 }
