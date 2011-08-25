@@ -22,6 +22,7 @@ package org.sonar.duplications.benchmark.it;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -286,21 +287,57 @@ public abstract class ResultsTestCase {
     for (File file : files) {
       result.cumulate(analyse(index, file.getAbsolutePath()));
     }
+    // Check consistency between what we found and what would be reported in Sonar
+    assertTrue(result.duplicatedFiles == result.duplicatedLines.keySet().size());
+    assertTrue(result.duplicatedLinesFromOrigins.keySet().size() == result.duplicatedLines.keySet().size());
+    assertTrue(result.duplicatedLinesFromOrigins.size() == result.duplicatedLines.size());
   }
 
   static class Result {
+    /**
+     * This is what would be reported in Sonar as a Duplicated lines (Number of physical lines touched by a duplication).
+     */
+    SetMultimap<String, Integer> duplicatedLinesFromOrigins = HashMultimap.create();
+
+    /**
+     * This is what would be reported in Sonar as a Duplicated blocks (number of duplicated blocks of lines).
+     */
+    int blocks;
+
+    /**
+     * This is what would be reported in Sonar as a Duplicated files (number of files involved in a duplication of lines).
+     */
+    int duplicatedFiles;
+
     SetMultimap<String, Integer> duplicatedLines = HashMultimap.create();
     int clonesCount;
     int partsCount;
 
     public void cumulate(List<CloneGroup> clones) {
+      if (clones.isEmpty()) {
+        return;
+      }
+      duplicatedFiles++;
       clonesCount += clones.size();
       for (CloneGroup clone : clones) {
         partsCount += clone.getCloneParts().size();
-        for (ClonePart clonePart : clone.getCloneParts()) {
-          String resourceId = clonePart.getResourceId();
-          for (int line = clonePart.getLineStart(); line <= clonePart.getLineEnd(); line++) {
-            duplicatedLines.put(resourceId, line);
+        cumulate(clone);
+      }
+    }
+
+    private void cumulate(CloneGroup clone) {
+      ClonePart origin = clone.getOriginPart();
+      for (ClonePart part : clone.getCloneParts()) {
+        // Accumulate duplicate lines from all parts
+        for (int line = part.getLineStart(); line <= part.getLineEnd(); line++) {
+          duplicatedLines.put(part.getResourceId(), line);
+        }
+
+        // Accumulate duplicate lines from origin parts - this is exactly what will report Sonar
+        if (part.getResourceId().equals(origin.getResourceId())) {
+          blocks++;
+          for (int line = part.getLineStart(); line <= part.getLineEnd(); line++) {
+            duplicatedLinesFromOrigins.put(part.getResourceId(), line);
           }
         }
       }
