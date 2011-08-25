@@ -22,10 +22,12 @@ package org.sonar.duplications.index;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.sonar.duplications.detector.original.FastStringComparator;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
 
@@ -76,15 +78,23 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
    * Clone A is contained in another clone B, if every part pA from A has part pB in B,
    * which satisfy the conditions:
    * <pre>
-   * (pA.resourceId == pb.resourceId) and (pB.unitStart <= pA.unitStart) and (pA.unitEnd <= pb.unitEnd)
+   * (pA.resourceId == pB.resourceId) and (pB.unitStart <= pA.unitStart) and (pA.unitEnd <= pB.unitEnd)
    * </pre>
+   * And all resourcesId from B exactly the same as all resourceId from A, which means that also every part pB from B has part pA in A,
+   * which satisfy the condition:
+   * <pre>
+   * pB.resourceId == pA.resourceId
+   * </pre>
+   * 
    * So this relation is:
    * <ul>
    * <li>reflexive - A in A</li>
    * <li>transitive - (A in B) and (B in C) => (A in C)</li>
    * <li>antisymmetric - (A in B) and (B in A) <=> (A = B)</li>
    * </ul>
+   * 
    * Running time - O(|A|*|B|).
+   * 
    * TODO Godin: maybe {@link FastStringComparator} can be used here to increase performance
    */
   private static boolean containsIn(CloneGroup first, CloneGroup second) {
@@ -95,8 +105,15 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
     List<ClonePart> firstParts = first.getCloneParts();
     List<ClonePart> secondParts = second.getCloneParts();
 
+    Map<String, Boolean> res = Maps.newHashMap();
+    for (ClonePart secondPart : secondParts) {
+      res.put(secondPart.getResourceId(), false);
+    }
+
     for (int i = 0; i < firstParts.size(); i++) {
       ClonePart firstPart = firstParts.get(i);
+      res.put(firstPart.getResourceId(), true);
+
       int firstPartUnitEnd = firstPart.getUnitStart() + first.getCloneUnitLength();
       boolean found = false;
 
@@ -114,6 +131,13 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
         return false;
       }
     }
+
+    for (boolean b : res.values()) {
+      if (!b) {
+        return false;
+      }
+    }
+
     return true;
   }
 
