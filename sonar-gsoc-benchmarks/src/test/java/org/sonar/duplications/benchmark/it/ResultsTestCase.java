@@ -22,7 +22,6 @@ package org.sonar.duplications.benchmark.it;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -86,8 +85,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(1079));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(490));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(47605));
+    assertDuplicatedFiles(490);
+    assertDuplicatedLines(47605);
   }
 
   @Test
@@ -100,8 +99,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(412));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(137));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(25039));
+    assertDuplicatedFiles(137);
+    assertDuplicatedLines(25039);
   }
 
   @Test
@@ -114,8 +113,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(101));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(66));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(13489));
+    assertDuplicatedFiles(66);
+    assertDuplicatedLines(13489);
   }
 
   @Test
@@ -128,8 +127,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(609));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(182));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(23081));
+    assertDuplicatedFiles(182);
+    assertDuplicatedLines(23081);
   }
 
   @Test
@@ -142,8 +141,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(131));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(17));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(960));
+    assertDuplicatedFiles(17);
+    assertDuplicatedLines(960);
   }
 
   @Test
@@ -156,8 +155,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(203));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(43));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(4272));
+    assertDuplicatedFiles(43);
+    assertDuplicatedLines(4272);
   }
 
   @Test
@@ -170,8 +169,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(469));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(80));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(23656));
+    assertDuplicatedFiles(80);
+    assertDuplicatedLines(23656);
   }
 
   @Test
@@ -184,8 +183,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(192));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(15));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(2143));
+    assertDuplicatedFiles(15);
+    assertDuplicatedLines(2143);
   }
 
   @Test
@@ -198,8 +197,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(283));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(56));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(8373));
+    assertDuplicatedFiles(56);
+    assertDuplicatedLines(8373);
   }
 
   @Test
@@ -212,8 +211,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(134));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(25));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(3098));
+    assertDuplicatedFiles(25);
+    assertDuplicatedLines(3098);
   }
 
   @Test
@@ -226,8 +225,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(70));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(9));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(4194));
+    assertDuplicatedFiles(9);
+    assertDuplicatedLines(4194);
   }
 
   @Test
@@ -240,8 +239,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(99));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(19));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(1929));
+    assertDuplicatedFiles(19);
+    assertDuplicatedLines(1929);
   }
 
   @Ignore
@@ -256,8 +255,20 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", resourcesInIndex, is(4292));
     assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
     analyse(index, files);
-    assertThat("resources with duplications", result.duplicatedLines.keySet().size(), is(1097));
-    assertThat("duplicated lines", result.duplicatedLines.entries().size(), is(180600));
+    assertDuplicatedFiles(1097);
+    assertDuplicatedLines(180600);
+  }
+
+  protected void assertDuplicatedBlocks(int expected) {
+    assertThat("Duplicated blocks", result.blocks, is(expected));
+  }
+
+  protected void assertDuplicatedFiles(int expected) {
+    assertThat("Duplicated files", result.duplicatedLines.keySet().size(), is(expected));
+  }
+
+  protected void assertDuplicatedLines(int expected) {
+    assertThat("Duplicated lines", result.duplicatedLines.entries().size(), is(expected));
   }
 
   /**
@@ -288,9 +299,9 @@ public abstract class ResultsTestCase {
       result.cumulate(analyse(index, file.getAbsolutePath()));
     }
     // Check consistency between what we found and what would be reported in Sonar
-    assertTrue(result.duplicatedFiles == result.duplicatedLines.keySet().size());
-    assertTrue(result.duplicatedLinesFromOrigins.keySet().size() == result.duplicatedLines.keySet().size());
-    assertTrue(result.duplicatedLinesFromOrigins.size() == result.duplicatedLines.size());
+    assertThat(result.duplicatedFiles, is(result.duplicatedLines.keySet().size()));
+    assertThat(result.duplicatedLinesFromOrigins.keySet().size(), is(result.duplicatedLines.keySet().size()));
+    assertThat(result.duplicatedLinesFromOrigins.size(), is(result.duplicatedLines.size()));
   }
 
   static class Result {

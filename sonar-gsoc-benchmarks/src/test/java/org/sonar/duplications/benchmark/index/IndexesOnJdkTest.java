@@ -4,8 +4,10 @@ import static org.hamcrest.Matchers.greaterThan;
 
 import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.sonar.duplications.benchmark.Utils;
 
+@Ignore("Not relevant for the moment")
 public class IndexesOnJdkTest extends AbstractIndexesTestCase {
 
   @BeforeClass

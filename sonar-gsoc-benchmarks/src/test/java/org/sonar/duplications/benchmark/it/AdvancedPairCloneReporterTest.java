@@ -42,6 +42,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void activemq() {
     super.activemq();
+    assertDuplicatedBlocks(906);
     assertThat("clones", result.clonesCount, is(825));
     assertThat("parts", result.partsCount, is(3754));
   }
@@ -49,6 +50,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void struts() {
     super.struts();
+    assertDuplicatedBlocks(1020);
     assertThat("clones", result.clonesCount, is(952));
     assertThat("parts", result.partsCount, is(3598));
   }
@@ -56,6 +58,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void strutsel() {
     super.strutsel();
+    assertDuplicatedBlocks(811);
     assertThat("clones", result.clonesCount, is(771));
     assertThat("parts", result.partsCount, is(2387));
   }
@@ -63,6 +66,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void openejb() {
     super.openejb();
+    assertDuplicatedBlocks(618);
     assertThat("clones", result.clonesCount, is(616));
     assertThat("parts", result.partsCount, is(6372));
   }
@@ -70,6 +74,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void easybeans() {
     super.easybeans();
+    assertDuplicatedBlocks(32);
     assertThat("clones", result.clonesCount, is(30));
     assertThat("parts", result.partsCount, is(62));
   }
@@ -77,6 +82,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void commonsCollections() {
     super.commonsCollections();
+    assertDuplicatedBlocks(84);
     assertThat("clones", result.clonesCount, is(79));
     assertThat("parts", result.partsCount, is(210));
   }
@@ -84,6 +90,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void jboss() {
     super.jboss();
+    assertDuplicatedBlocks(1937);
     assertThat("clones", result.clonesCount, is(1066));
     assertThat("parts", result.partsCount, is(3713));
   }
@@ -91,6 +98,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void neo4j() {
     super.neo4j();
+    assertDuplicatedBlocks(62);
     assertThat("clones", result.clonesCount, is(45));
     assertThat("parts", result.partsCount, is(92));
   }
@@ -98,6 +106,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void jackrabbit() {
     super.jackrabbit();
+    assertDuplicatedBlocks(360);
     assertThat("clones", result.clonesCount, is(209));
     assertThat("parts", result.partsCount, is(484));
   }
@@ -105,6 +114,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void struts2() {
     super.struts2();
+    assertDuplicatedBlocks(283);
     assertThat("clones", result.clonesCount, is(127));
     assertThat("parts", result.partsCount, is(293));
   }
@@ -112,6 +122,7 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void empire() {
     super.empire();
+    assertDuplicatedBlocks(291);
     assertThat("clones", result.clonesCount, is(290));
     assertThat("parts", result.partsCount, is(693));
   }
@@ -119,8 +130,17 @@ public class AdvancedPairCloneReporterTest extends ResultsTestCase {
   @Override
   public void tomcat() {
     super.tomcat();
+    assertDuplicatedBlocks(103);
     assertThat("clones", result.clonesCount, is(54));
     assertThat("parts", result.partsCount, is(111));
+  }
+
+  @Override
+  public void jdk() {
+    super.jdk();
+    assertDuplicatedBlocks(22862);
+    assertThat("clones", result.clonesCount, is(20970));
+    assertThat("parts", result.partsCount, is(136836));
   }
 
   @Override
