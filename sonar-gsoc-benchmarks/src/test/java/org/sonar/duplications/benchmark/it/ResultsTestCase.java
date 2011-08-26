@@ -36,7 +36,7 @@ import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.index.MemoryCloneIndex;
+import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.java.JavaStatementBuilder;
 import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.Statement;
@@ -72,7 +72,8 @@ public abstract class ResultsTestCase {
 
   @Before
   public void setUp() {
-    index = new MemoryCloneIndex();
+    // index = new MemoryCloneIndex();
+    index = new PackedMemoryCloneIndex();
   }
 
   @Test

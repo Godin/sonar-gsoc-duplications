@@ -2,12 +2,14 @@ package org.sonar.duplications.index;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.detector.original.FastStringComparator;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Each object in Java has an overhead - see
@@ -48,6 +50,15 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     this.resourceIds = new String[initialCapacity];
     this.blockData = new int[initialCapacity * blockInts];
     this.resourceIdsIndex = new int[initialCapacity];
+  }
+
+  @Override
+  public Collection<String> getAllUniqueResourceId() {
+    Set<String> result = Sets.newHashSet();
+    for (int i = 0; i < size; i++) {
+      result.add(resourceIds[i]);
+    }
+    return result;
   }
 
   public Collection<Block> getByResourceId(String resourceId) {

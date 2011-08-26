@@ -19,6 +19,7 @@
  */
 package org.sonar.duplications.detector.original;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -42,7 +43,7 @@ import com.google.common.collect.Maps;
 public class OriginalCloneDetectionAlgorithm {
 
   /**
-   * Performs detection and returns list of clone groups between file (which represented as sorted list of blocks) and index.
+   * Performs detection and returns list of clone groups between file (which represented as a collection of blocks) and index.
    * Note that this method ignores blocks for this file, that will be retrieved from index.
    */
   public static List<CloneGroup> detect(CloneIndex cloneIndex, List<Block> fileBlocks) {
@@ -62,14 +63,17 @@ public class OriginalCloneDetectionAlgorithm {
     this.cloneIndex = cloneIndex;
   }
 
-  private void findClones(List<Block> fileBlocks) {
-    originResourceId = fileBlocks.get(0).getResourceId();
-
+  private void findClones(Collection<Block> fileBlocksFromIndex) {
     // 2: let f be the list of tuples corresponding to filename sorted by statement index
     // either read from the index or calculated on the fly
+    int size = fileBlocksFromIndex.size();
+    originResourceId = fileBlocksFromIndex.iterator().next().getResourceId();
 
+    Block[] fileBlocks = fileBlocksFromIndex.toArray(new Block[size]);
     Map<ByteArray, List<Block>> fileBlocksByHash = Maps.newHashMap();
-    for (Block fileBlock : fileBlocks) {
+    for (Block fileBlock : fileBlocksFromIndex) {
+      fileBlocks[fileBlock.getIndexInFile()] = fileBlock;
+
       List<Block> sameHash = fileBlocksByHash.get(fileBlock.getBlockHash());
       if (sameHash == null) {
         sameHash = Lists.newArrayList();
@@ -79,12 +83,12 @@ public class OriginalCloneDetectionAlgorithm {
     }
 
     // 3: let c be a list with c(0) = empty
-    BlocksGroup[] sameHashBlocksGroups = new BlocksGroup[fileBlocks.size() + 2];
+    BlocksGroup[] sameHashBlocksGroups = new BlocksGroup[size + 2];
     sameHashBlocksGroups[0] = BlocksGroup.empty();
 
     // 4: for i := 1 to length(f) do
-    for (int i = 0; i < fileBlocks.size(); i++) {
-      Block block = fileBlocks.get(i);
+    for (int i = 0; i < size; i++) {
+      Block block = fileBlocks[i];
 
       BlocksGroup group = BlocksGroup.empty();
 
@@ -93,9 +97,10 @@ public class OriginalCloneDetectionAlgorithm {
       // Godin: explicitly add blocks from this file
       group.blocks.addAll(fileBlocksByHash.get(block.getBlockHash()));
 
-      // Godin: skip blocks for this file if they come from index
       List<Block> blocks = Lists.newArrayList();
+      // TODO Godin: can be optimized - no need to retrieve the same blocks few times
       for (Block blockFromIndex : cloneIndex.getBySequenceHash(block.getBlockHash())) {
+        // Godin: skip blocks for this file if they come from index
         if (!originResourceId.equals(blockFromIndex.getResourceId())) {
           blocks.add(blockFromIndex);
         }
@@ -109,7 +114,7 @@ public class OriginalCloneDetectionAlgorithm {
 
     // allows to report clones at the end of file, because condition at line 13 would be evaluated as true
     // TODO Godin: not sure about this hack
-    sameHashBlocksGroups[fileBlocks.size() + 1] = BlocksGroup.empty();
+    sameHashBlocksGroups[size + 1] = BlocksGroup.empty();
 
     // 7: for i := 1 to length(c) do
     for (int i = 1; i < sameHashBlocksGroups.length; i++) {
@@ -170,6 +175,7 @@ public class OriginalCloneDetectionAlgorithm {
           for (Block b : currentBlocksGroup.blocks) {
             if (originResourceId.equals(b.getResourceId())) {
               first = b;
+              break;
             }
           }
           if (first.getIndexInFile() == j - 2) {
