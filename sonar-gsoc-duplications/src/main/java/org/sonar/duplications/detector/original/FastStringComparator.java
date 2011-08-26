@@ -30,6 +30,9 @@ public class FastStringComparator implements Comparator<String> {
 
   public static final FastStringComparator INSTANCE = new FastStringComparator();
 
+  /**
+   * Compares two strings (not lexicographically).
+   */
   public int compare(String s1, String s2) {
     if (s1 == s2) { // NOSONAR false-positive: Compare Objects With Equals
       return 0;
