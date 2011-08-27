@@ -29,6 +29,9 @@ public class ClonePart implements Comparable<ClonePart> {
   private int lineStart;
   private int lineEnd;
 
+  /**
+   * FIXME Godin: cache for hash code seems very strange for mutable object
+   */
   private int hash;
 
   public ClonePart(Block block) {
@@ -79,6 +82,10 @@ public class ClonePart implements Comparable<ClonePart> {
   public ClonePart setLineEnd(int lineEnd) {
     this.lineEnd = lineEnd;
     return this;
+  }
+
+  public int getLines() {
+    return lineEnd - lineStart + 1;
   }
 
   @Override

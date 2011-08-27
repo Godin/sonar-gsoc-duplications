@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.detector.original;
+package org.sonar.duplications.utils;
 
 import java.util.Comparator;
 
@@ -46,6 +46,12 @@ public class FastStringComparator implements Comparator<String> {
     } else {
       return s1.compareTo(s2);
     }
+  }
+
+  /**
+   * Enforce use of a singleton instance.
+   */
+  private FastStringComparator() {
   }
 
 }

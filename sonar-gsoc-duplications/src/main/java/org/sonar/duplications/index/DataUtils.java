@@ -7,14 +7,26 @@ public final class DataUtils {
 
   public interface Sortable {
 
+    /**
+     * @return the number of elements.
+     */
     int size();
 
+    /**
+     * Swaps elements in positions i and j.
+     */
     void swap(int i, int j);
 
+    /**
+     * @return true if element in position i less than in position j.
+     */
     boolean isLess(int i, int j);
 
   }
 
+  /**
+   * Converts byte array to int array.
+   */
   public static int[] byteToIntArray(byte[] byteArray) {
     int size = (byteArray.length / 4) + (byteArray.length % 4 == 0 ? 0 : 1); // Pad the size to multiple of 4
     ByteBuffer bb = ByteBuffer.allocate(size * 4);
@@ -26,6 +38,9 @@ public final class DataUtils {
     return result;
   }
 
+  /**
+   * Converts int array to byte array.
+   */
   public static byte[] intToByteArray(int[] intArray) {
     ByteBuffer bb = ByteBuffer.allocate(intArray.length * 4);
     for (int i : intArray) {
@@ -34,12 +49,16 @@ public final class DataUtils {
     return bb.array();
   }
 
-  public static int binarySearch(Sortable data, int element) {
+  /**
+   * Value for search must be stored in position {@link Sortable#size() size}.
+   */
+  public static int binarySearch(Sortable data) {
+    int value = data.size();
     int lower = 0;
     int upper = data.size();
     while (lower < upper) {
       int mid = (lower + upper) >> 1;
-      if (data.isLess(mid, element)) {
+      if (data.isLess(mid, value)) {
         lower = mid + 1;
       } else {
         upper = mid;

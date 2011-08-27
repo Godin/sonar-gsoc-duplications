@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.utils.FastStringComparator;
 
 import com.google.common.collect.Lists;
 
@@ -70,11 +71,27 @@ class BlocksGroup {
     return pairs(this, other, len);
   }
 
+  /**
+   * First block from this group with specified resource id.
+   */
+  public Block first(String resourceId) {
+    for (Block block : blocks) {
+      if (resourceId.equals(block.getResourceId())) {
+        return block;
+      }
+    }
+    return null;
+  }
+
   @Override
   public String toString() {
     return blocks.toString();
   }
 
+  /**
+   * Intersection of two groups is a group, which contains blocks from second group that have corresponding block from first group
+   * with same resource id and with corrected index.
+   */
   protected BlocksGroup intersect(BlocksGroup group1, BlocksGroup group2) {
     BlocksGroup intersection = new BlocksGroup();
     List<Block> list1 = group1.blocks;
@@ -112,7 +129,8 @@ class BlocksGroup {
   }
 
   /**
-   * One group is subsumed by another group, when each block from first group has corresponding block from second group with corrected index.
+   * One group is subsumed by another group, when each block from first group has corresponding block from second group
+   * with same resource id and with corrected index.
    */
   protected boolean subsumedBy(BlocksGroup group1, BlocksGroup group2, int indexCorrection) {
     List<Block> list1 = group1.blocks;

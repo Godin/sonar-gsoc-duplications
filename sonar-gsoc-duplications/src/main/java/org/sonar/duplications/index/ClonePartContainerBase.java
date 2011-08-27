@@ -30,7 +30,9 @@ public abstract class ClonePartContainerBase<E> {
   protected int cloneLength;
   protected List<ClonePart> parts;
 
-  // Cache for hash code.
+  /**
+   * FIXME Godin: cache for hash code seems very strange for mutable object
+   */
   private int hash;
 
   public ClonePart getOriginPart() {

@@ -24,11 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.sonar.duplications.detector.original.FastStringComparator;
+import org.sonar.duplications.utils.FastStringComparator;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+/**
+ * Groups a set of related {@link ClonePart}s.
+ */
 public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
 
   private boolean sorted = true;

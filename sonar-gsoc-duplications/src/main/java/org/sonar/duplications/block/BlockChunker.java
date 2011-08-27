@@ -20,37 +20,40 @@
  */
 package org.sonar.duplications.block;
 
-import com.google.common.collect.Lists;
-import org.sonar.duplications.statement.Statement;
-
 import java.util.Collections;
 import java.util.List;
 
+import org.sonar.duplications.statement.Statement;
+
+import com.google.common.collect.Lists;
+
 /**
- * Creates blocks from statements.
- * Each block will contain specified number of statements - <code>blockSize</code>.
- * Hash value computed for each block using Rabin-Karp rolling hash :
+ * Creates blocks from statements, each block will contain specified number of statements (<code>blockSize</code>) and 64-bits (8-bytes) hash value.
+ * Hash value computed using
+ * <a href="http://en.wikipedia.org/wiki/Rolling_hash#Rabin-Karp_rolling_hash">Rabin-Karp rolling hash</a> :
  * <blockquote><pre>
  * s[0]*31^(blockSize-1) + s[1]*31^(blockSize-2) + ... + s[blockSize-1]
  * </pre></blockquote>
  * using <code>long</code> arithmetic, where <code>s[i]</code>
- * is the hash code of <code>String</code> for statement with number i.
+ * is the hash code of <code>String</code> (which is cached) for statement with number i.
  * Thus running time - O(N), where N - number of statements.
+ * Implementation fully thread-safe.
  */
 public class BlockChunker {
 
   private static final long PRIME_BASE = 31;
-  private long power;
 
-  private int blockSize;
+  private final int blockSize;
+  private final long power;
 
   public BlockChunker(int blockSize) {
     this.blockSize = blockSize;
 
-    power = 1;
-    for (int i = 0; i < blockSize; i++) {
+    long power = 1;
+    for (int i = 0; i < blockSize - 1; i++) {
       power = power * PRIME_BASE;
     }
+    this.power = power;
   }
 
   public List<Block> chunk(String resourceId, List<Statement> statements) {
@@ -58,24 +61,28 @@ public class BlockChunker {
       return Collections.emptyList();
     }
     Statement[] statementsArr = statements.toArray(new Statement[statements.size()]);
-    List<Block> blockList = Lists.newArrayListWithCapacity(statements.size() - blockSize + 1);
+    List<Block> blocks = Lists.newArrayListWithCapacity(statementsArr.length - blockSize + 1);
     long hash = 0;
-    for (int i = 0; i < statementsArr.length; i++) {
-      // add current statement to hash
-      Statement current = statementsArr[i];
-      hash = hash * PRIME_BASE + current.getValue().hashCode();
-      // remove first statement from hash, if needed
-      int j = i - blockSize + 1;
-      if (j > 0) {
-        hash -= power * statementsArr[j - 1].getValue().hashCode();
-      }
-      // create block
-      if (j >= 0) {
-        Statement first = statementsArr[j];
-        blockList.add(new Block(resourceId, new ByteArray(hash), j, first.getStartLine(), current.getEndLine()));
-      }
+    int first = 0;
+    int last = 0;
+    for (; last < blockSize - 1; last++) {
+      hash = hash * PRIME_BASE + statementsArr[last].getValue().hashCode();
     }
-    return blockList;
+    for (; last < statementsArr.length; last++, first++) {
+      Statement firstStatement = statementsArr[first];
+      Statement lastStatement = statementsArr[last];
+      // add last statement to hash
+      hash = hash * PRIME_BASE + lastStatement.getValue().hashCode();
+      // create block
+      blocks.add(new Block(resourceId, new ByteArray(hash), first, firstStatement.getStartLine(), lastStatement.getEndLine()));
+      // remove first statement from hash
+      hash -= power * firstStatement.getValue().hashCode();
+    }
+    return blocks;
+  }
+
+  public int getBlockSize() {
+    return blockSize;
   }
 
 }

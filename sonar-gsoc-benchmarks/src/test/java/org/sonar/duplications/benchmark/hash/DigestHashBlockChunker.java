@@ -1,14 +1,19 @@
 package org.sonar.duplications.benchmark.hash;
 
-import org.sonar.duplications.DuplicationsException;
-import org.sonar.duplications.block.ByteArray;
-import org.sonar.duplications.statement.Statement;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import org.sonar.duplications.DuplicationsException;
+import org.sonar.duplications.block.ByteArray;
+import org.sonar.duplications.statement.Statement;
+
 public class DigestHashBlockChunker extends AbstractHashBlockChunker {
+
+  /**
+   * TODO Godin: separation of statements required, but I'm not sure that we use a good value for this
+   */
+  private static final byte SEPARATOR = 0;
 
   private final MessageDigest digest;
 
@@ -34,8 +39,7 @@ public class DigestHashBlockChunker extends AbstractHashBlockChunker {
     digest.reset();
     for (Statement statement : statements) {
       digest.update(statement.getValue().getBytes());
-      // TODO Godin: separation of statements required, but I'm not sure that we use a good value for this
-      digest.update((byte) 0);
+      digest.update(SEPARATOR);
     }
     return new ByteArray(digest.digest());
   }

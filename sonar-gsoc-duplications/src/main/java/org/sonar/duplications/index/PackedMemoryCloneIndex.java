@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
-import org.sonar.duplications.detector.original.FastStringComparator;
+import org.sonar.duplications.utils.FastStringComparator;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -18,7 +18,7 @@ import com.google.common.collect.Sets;
  */
 public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
-  private static final int INITIAL_SIZE = 1024;
+  private static final int DEFAULT_INITIAL_CAPACITY = 1024;
 
   private static final int BLOCK_INTS = 3;
 
@@ -26,7 +26,14 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
   private final int blockInts;
 
+  /**
+   * Indicates that index requires sorting to perform queries.
+   */
   private boolean sorted;
+
+  /**
+   * Current number of blocks in index.
+   */
   private int size;
 
   private String[] resourceIds;
@@ -35,7 +42,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   private int[] resourceIdsIndex;
 
   public PackedMemoryCloneIndex() {
-    this(8, INITIAL_SIZE);
+    this(8, DEFAULT_INITIAL_CAPACITY);
   }
 
   /**
@@ -61,6 +68,9 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     return result;
   }
 
+  /**
+   * Note that this implementation does not guarantee that blocks would be sorted by index.
+   */
   public Collection<Block> getByResourceId(String resourceId) {
     ensureSorted();
 
@@ -71,7 +81,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     resourceIds[size] = resourceId;
     resourceIdsIndex[size] = size;
 
-    int index = DataUtils.binarySearch(byResourceId, size);
+    int index = DataUtils.binarySearch(byResourceId);
     // TODO can be used if strings interned: while (index < size && resourceIds[byResourceIndices[index]] == resourceId) {
     while (index < size && FastStringComparator.INSTANCE.compare(resourceIds[resourceIdsIndex[index]], resourceId) == 0) {
       result.add(extractBlock(resourceIdsIndex[index]));
@@ -85,7 +95,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
     int[] hash = DataUtils.byteToIntArray(sequenceHash.array());
     if (hash.length != hashInts) {
-      throw new IllegalStateException("Expected " + hashInts + " ints in hash, but got " + hash.length);
+      throw new IllegalArgumentException("Expected " + hashInts + " ints in hash, but got " + hash.length);
     }
     int offset = size * blockInts;
     for (int i = 0; i < hashInts; i++) {
@@ -93,7 +103,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     }
 
     List<Block> result = Lists.newArrayList();
-    int index = DataUtils.binarySearch(byBlockHash, size);
+    int index = DataUtils.binarySearch(byBlockHash);
     while (index < size && !isLessByHash(size, index)) {
       result.add(extractBlock(index));
       index++;
@@ -101,6 +111,9 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     return result;
   }
 
+  /**
+   * Note that this implementation allows insertion of two blocks with same index.
+   */
   public void insert(Block block) {
     sorted = false;
     ensureCapacity();
@@ -110,7 +123,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
     int[] hash = DataUtils.byteToIntArray(block.getBlockHash().array());
     if (hash.length != hashInts) {
-      throw new IllegalStateException("Expected " + hashInts + " ints in hash, but got " + hash.length);
+      throw new IllegalArgumentException("Expected " + hashInts + " ints in hash, but got " + hash.length);
     }
     int offset = size * blockInts;
     for (int i = 0; i < hashInts; i++) {
@@ -124,6 +137,14 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   }
 
   /**
+   * TODO Currently this implementation does not support deletion, however it's possible to implement.
+   */
+  @Override
+  public void remove(String resourceId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Increases the capacity, if necessary.
    */
   private void ensureCapacity() {
@@ -131,15 +152,15 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       return;
     }
     int newCapacity = (resourceIds.length * 3) / 2 + 1;
-    // Double size of resourceIds
+    // Increase size of resourceIds
     String[] oldResourceIds = resourceIds;
     resourceIds = new String[newCapacity];
     System.arraycopy(oldResourceIds, 0, resourceIds, 0, oldResourceIds.length);
-    // Double size of blockData
+    // Increase size of blockData
     int[] oldBlockData = blockData;
     blockData = new int[newCapacity * blockInts];
     System.arraycopy(oldBlockData, 0, blockData, 0, oldBlockData.length);
-    // Double size of byResourceIndices (no need to copy old, because would be restored in method ensureSorted)
+    // Increase size of byResourceIndices (no need to copy old, because would be restored in method ensureSorted)
     resourceIdsIndex = new int[newCapacity];
     sorted = false;
   }

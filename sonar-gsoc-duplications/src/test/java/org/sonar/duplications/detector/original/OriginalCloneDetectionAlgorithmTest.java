@@ -21,8 +21,11 @@ package org.sonar.duplications.detector.original;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -392,6 +395,16 @@ public class OriginalCloneDetectionAlgorithmTest {
     assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 2)));
+  }
+
+  /**
+   * Given: empty list of blocks for file
+   * Expected: {@link Collections#EMPTY_LIST}
+   */
+  @Test
+  public void shouldReturnEmptyListWhenNoBlocksForFile() {
+    List<CloneGroup> result = OriginalCloneDetectionAlgorithm.detect(null, new ArrayList<Block>());
+    assertThat(result, sameInstance(Collections.EMPTY_LIST));
   }
 
   private void print(List<CloneGroup> clones) {

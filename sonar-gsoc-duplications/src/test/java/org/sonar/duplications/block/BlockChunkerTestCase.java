@@ -22,6 +22,7 @@ package org.sonar.duplications.block;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
@@ -62,7 +63,7 @@ public abstract class BlockChunkerTestCase {
    */
   @Test
   public void testSameChars() {
-    List<Statement> statements = statementsFromStrings("LCL", "C", "LCL", "C", "L", "C", "LCL", "C", "LCL");
+    List<Statement> statements = createStatementsFromStrings("LCL", "C", "LCL", "C", "L", "C", "LCL", "C", "LCL");
     BlockChunker chunker = createChunkerWithBlockSize(5);
     List<Block> blocks = chunker.chunk("resource", statements);
     assertThat("first and last block should have different hashes", blocks.get(0).getBlockHash(), not(equalTo(blocks.get(blocks.size() - 1).getBlockHash())));
@@ -73,7 +74,7 @@ public abstract class BlockChunkerTestCase {
    */
   @Test
   public void testEmptyStatements() {
-    List<Statement> statements = statementsFromStrings("1", "", "1", "1", "");
+    List<Statement> statements = createStatementsFromStrings("1", "", "1", "1", "");
     BlockChunker chunker = createChunkerWithBlockSize(3);
     List<Block> blocks = chunker.chunk("resource", statements);
     assertThat("first and last block should have different hashes", blocks.get(0).getBlockHash(), not(equalTo(blocks.get(blocks.size() - 1).getBlockHash())));
@@ -81,19 +82,25 @@ public abstract class BlockChunkerTestCase {
 
   /**
    * Given: 5 statements, block size is 3
-   * Expected: 4 blocks
+   * Expected: 4 blocks with correct index and with line numbers
    */
   @Test
-  public void testSize() {
-    List<Statement> statements = statementsFromStrings("1", "2", "3", "4", "5", "6");
+  public void shouldBuildBlocksFromStatements() {
+    List<Statement> statements = createStatementsFromStrings("1", "2", "3", "4", "5", "6");
     BlockChunker chunker = createChunkerWithBlockSize(3);
     List<Block> blocks = chunker.chunk("resource", statements);
     assertThat(blocks.size(), is(4));
+    assertThat(blocks.get(0).getIndexInFile(), is(0));
+    assertThat(blocks.get(0).getFirstLineNumber(), is(0));
+    assertThat(blocks.get(0).getLastLineNumber(), is(2));
+    assertThat(blocks.get(1).getIndexInFile(), is(1));
+    assertThat(blocks.get(1).getFirstLineNumber(), is(1));
+    assertThat(blocks.get(1).getLastLineNumber(), is(3));
   }
 
   @Test
   public void testHashes() {
-    List<Statement> statements = statementsFromStrings("1", "2", "1", "2");
+    List<Statement> statements = createStatementsFromStrings("1", "2", "1", "2");
     BlockChunker chunker = createChunkerWithBlockSize(2);
     List<Block> blocks = chunker.chunk("resource", statements);
     assertThat("blocks 0 and 2 should have same hash", blocks.get(0).getBlockHash(), equalTo(blocks.get(2).getBlockHash()));
@@ -103,33 +110,34 @@ public abstract class BlockChunkerTestCase {
   /**
    * Given: 0 statements
    * Expected: 0 blocks
-   * TODO Godin: in fact we can even require {@link Collections#EMPTY_LIST}
    */
   @Test
   public void shouldNotBuildBlocksWhenNoStatements() {
     List<Statement> statements = Collections.emptyList();
     BlockChunker blockChunker = createChunkerWithBlockSize(2);
     List<Block> blocks = blockChunker.chunk("resource", statements);
-    assertThat(blocks.size(), is(0));
+    assertThat(blocks, sameInstance(Collections.EMPTY_LIST));
   }
 
   /**
    * Given: 1 statement, block size is 2
    * Expected: 0 blocks
-   * TODO Godin: in fact we can even require {@link Collections#EMPTY_LIST}
    */
   @Test
   public void shouldNotBuildBlocksWhenNotEnoughStatements() {
-    List<Statement> statements = statementsFromStrings("statement");
+    List<Statement> statements = createStatementsFromStrings("statement");
     BlockChunker blockChunker = createChunkerWithBlockSize(2);
     List<Block> blocks = blockChunker.chunk("resource", statements);
-    assertThat(blocks.size(), is(0));
+    assertThat(blocks, sameInstance(Collections.EMPTY_LIST));
   }
 
-  private static List<Statement> statementsFromStrings(String... values) {
+  /**
+   * Creates list of statements from Strings, each statement on a new line starting from 0.
+   */
+  protected static List<Statement> createStatementsFromStrings(String... values) {
     List<Statement> result = Lists.newArrayList();
-    for (String value : values) {
-      result.add(new Statement(0, 0, value));
+    for (int i = 0; i < values.length; i++) {
+      result.add(new Statement(i, i, values[i]));
     }
     return result;
   }

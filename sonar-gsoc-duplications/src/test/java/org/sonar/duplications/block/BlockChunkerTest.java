@@ -21,10 +21,8 @@ package org.sonar.duplications.block;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -37,49 +35,29 @@ public class BlockChunkerTest extends BlockChunkerTestCase {
     return new BlockChunker(blockSize);
   }
 
-  @Test
-  public void shouldBuildBlocksFromStatements() {
-    BlockChunker blockChunker = new BlockChunker(2);
-    List<Statement> statements = Arrays.asList(
-        new Statement(1, 1, "package example;"),
-        new Statement(2, 2, "class Example {"),
-        new Statement(3, 3, "}"));
-
-    List<Block> blocks = blockChunker.chunk("foo", statements);
-
-    assertThat(blocks.size(), is(2));
-
-    assertThat(blocks.get(0).getIndexInFile(), is(0));
-    assertThat(blocks.get(0).getFirstLineNumber(), is(1));
-    assertThat(blocks.get(0).getLastLineNumber(), is(2));
-
-    assertThat(blocks.get(1).getIndexInFile(), is(1));
-    assertThat(blocks.get(1).getFirstLineNumber(), is(2));
-    assertThat(blocks.get(1).getLastLineNumber(), is(3));
-
-    assertThat(blocks.get(0).getBlockHash(), not(equalTo(blocks.get(1).getBlockHash())));
-  }
-
+  /**
+   * Rolling hash must produce exactly the same values as without rolling behavior.
+   * Moreover those values must always be the same (without dependency on JDK).
+   */
   @Test
   public void shouldCalculateHashes() {
-    BlockChunker blockChunker = new BlockChunker(2);
-    List<Statement> statements = Arrays.asList(
-        new Statement(1, 1, "if (a)"),
-        new Statement(2, 2, "doWork();"),
-        new Statement(3, 3, "if (a)"),
-        new Statement(4, 4, "doWork();"),
-        new Statement(5, 5, "doWork();"));
+    List<Statement> statements = createStatementsFromStrings("aaaaaa", "bbbbbb", "cccccc", "dddddd", "eeeeee");
+    BlockChunker blockChunker = createChunkerWithBlockSize(3);
+    List<Block> blocks = blockChunker.chunk("resource", statements);
+    assertThat(blocks.get(0).getBlockHash(), equalTo(hash("aaaaaa", "bbbbbb", "cccccc")));
+    assertThat(blocks.get(1).getBlockHash(), equalTo(hash("bbbbbb", "cccccc", "dddddd")));
+    assertThat(blocks.get(2).getBlockHash(), equalTo(hash("cccccc", "dddddd", "eeeeee")));
+    assertThat(blocks.get(0).getBlockHash().toString(), is("fffffeb6ae1af4c0"));
+    assertThat(blocks.get(1).getBlockHash().toString(), is("fffffebd8512d120"));
+    assertThat(blocks.get(2).getBlockHash().toString(), is("fffffec45c0aad80"));
+  }
 
-    List<Block> blocks = blockChunker.chunk("foo", statements);
-    assertThat(blocks.size(), is(4));
-    // for (Block block : blocks) {
-    // System.out.println(block.getBlockHash());
-    // }
-    assertThat("same value as for block 2", blocks.get(0).getBlockHash(), equalTo(blocks.get(2).getBlockHash()));
-    assertThat("same value as for block 2", blocks.get(0).getBlockHash(), is(new ByteArray("fffffff715d0c4b1")));
-    assertThat(blocks.get(1).getBlockHash(), is(new ByteArray("fffffff6750ec0af")));
-    assertThat("same value as for block 0", blocks.get(2).getBlockHash(), is(new ByteArray("fffffff715d0c4b1")));
-    assertThat(blocks.get(3).getBlockHash(), is(new ByteArray("fffffff66fb2f3c0")));
+  private ByteArray hash(String... statements) {
+    long hash = 0;
+    for (String statement : statements) {
+      hash = hash * 31 + statement.hashCode();
+    }
+    return new ByteArray(hash);
   }
 
 }
