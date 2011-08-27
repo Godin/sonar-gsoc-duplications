@@ -22,7 +22,6 @@ package org.sonar.duplications.block;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
@@ -66,9 +65,18 @@ public abstract class BlockChunkerTestCase {
     List<Statement> statements = statementsFromStrings("LCL", "C", "LCL", "C", "L", "C", "LCL", "C", "LCL");
     BlockChunker chunker = createChunkerWithBlockSize(5);
     List<Block> blocks = chunker.chunk("resource", statements);
-    String hash1 = blocks.get(0).getBlockHash().toString();
-    String hash2 = blocks.get(blocks.size() - 1).getBlockHash().toString();
-    assertFalse(hash1.equals(hash2));
+    assertThat("first and last block should have different hashes", blocks.get(0).getBlockHash(), not(equalTo(blocks.get(blocks.size() - 1).getBlockHash())));
+  }
+
+  /**
+   * TODO Godin: should we allow empty statements in general?
+   */
+  @Test
+  public void testEmptyStatements() {
+    List<Statement> statements = statementsFromStrings("1", "", "1", "1", "");
+    BlockChunker chunker = createChunkerWithBlockSize(3);
+    List<Block> blocks = chunker.chunk("resource", statements);
+    assertThat("first and last block should have different hashes", blocks.get(0).getBlockHash(), not(equalTo(blocks.get(blocks.size() - 1).getBlockHash())));
   }
 
   /**
@@ -88,8 +96,8 @@ public abstract class BlockChunkerTestCase {
     List<Statement> statements = statementsFromStrings("1", "2", "1", "2");
     BlockChunker chunker = createChunkerWithBlockSize(2);
     List<Block> blocks = chunker.chunk("resource", statements);
-    assertThat(blocks.get(0).getBlockHash(), equalTo(blocks.get(2).getBlockHash()));
-    assertThat(blocks.get(0).getBlockHash(), not(equalTo(blocks.get(1).getBlockHash())));
+    assertThat("blocks 0 and 2 should have same hash", blocks.get(0).getBlockHash(), equalTo(blocks.get(2).getBlockHash()));
+    assertThat("blocks 0 and 1 should have different hash", blocks.get(0).getBlockHash(), not(equalTo(blocks.get(1).getBlockHash())));
   }
 
   /**

@@ -10,27 +10,34 @@ import java.util.List;
 
 public class DigestHashBlockChunker extends AbstractHashBlockChunker {
 
-  protected final MessageDigest digest;
+  private final MessageDigest digest;
 
   public static enum Algorithm {
     MD5, SHA;
   }
 
   public DigestHashBlockChunker(Algorithm algorithm, int blockSize) {
+    this(algorithm.toString(), blockSize);
+  }
+
+  public DigestHashBlockChunker(String algorithm, int blockSize) {
     super(blockSize);
     try {
-      this.digest = MessageDigest.getInstance(algorithm.toString());
+      this.digest = MessageDigest.getInstance(algorithm);
     } catch (NoSuchAlgorithmException e) {
       throw new DuplicationsException("Unable to create a digest generator", e);
     }
   }
 
-  protected ByteArray buildBlockHash(List<Statement> statementList) {
+  @Override
+  protected ByteArray buildBlockHash(List<Statement> statements) {
     digest.reset();
-    for (Statement statement : statementList) {
+    for (Statement statement : statements) {
       digest.update(statement.getValue().getBytes());
+      // TODO Godin: separation of statements required, but I'm not sure that we use a good value for this
+      digest.update((byte) 0);
     }
-    byte[] messageDigest = digest.digest();
-    return new ByteArray(messageDigest);
+    return new ByteArray(digest.digest());
   }
+
 }
