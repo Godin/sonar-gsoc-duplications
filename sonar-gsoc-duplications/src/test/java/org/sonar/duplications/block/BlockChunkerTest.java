@@ -19,17 +19,23 @@
  */
 package org.sonar.duplications.block;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 import org.sonar.duplications.statement.Statement;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+public class BlockChunkerTest extends BlockChunkerTestCase {
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-
-public class BlockChunkerTest {
+  @Override
+  protected BlockChunker createChunkerWithBlockSize(int blockSize) {
+    return new BlockChunker(blockSize);
+  }
 
   @Test
   public void shouldBuildBlocksFromStatements() {
@@ -74,26 +80,6 @@ public class BlockChunkerTest {
     assertThat(blocks.get(1).getBlockHash(), is(new ByteArray("fffffff6750ec0af")));
     assertThat("same value as for block 0", blocks.get(2).getBlockHash(), is(new ByteArray("fffffff715d0c4b1")));
     assertThat(blocks.get(3).getBlockHash(), is(new ByteArray("fffffff66fb2f3c0")));
-  }
-
-  @Test
-  public void shouldNotBuildBlocksWhenNoStatements() {
-    BlockChunker blockChunker = new BlockChunker(2);
-    List<Statement> statements = Collections.emptyList();
-
-    List<Block> blocks = blockChunker.chunk("foo", statements);
-
-    assertThat(blocks.size(), is(0));
-  }
-
-  @Test
-  public void shouldNotBuildBlocksWhenNotEnoughStatements() {
-    BlockChunker blockChunker = new BlockChunker(2);
-    List<Statement> statements = Arrays.asList(new Statement(1, 1, "package example;"));
-
-    List<Block> blocks = blockChunker.chunk("foo", statements);
-
-    assertThat(blocks.size(), is(0));
   }
 
 }
