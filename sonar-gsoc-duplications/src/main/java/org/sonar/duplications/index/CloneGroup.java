@@ -21,13 +21,13 @@
 package org.sonar.duplications.index;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import org.sonar.duplications.utils.FastStringComparator;
+import org.sonar.duplications.utils.SortedListsUtils;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Groups a set of related {@link ClonePart}s.
@@ -95,8 +95,8 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
    * <li>transitive - (A in B) and (B in C) => (A in C)</li>
    * <li>antisymmetric - (A in B) and (B in A) <=> (A = B)</li>
    * </ul>
-   * 
-   * Running time - O(|A|*|B|).
+   * This method uses the fact that all parts already sorted by resourceId and unitStart (see {@link #getCloneParts()}),
+   * so running time - O(|A|+|B|).
    * 
    * TODO Godin: maybe {@link FastStringComparator} can be used here to increase performance
    */
@@ -104,44 +104,42 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
     if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
       return false;
     }
-
     List<ClonePart> firstParts = first.getCloneParts();
     List<ClonePart> secondParts = second.getCloneParts();
+    return SortedListsUtils.contains(secondParts, firstParts, new ContainsInComparator(first.getCloneUnitLength(), second.getCloneUnitLength()))
+        && SortedListsUtils.contains(firstParts, secondParts, RESOURCE_ID_COMPARATOR);
+  }
 
-    Map<String, Boolean> res = Maps.newHashMap();
-    for (ClonePart secondPart : secondParts) {
-      res.put(secondPart.getResourceId(), false);
+  private static final Comparator<ClonePart> RESOURCE_ID_COMPARATOR = new Comparator<ClonePart>() {
+    public int compare(ClonePart o1, ClonePart o2) {
+      return o1.getResourceId().compareTo(o2.getResourceId());
+    }
+  };
+
+  private static class ContainsInComparator implements Comparator<ClonePart> {
+    private final int l1, l2;
+
+    public ContainsInComparator(int l1, int l2) {
+      this.l1 = l1;
+      this.l2 = l2;
     }
 
-    for (int i = 0; i < firstParts.size(); i++) {
-      ClonePart firstPart = firstParts.get(i);
-      res.put(firstPart.getResourceId(), true);
-
-      int firstPartUnitEnd = firstPart.getUnitStart() + first.getCloneUnitLength();
-      boolean found = false;
-
-      for (int j = 0; j < secondParts.size(); j++) {
-        ClonePart secondPart = secondParts.get(j);
-        int secondPartUnitEnd = secondPart.getUnitStart() + second.getCloneUnitLength();
-        if ((firstPart.getResourceId().equals(secondPart.getResourceId())) &&
-            (secondPart.getUnitStart() <= firstPart.getUnitStart()) &&
-            (firstPartUnitEnd <= secondPartUnitEnd)) {
-          found = true;
-          break;
+    public int compare(ClonePart o1, ClonePart o2) {
+      int c = o1.getResourceId().compareTo(o2.getResourceId());
+      if (c == 0) {
+        if (o2.getUnitStart() <= o1.getUnitStart()) {
+          if (o1.getUnitStart() + l1 <= o2.getUnitStart() + l2) {
+            return 0; // match found - stop search
+          } else {
+            return 1; // continue search
+          }
+        } else {
+          return -1; // o1 < o2 by unitStart - stop search
         }
-      }
-      if (!found) {
-        return false;
-      }
-    }
-
-    for (boolean b : res.values()) {
-      if (!b) {
-        return false;
+      } else {
+        return c;
       }
     }
-
-    return true;
   }
 
 }
