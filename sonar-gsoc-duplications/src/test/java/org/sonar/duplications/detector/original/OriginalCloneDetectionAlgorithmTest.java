@@ -23,6 +23,9 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -395,6 +398,22 @@ public class OriginalCloneDetectionAlgorithmTest {
     assertThat(clone.getOriginPart(), is(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("a", 0, 2)));
     assertThat(clone.getCloneParts(), hasItem(newClonePart("b", 0, 2)));
+  }
+
+  /**
+   * Given: file with repeated hashes
+   * Expected: only one query of index for each unique hash
+   */
+  @Test
+  public void only_one_query_of_index_for_each_unique_hash() {
+    CloneIndex index = spy(createIndex());
+    List<Block> fileBlocks =
+        blocksForResource("a").withHashes("1", "2", "1", "2");
+    OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
+
+    verify(index).getBySequenceHash(new ByteArray("1".getBytes()));
+    verify(index).getBySequenceHash(new ByteArray("2".getBytes()));
+    verifyNoMoreInteractions(index);
   }
 
   /**
