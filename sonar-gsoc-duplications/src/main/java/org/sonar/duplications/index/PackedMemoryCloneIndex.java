@@ -76,15 +76,27 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
     // TODO can be interned: resourceId = resourceId.intern();
 
-    List<Block> result = Lists.newArrayList();
-
+    // prepare resourceId for binary search
     resourceIds[size] = resourceId;
     resourceIdsIndex[size] = size;
 
     int index = DataUtils.binarySearch(byResourceId);
+
+    List<Block> result = Lists.newArrayList();
     // TODO can be used if strings interned: while (index < size && resourceIds[byResourceIndices[index]] == resourceId) {
-    while (index < size && FastStringComparator.INSTANCE.compare(resourceIds[resourceIdsIndex[index]], resourceId) == 0) {
-      result.add(extractBlock(resourceIdsIndex[index]));
+    int realIndex;
+    while (index < size && FastStringComparator.INSTANCE.compare(resourceIds[realIndex = resourceIdsIndex[index]], resourceId) == 0) {
+      // extract block (note that there is no need to extract resourceId)
+      int offset = realIndex * blockInts;
+      int[] hash = new int[hashInts];
+      for (int j = 0; j < hashInts; j++) {
+        hash[j] = blockData[offset++];
+      }
+      int indexInFile = blockData[offset++];
+      int firstLineNumber = blockData[offset++];
+      int lastLineNumber = blockData[offset];
+
+      result.add(new Block(resourceId, new ByteArray(DataUtils.intToByteArray(hash)), indexInFile, firstLineNumber, lastLineNumber));
       index++;
     }
     return result;
@@ -93,6 +105,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   public Collection<Block> getBySequenceHash(ByteArray sequenceHash) {
     ensureSorted();
 
+    // prepare hash for binary search
     int[] hash = DataUtils.byteToIntArray(sequenceHash.array());
     if (hash.length != hashInts) {
       throw new IllegalArgumentException("Expected " + hashInts + " ints in hash, but got " + hash.length);
@@ -102,10 +115,18 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       blockData[offset++] = hash[i];
     }
 
-    List<Block> result = Lists.newArrayList();
     int index = DataUtils.binarySearch(byBlockHash);
+
+    List<Block> result = Lists.newArrayList();
     while (index < size && !isLessByHash(size, index)) {
-      result.add(extractBlock(index));
+      // extract block (note that there is no need to extract hash)
+      String resourceId = resourceIds[index];
+      offset = index * blockInts + hashInts;
+      int indexInFile = blockData[offset++];
+      int firstLineNumber = blockData[offset++];
+      int lastLineNumber = blockData[offset];
+
+      result.add(new Block(resourceId, sequenceHash, indexInFile, firstLineNumber, lastLineNumber));
       index++;
     }
     return result;
@@ -196,22 +217,6 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       }
     }
     return false;
-  }
-
-  private Block extractBlock(int i) {
-    String resourceId = resourceIds[i];
-
-    int offset = i * blockInts;
-    int[] hash = new int[hashInts];
-    for (int j = 0; j < hashInts; j++) {
-      hash[j] = blockData[offset++];
-    }
-
-    int indexInFile = blockData[offset++];
-    int firstLineNumber = blockData[offset++];
-    int lastLineNumber = blockData[offset];
-
-    return new Block(resourceId, new ByteArray(DataUtils.intToByteArray(hash)), indexInFile, firstLineNumber, lastLineNumber);
   }
 
   private final DataUtils.Sortable byBlockHash = new DataUtils.Sortable() {

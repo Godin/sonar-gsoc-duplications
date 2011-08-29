@@ -1,7 +1,10 @@
 package org.sonar.duplications.index;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+
+import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,11 +42,28 @@ public class PackedMemoryCloneIndexTest {
   }
 
   /**
+   * When: query by a hash value.
+   * Expected: all blocks should have same hash, which presented in the form of the same object.
+   */
+  @Test
+  public void should_construct_blocks_with_normalized_hash() {
+    index.insert(newBlock("a", 1));
+    index.insert(newBlock("b", 1));
+    index.insert(newBlock("c", 1));
+    ByteArray requestedHash = new ByteArray(1L);
+    Collection<Block> blocks = index.getBySequenceHash(requestedHash);
+    assertThat(blocks.size(), is(3));
+    for (Block block : blocks) {
+      assertThat(block.getBlockHash(), sameInstance(requestedHash));
+    }
+  }
+
+  /**
    * Given: index with initial capacity 1.
    * Expected: size and capacity should be increased after insertion of two blocks.
    */
   @Test
-  public void testEnsureCapacity() {
+  public void should_increase_capacity() {
     CloneIndex index = new PackedMemoryCloneIndex(8, 1);
     index.insert(newBlock("a", 1));
     index.insert(newBlock("a", 2));
