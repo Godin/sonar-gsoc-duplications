@@ -1,6 +1,5 @@
 /*
  * Sonar, open source software quality management tool.
- * Written (W) 2011 Andrew Tereskin
  * Copyright (C) 2008-2011 SonarSource
  * mailto:contact AT sonarsource DOT com
  *
