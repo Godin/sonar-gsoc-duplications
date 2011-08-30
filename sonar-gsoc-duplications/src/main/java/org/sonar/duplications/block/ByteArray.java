@@ -4,9 +4,13 @@ import java.util.Arrays;
 
 public class ByteArray {
 
-  private byte[] bytes;
+  private final byte[] bytes;
 
-  private int hash; // Default to 0
+  /**
+   * Cache for hash code.
+   * FIXME Godin: this class not really immutable, because of method {@link #array()}, and cache for hash code seems very strange for mutable object.
+   */
+  private int hash;
 
   public ByteArray(String hexString) {
     int len = hexString.length();

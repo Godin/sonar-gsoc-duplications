@@ -26,7 +26,7 @@ import java.util.Comparator;
  * Speed is gained by using hash code as a primary comparison attribute, which is cached for String.
  * Be aware that this ordering is not lexicographic, however stable.
  */
-public class FastStringComparator implements Comparator<String> {
+public final class FastStringComparator implements Comparator<String> {
 
   public static final FastStringComparator INSTANCE = new FastStringComparator();
 

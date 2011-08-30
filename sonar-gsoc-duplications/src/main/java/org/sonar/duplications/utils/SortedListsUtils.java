@@ -21,7 +21,6 @@ package org.sonar.duplications.utils;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.RandomAccess;
 
 /**
  * Provides utility methods for sorted lists.
@@ -31,7 +30,7 @@ public final class SortedListsUtils {
   /**
    * Returns true if all elements from second list also presented in first list.
    * Both lists must be sorted.
-   * And both must implement {@link RandomAccess}, otherwise this method is inefficient in terms of performance.
+   * And both must implement {@link java.util.RandomAccess}, otherwise this method is inefficient in terms of performance.
    * Running time - O(|container| + |list|).
    */
   public static <T> boolean contains(List<T> container, List<T> list, Comparator<T> comparator) {

@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.sonar.duplications.utils.FastStringComparator;
 import org.sonar.duplications.utils.SortedListsUtils;
 
 import com.google.common.collect.Lists;
@@ -98,7 +97,7 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
    * This method uses the fact that all parts already sorted by resourceId and unitStart (see {@link #getCloneParts()}),
    * so running time - O(|A|+|B|).
    * 
-   * TODO Godin: maybe {@link FastStringComparator} can be used here to increase performance
+   * TODO Godin: maybe {@link org.sonar.duplications.utils.FastStringComparator} can be used here to increase performance
    */
   private static boolean containsIn(CloneGroup first, CloneGroup second) {
     if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
