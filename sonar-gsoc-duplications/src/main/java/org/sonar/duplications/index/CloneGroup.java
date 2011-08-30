@@ -105,6 +105,9 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
     if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
       return false;
     }
+    if (first.getCloneUnitLength() > second.getCloneUnitLength()) {
+      return false;
+    }
     List<ClonePart> firstParts = first.getCloneParts();
     List<ClonePart> secondParts = second.getCloneParts();
     return SortedListsUtils.contains(secondParts, firstParts, new ContainsInComparator(first.getCloneUnitLength(), second.getCloneUnitLength()))

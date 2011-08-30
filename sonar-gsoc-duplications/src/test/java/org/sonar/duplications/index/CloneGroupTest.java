@@ -190,6 +190,36 @@ public class CloneGroupTest {
     verify(c1).getOriginPart();
     verify(c2).getOriginPart();
     verifyNoMoreInteractions(c1);
+    verifyNoMoreInteractions(c2);
+  }
+
+  /**
+   * Given:
+   * <pre>
+   * c1: a[0-2]
+   * c2: a[0-0]
+   * </pre>
+   * Expected:
+   * <pre>
+   * c1 not in c2
+   * </pre>
+   */
+  @Test
+  public void length_of_C1_bigger_than_length_of_C2() {
+    CloneGroup c1 = spy(newCloneGroup(3,
+        newClonePart("a", 0)));
+    CloneGroup c2 = spy(newCloneGroup(1,
+        newClonePart("a", 0)));
+
+    assertThat(c1.containsIn(c2), is(false));
+    verify(c1).containsIn(c2);
+    // containsIn method should check only origin and length - no need to compare all parts
+    verify(c1).getOriginPart();
+    verify(c2).getOriginPart();
+    verify(c1).getCloneUnitLength();
+    verify(c2).getCloneUnitLength();
+    verifyNoMoreInteractions(c1);
+    verifyNoMoreInteractions(c2);
   }
 
   /**
