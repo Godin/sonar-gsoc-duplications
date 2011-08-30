@@ -1,12 +1,12 @@
 package org.sonar.duplications.benchmark.hash;
 
-import org.sonar.duplications.DuplicationsException;
-import org.sonar.duplications.block.ByteArray;
-import org.sonar.duplications.statement.Statement;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+
+import org.sonar.duplications.DuplicationsException;
+import org.sonar.duplications.block.ByteArray;
+import org.sonar.duplications.statement.Statement;
 
 public class DigestHashBlockChunker extends AbstractHashBlockChunker {
 
@@ -38,11 +38,7 @@ public class DigestHashBlockChunker extends AbstractHashBlockChunker {
   protected ByteArray buildBlockHash(List<Statement> statements) {
     digest.reset();
     for (Statement statement : statements) {
-      int hash = statement.getValue().hashCode();
-      digest.update((byte) (hash >> 24));
-      digest.update((byte) (hash >> 16));
-      digest.update((byte) (hash >> 8));
-      digest.update((byte) hash);
+      digest.update(statement.getValue().getBytes());
       digest.update(SEPARATOR);
     }
     return new ByteArray(digest.digest());
