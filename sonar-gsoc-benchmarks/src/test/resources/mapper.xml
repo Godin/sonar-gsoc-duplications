@@ -5,35 +5,62 @@
 
   <resultMap id="result" type="org.sonar.duplications.block.Block">
     <constructor>
-      <arg column="index" javaType="_integer"/>
-      <arg column="first" javaType="_integer"/>
-      <arg column="last" javaType="_integer"/>
+      <arg column="index_in_file" javaType="_integer"/>
+      <arg column="first_line" javaType="_integer"/>
+      <arg column="last_line" javaType="_integer"/>
       <arg column="resource" javaType="String"/>
       <arg column="hash" javaType="String"/>
     </constructor>
   </resultMap>
 
-  <insert id="insert" parameterType="org.sonar.duplications.block.Block">
-    INSERT INTO blocks (hash, resource, index, first, last)
-    VALUES (#{hashHex}, #{resourceId}, #{indexInFile}, #{firstLineNumber}, #{lastLineNumber});
+  <insert id="insert" parameterType="map">
+    INSERT INTO blocks (hash, resource, index_in_file, first_line, last_line, snapshot_id)
+    VALUES (#{hash}, #{resource_id}, #{index_in_file}, #{first_line}, #{last_line}, #{current_snapshot_id});
   </insert>
 
-  <select id="get" parameterType="String" resultMap="result">
-    SELECT resource, hash, index, first, last
-    FROM blocks WHERE hash IN ( SELECT hash FROM blocks WHERE resource = #{resource} )
+  <select id="get" parameterType="map" resultMap="result">
+    SELECT resource, hash, index_in_file, first_line, last_line
+    FROM blocks AS block, snapshots AS snapshot
+    WHERE block.snapshot_id=snapshot.id
+    AND snapshot.islast=true
+    AND hash IN ( SELECT hash FROM blocks WHERE resource = #{resource_id} AND snapshot_id = #{current_snapshot_id} )
   </select>
+
+  <insert id="newSnapshot" parameterType="org.sonar.duplications.benchmark.db.Snapshot" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO snapshots (project)
+    VALUES (#{project})
+  </insert>
+
+  <update id="doneSnapshot" parameterType="org.sonar.duplications.benchmark.db.Snapshot">
+    UPDATE snapshots SET islast=false WHERE id != #{id} AND project = #{project};
+    UPDATE snapshots SET islast=true WHERE id = #{id};
+  </update>
+
+  <update id="clean" parameterType="String">
+    DELETE FROM blocks WHERE snapshot_id IN ( SELECT id FROM snapshots WHERE islast=false AND project = #{project} );
+    DELETE FROM snapshots WHERE islast=false AND project = #{project};
+  </update>
 
   <update id="recreateTable">
     DROP TABLE IF EXISTS blocks;
     CREATE TABLE blocks (
       hash CHAR(16) NOT NULL,
       resource VARCHAR(255) NOT NULL,
-      index INTEGER NOT NULL,
-      first INTEGER NOT NULL,
-      last INTEGER NOT NULL
+      index_in_file INTEGER NOT NULL,
+      first_line INTEGER NOT NULL,
+      last_line INTEGER NOT NULL,
+      snapshot_id INTEGER NOT NULL
     );
     CREATE INDEX hash_idx ON blocks(hash);
-    CREATE INDEX resource_idx ON blocks(resource);
+    CREATE INDEX resource_idx ON blocks(resource, snapshot_id);
+
+    DROP TABLE IF EXISTS snapshots;
+    CREATE TABLE snapshots (
+      id SERIAL,
+      project VARCHAR(255),
+      islast BOOLEAN NOT NULL DEFAULT false,
+      PRIMARY KEY (id)
+    );
   </update>
 
 </mapper>

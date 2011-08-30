@@ -3,6 +3,7 @@ package org.sonar.duplications.benchmark.db;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,8 @@ public class MyBatisIndex extends AbstractCloneIndex implements BatchIndex {
 
   private List<Block> blocksToInsert = Lists.newArrayListWithCapacity(BATCH_SIZE);
 
+  private Snapshot snapshot;
+
   public MyBatisIndex(String environment) {
     try {
       Reader reader = Resources.getResourceAsReader("mybatis.xml");
@@ -60,10 +63,11 @@ public class MyBatisIndex extends AbstractCloneIndex implements BatchIndex {
     if (!blocksToInsert.isEmpty()) {
       batchInsert();
     }
+
     SqlSession session = sqlSessionFactory.openSession();
     try {
       Mapper mapper = session.getMapper(Mapper.class);
-      List<Block> blocks = mapper.get(resourceId);
+      List<Block> blocks = mapper.get(resourceId, snapshot.getId());
 
       cachedResource = resourceId;
       byResourceId.clear();
@@ -98,7 +102,9 @@ public class MyBatisIndex extends AbstractCloneIndex implements BatchIndex {
     if (result != null) {
       return result;
     } else {
-      throw new IllegalStateException("Cache must be prepared");
+      return Collections.emptyList();
+      // TODO Godin: causes exception on a first analysis
+      // throw new IllegalStateException("Cache must be prepared");
     }
   }
 
@@ -114,7 +120,7 @@ public class MyBatisIndex extends AbstractCloneIndex implements BatchIndex {
     try {
       Mapper mapper = session.getMapper(Mapper.class);
       for (Block block : blocksToInsert) {
-        mapper.insert(block);
+        mapper.insert(block.getHashHex(), block.getResourceId(), block.getIndexInFile(), block.getFirstLineNumber(), block.getLastLineNumber(), snapshot.getId());
       }
       session.commit();
       blocksToInsert.clear();
@@ -126,6 +132,37 @@ public class MyBatisIndex extends AbstractCloneIndex implements BatchIndex {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + sqlSessionFactory.getConfiguration().getEnvironment().getId() + "]";
+  }
+
+  /**
+   * Create new snapshot.
+   */
+  public void start(String project) {
+    SqlSession session = sqlSessionFactory.openSession();
+    try {
+      Mapper mapper = session.getMapper(Mapper.class);
+      snapshot = new Snapshot();
+      snapshot.setProject(project);
+      mapper.newSnapshot(snapshot);
+      session.commit();
+    } finally {
+      session.close();
+    }
+  }
+
+  /**
+   * Finalize current snapshot and purge old snapshots.
+   */
+  public void done() {
+    SqlSession session = sqlSessionFactory.openSession();
+    try {
+      Mapper mapper = session.getMapper(Mapper.class);
+      mapper.doneSnapshot(snapshot);
+      mapper.clean(snapshot.getProject());
+      session.commit();
+    } finally {
+      session.close();
+    }
   }
 
 }
