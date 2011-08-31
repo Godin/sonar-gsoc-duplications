@@ -53,6 +53,9 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
     statsCollector.reset();
   }
 
+  /**
+   * TODO Godin: performs several queries using same hash, which is inefficient in terms of performance
+   */
   protected List<List<Block>> getIndexedBlockGroups(FileBlockGroup fileBlockGroup) {
     List<List<Block>> result = Lists.newArrayList();
 

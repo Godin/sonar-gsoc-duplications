@@ -76,6 +76,8 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
   }
 
   /**
+   * Checks that second clone contains first one.
+   * <p>
    * Clone A is contained in another clone B, if every part pA from A has part pB in B,
    * which satisfy the conditions:
    * <pre>
@@ -86,17 +88,18 @@ public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
    * <pre>
    * pB.resourceId == pA.resourceId
    * </pre>
-   * 
    * So this relation is:
    * <ul>
    * <li>reflexive - A in A</li>
    * <li>transitive - (A in B) and (B in C) => (A in C)</li>
    * <li>antisymmetric - (A in B) and (B in A) <=> (A = B)</li>
    * </ul>
+   * </p>
+   * <p>
    * This method uses the fact that all parts already sorted by resourceId and unitStart (see {@link #getCloneParts()}),
    * so running time - O(|A|+|B|).
-   * 
    * TODO Godin: maybe {@link org.sonar.duplications.utils.FastStringComparator} can be used here to increase performance
+   * </p>
    */
   private static boolean containsIn(CloneGroup first, CloneGroup second) {
     if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {

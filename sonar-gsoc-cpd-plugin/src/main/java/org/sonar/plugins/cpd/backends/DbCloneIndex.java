@@ -25,7 +25,6 @@ import org.sonar.api.cpd.IndexBlock;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
-import org.sonar.duplications.index.CacheSequenceHashQuery;
 import org.sonar.duplications.index.CloneIndex;
 
 import java.util.ArrayList;

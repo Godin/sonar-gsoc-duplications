@@ -48,11 +48,11 @@ public class BlockChunker {
   public BlockChunker(int blockSize) {
     this.blockSize = blockSize;
 
-    long power = 1;
+    long pow = 1;
     for (int i = 0; i < blockSize - 1; i++) {
-      power = power * PRIME_BASE;
+      pow = pow * PRIME_BASE;
     }
-    this.power = power;
+    this.power = pow;
   }
 
   public List<Block> chunk(String resourceId, List<Statement> statements) {

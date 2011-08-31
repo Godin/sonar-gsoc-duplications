@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import org.junit.Test;
 
@@ -68,11 +69,11 @@ public class CloneGroupTest {
   @Test
   public void testContainsInExample1() {
     CloneGroup c1 = newCloneGroup(2,
-        new ClonePart("a", 1, 1, 5),
-        new ClonePart("b", 1, 1, 5));
+        newClonePart("a", 1),
+        newClonePart("b", 1));
     CloneGroup c2 = newCloneGroup(1,
-        new ClonePart("a", 2, 2, 4),
-        new ClonePart("b", 2, 2, 4));
+        newClonePart("a", 2),
+        newClonePart("b", 2));
 
     assertThat(c1.containsIn(c1), is(true));
     assertThat(c2.containsIn(c2), is(true));
@@ -101,13 +102,13 @@ public class CloneGroupTest {
   public void one_part_of_C2_covers_two_parts_of_C1() {
     // Note that line numbers don't matter for method which we test.
     CloneGroup c1 = newCloneGroup(1,
-        new ClonePart("a", 0, 1, 5),
-        new ClonePart("a", 2, 2, 7),
-        new ClonePart("b", 0, 1, 5),
-        new ClonePart("b", 2, 2, 7));
+        newClonePart("a", 0),
+        newClonePart("a", 2),
+        newClonePart("b", 0),
+        newClonePart("b", 2));
     CloneGroup c2 = newCloneGroup(3,
-        new ClonePart("a", 0, 1, 7),
-        new ClonePart("b", 0, 1, 7));
+        newClonePart("a", 0),
+        newClonePart("b", 0));
 
     assertThat(c1.containsIn(c2), is(true));
     assertThat(c2.containsIn(c1), is(false));
@@ -121,23 +122,86 @@ public class CloneGroupTest {
    * </pre>
    * Expected:
    * <pre>
-   * c1 not in c2 (all parts of c1 covered by parts of c2 and resources not the same)
-   * c2 not in c1 (not all parts of c2 covered by parts of c1 and resources not the same)
+   * c1 not in c2 (all parts of c1 covered by parts of c2, but different resources)
+   * c2 not in c1 (not all parts of c2 covered by parts of c1 and different resources)
    * </pre>
    */
   @Test
-  public void resources_are_not_the_same() {
+  public void different_resources() {
     CloneGroup c1 = newCloneGroup(1,
-        new ClonePart("a", 0, 1, 5),
-        new ClonePart("a", 2, 2, 7));
+        newClonePart("a", 0),
+        newClonePart("a", 2));
     CloneGroup c2 = newCloneGroup(3,
-        new ClonePart("a", 0, 1, 7),
-        new ClonePart("b", 0, 1, 7));
+        newClonePart("a", 0),
+        newClonePart("b", 0));
 
     assertThat(c1.containsIn(c2), is(false));
     assertThat(c2.containsIn(c1), is(false));
   }
 
+  /**
+   * Given:
+   * <pre>
+   * c1: a[2-2]
+   * c2: a[0-1], a[2-3]
+   * </pre>
+   * Expected:
+   * <pre>
+   * c1 in c2
+   * c2 not in c1
+   * </pre>
+   */
+  @Test
+  public void second_part_of_C2_covers_first_part_of_C1() {
+    CloneGroup c1 = newCloneGroup(1,
+        newClonePart("a", 2));
+    CloneGroup c2 = newCloneGroup(2,
+        newClonePart("a", 0),
+        newClonePart("a", 2));
+
+    assertThat(c1.containsIn(c2), is(true));
+    assertThat(c2.containsIn(c1), is(false));
+  }
+
+  /**
+   * Given:
+   * <pre>
+   * c1: a[0-0], b[0-0]
+   * c2: b[0-0], a[0-0]
+   * </pre>
+   * Expected:
+   * <pre>
+   * c1 not in c2
+   * </pre>
+   * because of different origins
+   */
+  @Test
+  public void different_origins() {
+    CloneGroup c1 = spy(newCloneGroup(1,
+        newClonePart("a", 0),
+        newClonePart("b", 0)));
+    CloneGroup c2 = spy(newCloneGroup(1,
+        newClonePart("b", 0),
+        newClonePart("a", 0)));
+
+    assertThat(c1.containsIn(c2), is(false));
+    verify(c1).containsIn(c2);
+    // containsIn method should check only resourceId of origins - no need to compare all parts
+    verify(c1).getOriginPart();
+    verify(c2).getOriginPart();
+    verifyNoMoreInteractions(c1);
+  }
+
+  /**
+   * Creates new part with specified resourceId and unitStart, and 0 for lineStart and lineEnd.
+   */
+  private ClonePart newClonePart(String resourceId, int unitStart) {
+    return new ClonePart(resourceId, unitStart, 0, 0);
+  }
+
+  /**
+   * Creates new group from list of parts, origin - is a first part from list.
+   */
   private CloneGroup newCloneGroup(int len, ClonePart... parts) {
     CloneGroup group = new CloneGroup().setCloneUnitLength(len);
     group.setOriginPart(parts[0]);

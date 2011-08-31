@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -414,6 +415,41 @@ public class OriginalCloneDetectionAlgorithmTest {
     verify(index).getBySequenceHash(new ByteArray("1".getBytes()));
     verify(index).getBySequenceHash(new ByteArray("2".getBytes()));
     verifyNoMoreInteractions(index);
+  }
+
+  /**
+   * Given file with two lines, containing following statements:
+   * <pre>
+   * 0: A,B,A,B
+   * 1: A,B,A
+   * </pre>
+   * with block size 5 each block will span both lines, and hashes will be:
+   * <pre>
+   * A,B,A,B,A=1
+   * B,A,B,A,B=2
+   * A,B,A,B,A=1
+   * </pre>
+   * Expected: one clone with two parts, which contain exactly the same lines
+   */
+  @Test
+  public void same_lines_but_different_indexes() {
+    CloneIndex cloneIndex = createIndex();
+    List<Block> fileBlocks = Arrays.asList(
+        new Block("a", new ByteArray("1".getBytes()), 0, 0, 1),
+        new Block("a", new ByteArray("2".getBytes()), 1, 0, 1),
+        new Block("a", new ByteArray("1".getBytes()), 2, 0, 1));
+    List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
+    print(clones);
+
+    assertThat(clones.size(), is(1));
+    Iterator<CloneGroup> clonesIterator = clones.iterator();
+
+    CloneGroup clone = clonesIterator.next();
+    assertThat(clone.getCloneUnitLength(), is(1));
+    assertThat(clone.getCloneParts().size(), is(2));
+    assertThat(clone.getOriginPart(), is(new ClonePart("a", 0, 0, 1)));
+    assertThat(clone.getCloneParts(), hasItem(new ClonePart("a", 0, 0, 1)));
+    assertThat(clone.getCloneParts(), hasItem(new ClonePart("a", 2, 0, 1)));
   }
 
   /**

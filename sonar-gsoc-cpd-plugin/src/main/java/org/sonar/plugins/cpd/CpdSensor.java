@@ -30,10 +30,10 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.block.FileBlockGroup;
-import org.sonar.duplications.index.CacheSequenceHashQuery;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.java.JavaCloneFinder;
+import org.sonar.plugins.cpd.backends.CacheSequenceHashQuery;
 import org.sonar.plugins.cpd.backends.CpdIndexBackend;
 import org.sonar.plugins.cpd.backends.MemoryIndexBackend;
 

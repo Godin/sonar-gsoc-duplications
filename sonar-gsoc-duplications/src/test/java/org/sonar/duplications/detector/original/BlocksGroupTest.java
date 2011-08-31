@@ -87,7 +87,7 @@ public class BlocksGroupTest {
   }
 
   /**
-   * Results for this test taken from results of work of {@link NaiveBlocksGroup naive implementation}.
+   * Results for this test taken from results of work of naive implementation.
    */
   @Test
   public void testSubsumedBy3() {
@@ -143,7 +143,7 @@ public class BlocksGroupTest {
   }
 
   /**
-   * Results for this test taken from results of work of {@link NaiveBlocksGroup naive implementation}.
+   * Results for this test taken from results of work of naive implementation.
    */
   @Test
   public void testIntersect2() {

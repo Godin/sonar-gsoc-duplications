@@ -22,7 +22,6 @@ package org.sonar.duplications.detector.original;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,18 +55,24 @@ public class OriginalCloneDetectionAlgorithm {
   }
 
   private final CloneIndex cloneIndex;
+
+  /**
+   * Note that LinkedList should provide better performance here, because of use of operation remove.
+   * 
+   * @see #filterAndSave(CloneGroup)
+   */
   private final List<CloneGroup> clones = Lists.newLinkedList();
+
   private String originResourceId;
 
   private OriginalCloneDetectionAlgorithm(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
   }
 
-  private void findClones(Collection<Block> fileBlocks) {
+  private BlocksGroup[] createGroups(Collection<Block> fileBlocks) {
     // 2: let f be the list of tuples corresponding to filename sorted by statement index
     // either read from the index or calculated on the fly
     int size = fileBlocks.size();
-    originResourceId = fileBlocks.iterator().next().getResourceId();
 
     // Godin: create one group per unique hash
     Map<ByteArray, BlocksGroup> groupsByHash = Maps.newHashMap(); // TODO Godin: we can create map with expected size
@@ -106,9 +111,16 @@ public class OriginalCloneDetectionAlgorithm {
       sameHashBlocksGroups[i] = groupsByHash.get(hash);
     }
 
-    // allows to report clones at the end of file, because condition at line 13 would be evaluated as true
-    // TODO Godin: not sure about this hack
+    // Godin: allows to report clones at the end of file, because condition at line 13 would be evaluated as true
     sameHashBlocksGroups[size + 1] = BlocksGroup.empty();
+
+    return sameHashBlocksGroups;
+  }
+
+  private void findClones(Collection<Block> fileBlocks) {
+    originResourceId = fileBlocks.iterator().next().getResourceId();
+
+    BlocksGroup[] sameHashBlocksGroups = createGroups(fileBlocks);
 
     // 7: for i := 1 to length(c) do
     for (int i = 1; i < sameHashBlocksGroups.length; i++) {
@@ -230,7 +242,6 @@ public class OriginalCloneDetectionAlgorithm {
    * Moreover with interval tree we also can use incremental approach, but current implementation of it doesn't support remove operation.
    */
   private void filterAndSave(CloneGroup current) {
-    assert clones instanceof LinkedList; // LinkedList should provide better performance here, because of use of operation remove
     Iterator<CloneGroup> i = clones.iterator();
     while (i.hasNext()) {
       CloneGroup earlier = i.next();
