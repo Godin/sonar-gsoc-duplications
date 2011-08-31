@@ -35,8 +35,23 @@ import com.google.common.collect.Maps;
  */
 public class TimingProxy implements InvocationHandler {
 
-  private Map<String, Long> timings = Maps.newHashMap();
   private Object delegate;
+
+  private Map<String, Result> results = Maps.newHashMap();
+
+  private static class Result {
+    long totalTime;
+    int invocations;
+
+    public void cumulate(long time) {
+      invocations++;
+      totalTime += time;
+    }
+
+    public double getAvgTime() {
+      return (double) totalTime / invocations;
+    }
+  }
 
   public static <E> E newInstance(Object obj) {
     return (E) java.lang.reflect.Proxy.newProxyInstance(obj.getClass().getClassLoader(), getAllInterfaces(obj.getClass()), new TimingProxy(obj));
@@ -71,27 +86,35 @@ public class TimingProxy implements InvocationHandler {
     } catch (Exception e) {
       throw new RuntimeException("Unexpected invocation exception: " + e.getMessage());
     } finally {
-      Long sum = timings.get(method.getName());
-      if (sum == null) {
-        sum = 0L;
+      Result r = results.get(method.getName());
+      if (r == null) {
+        r = new Result();
+        results.put(method.getName(), r);
       }
-      timings.put(method.getName(), sum + System.currentTimeMillis() - start);
+      r.cumulate(System.currentTimeMillis() - start);
     }
     return result;
   }
 
   public void printTimings() {
-    long total = 0L;
-    for (Long l : timings.values()) {
-      total += l;
+    int totalInvocations = 0;
+    long totalTime = 0L;
+    for (Result result : results.values()) {
+      totalTime += result.totalTime;
+      totalInvocations += result.invocations;
     }
 
     System.out.println("Timings for " + delegate);
-    for (Map.Entry<String, Long> entry : timings.entrySet()) {
-      long value = entry.getValue();
-      System.out.println(String.format(Locale.ENGLISH, "%20s : %6.2f ( %6.2f )", entry.getKey(), value / 1000.0, value * 100.0 / total));
+    System.out.println(String.format(Locale.ENGLISH, "%20s , %6s , %6s , %6s , %6s , %7s", "Method", "T (s)", "%", "Calls", "%", "Avg (ms)"));
+    for (Map.Entry<String, Result> entry : results.entrySet()) {
+      Result r = entry.getValue();
+      System.out.println(String.format(Locale.ENGLISH, "%20s : %6.2f ( %6.2f ) %6d ( %6.2f ) %7.6f",
+          entry.getKey(),
+          r.totalTime / 1000.0, r.totalTime * 100.0 / totalTime,
+          r.invocations, r.invocations * 100.0 / totalInvocations,
+          r.getAvgTime()));
     }
-    System.out.println(String.format(Locale.ENGLISH, "%20s : %6.2f", "Total", total / 1000.0));
+    System.out.println(String.format(Locale.ENGLISH, "%20s : %6.2f", "Total", totalTime / 1000.0));
   }
 
 }
