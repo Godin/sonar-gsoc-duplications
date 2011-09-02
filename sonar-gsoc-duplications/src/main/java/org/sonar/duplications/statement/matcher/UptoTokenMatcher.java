@@ -27,31 +27,35 @@ import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
 /**
- * match upto any of the specified token
- * 
- * @author sharif
- * 
+ * Consumes everything up to one of the specified tokens.
  */
 public class UptoTokenMatcher extends TokenMatcher {
 
-  private Set<String> uptoMatchTokens = new HashSet<String>();
+  private final Set<String> uptoMatchTokens = new HashSet<String>();
 
   public UptoTokenMatcher(String[] uptoMatchTokens) {
+    if (uptoMatchTokens == null) {
+      throw new IllegalArgumentException();
+    }
+    if (uptoMatchTokens.length == 0) {
+      // otherwise we will always try to consume everything, but will never succeed
+      throw new IllegalArgumentException();
+    }
     for (String uptoMatchToken : uptoMatchTokens) {
       this.uptoMatchTokens.add(uptoMatchToken);
     }
   }
 
   @Override
-  public boolean matchToken(TokenQueue tokenQueue, List<Token> pendingStatement) {
+  public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList) {
     do {
       Token token = tokenQueue.poll();
-
-      pendingStatement.add(token);
+      matchedTokenList.add(token);
       if (uptoMatchTokens.contains(token.getValue())) {
         return true;
       }
     } while (tokenQueue.peek() != null);
     return false;
   }
+
 }

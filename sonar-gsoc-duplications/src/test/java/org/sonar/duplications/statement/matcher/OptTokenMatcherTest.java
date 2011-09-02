@@ -19,23 +19,38 @@
  */
 package org.sonar.duplications.statement.matcher;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import java.util.List;
 
+import org.junit.Test;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
-/**
- * Forgets token, which was consumed last.
- */
-public class ForgiveLastTokenMatcher extends TokenMatcher {
+public class OptTokenMatcherTest {
 
-  /**
-   * @return always true
-   */
-  @Override
-  public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList) {
-    matchedTokenList.remove(matchedTokenList.size() - 1);
-    return true;
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotAcceptNull() {
+    new OptTokenMatcher(null);
+  }
+
+  @Test
+  public void shouldMatch() {
+    TokenQueue tokenQueue = spy(new TokenQueue());
+    TokenMatcher delegate = mock(TokenMatcher.class);
+    OptTokenMatcher matcher = new OptTokenMatcher(delegate);
+    List<Token> output = mock(List.class);
+
+    assertThat(matcher.matchToken(tokenQueue, output), is(true));
+    verify(delegate).matchToken(tokenQueue, output);
+    verifyNoMoreInteractions(delegate);
+    verifyNoMoreInteractions(tokenQueue);
+    verifyNoMoreInteractions(output);
   }
 
 }

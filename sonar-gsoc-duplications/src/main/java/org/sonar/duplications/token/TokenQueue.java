@@ -33,7 +33,7 @@ import java.util.ListIterator;
  */
 public class TokenQueue implements Iterable<Token> {
 
-  private LinkedList<Token> tokenQueue;
+  private final LinkedList<Token> tokenQueue;
 
   public TokenQueue(List<Token> tokenList) {
     tokenQueue = new LinkedList<Token>(tokenList);
@@ -43,10 +43,20 @@ public class TokenQueue implements Iterable<Token> {
     tokenQueue = new LinkedList<Token>();
   }
 
+  /**
+   * Retrieves, but does not remove, token from this queue.
+   * 
+   * @return token from this queue, or <tt>null</tt> if this queue is empty.
+   */
   public Token peek() {
     return tokenQueue.peek();
   }
 
+  /**
+   * Retrieves and removes token from this queue.
+   * 
+   * @return token from this queue, or <tt>null</tt> if this queue is empty.
+   */
   public Token poll() {
     return tokenQueue.poll();
   }
@@ -62,6 +72,7 @@ public class TokenQueue implements Iterable<Token> {
   public boolean isNextTokenValue(String expectedValue) {
     Token nextToken = tokenQueue.peek();
     if (nextToken == null) {
+      // queue is empty
       return false;
     }
     return nextToken.getValue().equals(expectedValue);
@@ -77,4 +88,5 @@ public class TokenQueue implements Iterable<Token> {
       tokenQueue.addFirst(iter.previous());
     }
   }
+
 }

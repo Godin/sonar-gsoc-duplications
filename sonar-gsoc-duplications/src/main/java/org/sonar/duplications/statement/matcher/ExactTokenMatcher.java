@@ -25,26 +25,26 @@ import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
 /**
- * match an exact token
- * 
- * @author sharif
- * 
+ * Consumes only one specified token.
  */
 public class ExactTokenMatcher extends TokenMatcher {
 
-  private String tokenToMatch;
+  private final String tokenToMatch;
 
   public ExactTokenMatcher(String tokenToMatch) {
+    if (tokenToMatch == null) {
+      throw new IllegalArgumentException();
+    }
     this.tokenToMatch = tokenToMatch;
   }
 
   @Override
   public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList) {
-    Token nextToken = tokenQueue.peek();
-    if (tokenToMatch != null && tokenToMatch.equals(nextToken.getValue())) {
+    if (tokenQueue.isNextTokenValue(tokenToMatch)) {
       matchedTokenList.add(tokenQueue.poll());
       return true;
     }
     return false;
   }
+
 }

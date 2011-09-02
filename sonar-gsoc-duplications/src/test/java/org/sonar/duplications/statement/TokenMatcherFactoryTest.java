@@ -19,6 +19,11 @@
  */
 package org.sonar.duplications.statement;
 
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
+import org.junit.Test;
 import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
 import org.sonar.duplications.statement.matcher.BridgeTokenMatcher;
 import org.sonar.duplications.statement.matcher.ExactTokenMatcher;
@@ -27,39 +32,17 @@ import org.sonar.duplications.statement.matcher.OptTokenMatcher;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.statement.matcher.UptoTokenMatcher;
 
-public final class TokenMatcherFactory {
+public class TokenMatcherFactoryTest {
 
-  private TokenMatcherFactory() {
-  }
-
-  public static TokenMatcher from(String token) {
-    return new ExactTokenMatcher(token);
-  }
-
-  public static TokenMatcher to(String... tokens) {
-    return new UptoTokenMatcher(tokens);
-  }
-
-  public static TokenMatcher bridge(String lToken, String rToken) {
-    return new BridgeTokenMatcher(lToken, rToken);
-  }
-
-  public static TokenMatcher anyToken() {
-    // TODO Godin: we can return singleton instance
-    return new AnyTokenMatcher();
-  }
-
-  public static TokenMatcher opt(TokenMatcher optMatcher) {
-    return new OptTokenMatcher(optMatcher);
-  }
-
-  public static TokenMatcher forgiveLastToken() {
-    // TODO Godin: we can return singleton instance
-    return new ForgiveLastTokenMatcher();
-  }
-
-  public static TokenMatcher token(String token) {
-    return new ExactTokenMatcher(token);
+  @Test
+  public void shouldCreateMatchers() {
+    assertThat(TokenMatcherFactory.anyToken(), instanceOf(AnyTokenMatcher.class));
+    assertThat(TokenMatcherFactory.bridge("(", ")"), instanceOf(BridgeTokenMatcher.class));
+    assertThat(TokenMatcherFactory.forgiveLastToken(), instanceOf(ForgiveLastTokenMatcher.class));
+    assertThat(TokenMatcherFactory.from("if"), instanceOf(ExactTokenMatcher.class));
+    assertThat(TokenMatcherFactory.opt(mock(TokenMatcher.class)), instanceOf(OptTokenMatcher.class));
+    assertThat(TokenMatcherFactory.to(";"), instanceOf(UptoTokenMatcher.class));
+    assertThat(TokenMatcherFactory.token(";"), instanceOf(ExactTokenMatcher.class));
   }
 
 }

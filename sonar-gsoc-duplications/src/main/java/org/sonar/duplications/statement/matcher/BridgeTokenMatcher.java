@@ -25,25 +25,25 @@ import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
 /**
- * match everything between two token pair
- * 
- * @author sharif
- * 
+ * Consumes everything between pair of tokens.
  */
 public class BridgeTokenMatcher extends TokenMatcher {
 
   private final String lToken;
   private final String rToken;
-  private int stack = 0;
+  private int stack = 0; // TODO Godin: why not local?
 
   public BridgeTokenMatcher(String lToken, String rToken) {
+    if (lToken == null || rToken == null) {
+      throw new IllegalArgumentException();
+    }
     this.lToken = lToken;
     this.rToken = rToken;
   }
 
   @Override
   public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList) {
-    if ( !tokenQueue.isNextTokenValue(lToken)) {
+    if (!tokenQueue.isNextTokenValue(lToken)) {
       return false;
     }
     matchedTokenList.add(tokenQueue.poll());
@@ -62,4 +62,5 @@ public class BridgeTokenMatcher extends TokenMatcher {
     } while (tokenQueue.peek() != null);
     return false;
   }
+
 }

@@ -19,23 +19,34 @@
  */
 package org.sonar.duplications.statement.matcher;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 
+import org.junit.Test;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
-/**
- * Forgets token, which was consumed last.
- */
-public class ForgiveLastTokenMatcher extends TokenMatcher {
+public class ForgiveLastTokenMatcherTest {
 
-  /**
-   * @return always true
-   */
-  @Override
-  public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList) {
-    matchedTokenList.remove(matchedTokenList.size() - 1);
-    return true;
+  @Test
+  public void shouldMatch() {
+    TokenQueue tokenQueue = spy(new TokenQueue());
+    List<Token> output = mock(List.class);
+    when(output.size()).thenReturn(4);
+    ForgiveLastTokenMatcher matcher = new ForgiveLastTokenMatcher();
+
+    assertThat(matcher.matchToken(tokenQueue, output), is(true));
+    verifyNoMoreInteractions(tokenQueue);
+    verify(output).size();
+    verify(output).remove(3);
+    verifyNoMoreInteractions(output);
   }
 
 }

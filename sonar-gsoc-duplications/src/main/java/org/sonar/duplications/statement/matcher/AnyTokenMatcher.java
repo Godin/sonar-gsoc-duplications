@@ -25,16 +25,17 @@ import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
 /**
- * match any token upto specified number
- * 
- * @author sharif
- * 
+ * Consumes any token, but only one.
  */
 public class AnyTokenMatcher extends TokenMatcher {
 
+  /**
+   * @return always true
+   */
   @Override
   public boolean matchToken(TokenQueue tokenQueue, List<Token> matchedTokenList) {
     matchedTokenList.add(tokenQueue.poll());
     return true;
   }
+
 }
