@@ -19,39 +19,32 @@
  */
 package org.sonar.duplications.statement;
 
-import org.sonar.duplications.DuplicationsException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * channel that consumes tokens if a statement can be build using those tokens as per given rule the statement is added to the output
- *
- * @author sharif
- */
 public final class StatementChannel {
 
   private final TokenMatcher[] tokenMatchers;
-  private boolean blackHole = false;
+  private final boolean blackHole;
 
-  private StatementChannel(TokenMatcher... tokenMatchers) {
-    this.tokenMatchers = tokenMatchers;
-    if (tokenMatchers == null) {
-      throw new DuplicationsException("This is mandatory to provide at least one TokenMatcher");
-    }
+  public static StatementChannel create(TokenMatcher... tokenMatchers) {
+    return new StatementChannel(false, tokenMatchers);
   }
 
   public static StatementChannel createBlackHole(TokenMatcher... tokenMatchers) {
-    StatementChannel channel = new StatementChannel(tokenMatchers);
-    channel.blackHole = true;
-    return channel;
+    return new StatementChannel(true, tokenMatchers);
   }
 
-  public static StatementChannel create(TokenMatcher... tokenMatchers) {
-    return new StatementChannel(tokenMatchers);
+  private StatementChannel(boolean blackHole, TokenMatcher... tokenMatchers) {
+    if (tokenMatchers == null || tokenMatchers.length == 0) {
+      throw new IllegalArgumentException();
+    }
+    this.blackHole = blackHole;
+    this.tokenMatchers = tokenMatchers;
   }
 
   public boolean consume(TokenQueue tokenQueue, List<Statement> output) {
@@ -70,4 +63,5 @@ public final class StatementChannel {
     }
     return true;
   }
+
 }

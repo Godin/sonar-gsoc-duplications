@@ -21,40 +21,81 @@ package org.sonar.duplications.statement;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
 public class StatementChannelTest {
 
-  TokenQueue tokenQueue;
-    
-  @Test
-  public void shouldConsumeTokenFromTokenQueue(){
-	  List<Statement> output = consume(TokenMatcherFactory.anyToken());
-	  assertThat(tokenQueue.size(), is(0));
-	  assertThat(output.size(), is(1));
-  }
-  
-  @Test
-  public void shouldNotConsumeTokenFromTokenQueue(){
-	  List<Statement> output = consume(TokenMatcherFactory.from("b"));
-	  assertThat(tokenQueue.size(), is(1));
-	  assertThat(output.size(), is(0));
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotAcceptNull() {
+    StatementChannel.create((TokenMatcher[]) null);
   }
 
-  private List<Statement> consume(TokenMatcher tokenMatcher) {
-    StatementChannel channel = StatementChannel.create(tokenMatcher);
-    ArrayList<Statement> output = new ArrayList<Statement>();
-	tokenQueue = new TokenQueue();
-	tokenQueue.add(new Token("a", 1, 1));
-    channel.consume(tokenQueue, output);
-    return output;
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotAcceptEmpty() {
+    StatementChannel.create(new TokenMatcher[] {});
+  }
+
+  @Test
+  public void shouldPushForward() {
+    TokenQueue tokenQueue = mock(TokenQueue.class);
+    TokenMatcher matcher = mock(TokenMatcher.class);
+    List<Statement> output = mock(List.class);
+    StatementChannel channel = StatementChannel.create(matcher);
+
+    assertThat(channel.consume(tokenQueue, output), is(false));
+    ArgumentCaptor<List> matchedTokenList = ArgumentCaptor.forClass(List.class);
+    verify(matcher).matchToken(Mockito.eq(tokenQueue), matchedTokenList.capture());
+    verifyNoMoreInteractions(matcher);
+    verify(tokenQueue).pushForward(matchedTokenList.getValue());
+    verifyNoMoreInteractions(tokenQueue);
+    verifyNoMoreInteractions(output);
+  }
+
+  @Test
+  public void shouldCreateStatement() {
+    Token token = new Token("a", 1, 1);
+    TokenQueue tokenQueue = spy(new TokenQueue(Arrays.asList(token)));
+    TokenMatcher matcher = spy(new AnyTokenMatcher());
+    StatementChannel channel = StatementChannel.create(matcher);
+    List<Statement> output = mock(List.class);
+
+    assertThat(channel.consume(tokenQueue, output), is(true));
+    verify(matcher).matchToken(Mockito.eq(tokenQueue), Mockito.anyList());
+    verifyNoMoreInteractions(matcher);
+    ArgumentCaptor<Statement> statement = ArgumentCaptor.forClass(Statement.class);
+    verify(output).add(statement.capture());
+    assertThat(statement.getValue().getValue(), is("a"));
+    assertThat(statement.getValue().getStartLine(), is(1));
+    assertThat(statement.getValue().getEndLine(), is(1));
+    verifyNoMoreInteractions(output);
+  }
+
+  @Test
+  public void shouldNotCreateStatement() {
+    TokenQueue tokenQueue = spy(new TokenQueue(Arrays.asList(new Token("a", 1, 1))));
+    TokenMatcher matcher = spy(new AnyTokenMatcher());
+    StatementChannel channel = StatementChannel.create(matcher);
+    List<Statement> output = mock(List.class);
+
+    assertThat(channel.consume(tokenQueue, output), is(true));
+    verify(matcher).matchToken(Mockito.eq(tokenQueue), Mockito.anyList());
+    verifyNoMoreInteractions(matcher);
+    verify(output).add(Mockito.any(Statement.class));
+    verifyNoMoreInteractions(output);
   }
 
 }

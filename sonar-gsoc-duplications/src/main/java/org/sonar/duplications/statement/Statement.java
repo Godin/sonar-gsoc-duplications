@@ -42,7 +42,7 @@ public class Statement {
 
   public Statement(List<Token> tokens) {
     if (tokens == null || tokens.isEmpty()) {
-      throw new IllegalArgumentException("A statement can't be initialized with an empty list of token");
+      throw new IllegalArgumentException("A statement can't be initialized with an empty list of tokens");
     }
     StringBuilder sb = new StringBuilder();
     for (Token token : tokens) {

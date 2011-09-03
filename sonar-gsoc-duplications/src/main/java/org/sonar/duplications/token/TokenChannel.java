@@ -19,11 +19,11 @@
  */
 package org.sonar.duplications.token;
 
-import org.sonar.channel.Channel;
-import org.sonar.channel.CodeReader;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.sonar.channel.Channel;
+import org.sonar.channel.CodeReader;
 
 class TokenChannel extends Channel<TokenQueue> {
 
@@ -55,4 +55,5 @@ class TokenChannel extends Channel<TokenQueue> {
     }
     return false;
   }
+
 }

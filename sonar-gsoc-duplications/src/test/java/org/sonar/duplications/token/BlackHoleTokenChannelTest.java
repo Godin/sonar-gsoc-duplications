@@ -22,46 +22,22 @@ package org.sonar.duplications.token;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.sonar.channel.CodeReader;
 
-public class TokenChannelTest {
+public class BlackHoleTokenChannelTest {
 
   @Test
   public void shouldConsume() {
-    TokenChannel channel = new TokenChannel("ABC");
+    BlackHoleTokenChannel channel = new BlackHoleTokenChannel("ABC");
     TokenQueue output = mock(TokenQueue.class);
-    assertThat(channel.consume(new CodeReader("ABCD"), output), is(true));
+    CodeReader codeReader = new CodeReader("ABCD");
 
-    ArgumentCaptor<Token> token = ArgumentCaptor.forClass(Token.class);
-    verify(output).add(token.capture());
-    assertThat(token.getValue(), is(new Token("ABC", 1, 0)));
-    verifyNoMoreInteractions(output);
-  }
-
-  @Test
-  public void shouldNormalize() {
-    TokenChannel channel = new TokenChannel("ABC", "normalized");
-    TokenQueue output = mock(TokenQueue.class);
-    assertThat(channel.consume(new CodeReader("ABCD"), output), is(true));
-
-    ArgumentCaptor<Token> token = ArgumentCaptor.forClass(Token.class);
-    verify(output).add(token.capture());
-    assertThat(token.getValue(), is(new Token("normalized", 1, 0)));
-    verifyNoMoreInteractions(output);
-  }
-
-  @Test
-  public void shouldNotConsume() {
-    TokenChannel channel = new TokenChannel("ABC");
-    TokenQueue output = mock(TokenQueue.class);
-
-    assertThat(channel.consume(new CodeReader("123"), output), is(false));
+    assertThat(channel.consume(codeReader, output), is(true));
+    assertThat(codeReader.getLinePosition(), is(1));
+    assertThat(codeReader.getColumnPosition(), is(3));
     verifyZeroInteractions(output);
   }
 

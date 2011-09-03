@@ -44,16 +44,15 @@ public final class StatementChunker {
   }
 
   public List<Statement> chunk(TokenQueue tokenQueue) {
+    if (tokenQueue == null) {
+      throw new IllegalArgumentException();
+    }
     List<Statement> statements = new ArrayList<Statement>();
     try {
       channelDispatcher.consume(tokenQueue, statements);
       return statements;
     } catch (Exception e) {
-      if (tokenQueue != null) {
-        throw new DuplicationsException("Unable to build statement from token : " + tokenQueue.peek(), e);
-      } else {
-        throw new DuplicationsException("Token queue is null", e);
-      }
+      throw new DuplicationsException("Unable to build statement from token : " + tokenQueue.peek(), e);
     }
   }
 

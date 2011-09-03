@@ -27,9 +27,7 @@ import java.io.File;
 import java.util.List;
 
 import org.junit.Test;
-import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.DuplicationsTestUtil;
-
 import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
@@ -39,11 +37,6 @@ public class JavaStatementBuilderTest {
 
   TokenChunker lexer = JavaTokenProducer.build();
   StatementChunker stmtBldr = JavaStatementBuilder.build();
-
-  @Test(expected = DuplicationsException.class)
-  public void shouldThroughException() {
-    stmtBldr.chunk(null);
-  }
 
   @Test
   public void shouldIgnoreImportStatement() {

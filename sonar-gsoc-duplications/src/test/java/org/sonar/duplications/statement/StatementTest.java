@@ -17,39 +17,35 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.duplications.statement;
 
-import java.util.List;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-import org.sonar.duplications.DuplicationsException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.junit.Test;
 import org.sonar.duplications.token.Token;
-import org.sonar.duplications.token.TokenQueue;
 
-public class StatementChannelDisptacher {
+public class StatementTest {
 
-  private final StatementChannel[] channels;
-
-  public StatementChannelDisptacher(List<StatementChannel> channels) {
-    this.channels = channels.toArray(new StatementChannel[channels.size()]);
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotAcceptNull() {
+    new Statement(null);
   }
 
-  public boolean consume(TokenQueue tokenQueue, List<Statement> statements) {
-    Token nextToken = tokenQueue.peek();
-    while (nextToken != null) {
-      boolean channelConsumed = false;
-      for (StatementChannel channel : channels) {
-        if (channel.consume(tokenQueue, statements)) {
-          channelConsumed = true;
-          break;
-        }
-      }
-      if (!channelConsumed) {
-        throw new DuplicationsException("None of the statement channel has been able to consume token '" + tokenQueue.peek());
-      }
-      nextToken = tokenQueue.peek();
-    }
-    return true;
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotAcceptEmpty() {
+    new Statement(new ArrayList<Token>());
+  }
+
+  @Test
+  public void shouldCreateStatementFromListOfTokens() {
+    Statement statement = new Statement(Arrays.asList(new Token("a", 1, 1), new Token("b", 2, 1)));
+    assertThat(statement.getValue(), is("ab"));
+    assertThat(statement.getStartLine(), is(1));
+    assertThat(statement.getEndLine(), is(2));
   }
 
 }
