@@ -26,11 +26,6 @@ import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.TokenQueue;
 
-/**
- * This class is similar to lexer but takes list of token as input and provide list of statement as output
- *
- * @author sharif
- */
 public final class StatementChunker {
 
   private final StatementChannelDisptacher channelDispatcher;

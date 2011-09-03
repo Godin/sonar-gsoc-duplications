@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.channel.CodeReader;
@@ -36,33 +37,61 @@ public class TokenChannelTest {
   public void shouldConsume() {
     TokenChannel channel = new TokenChannel("ABC");
     TokenQueue output = mock(TokenQueue.class);
-    assertThat(channel.consume(new CodeReader("ABCD"), output), is(true));
+    CodeReader codeReader = new CodeReader("ABCD");
 
+    assertThat(channel.consume(codeReader, output), is(true));
     ArgumentCaptor<Token> token = ArgumentCaptor.forClass(Token.class);
     verify(output).add(token.capture());
     assertThat(token.getValue(), is(new Token("ABC", 1, 0)));
     verifyNoMoreInteractions(output);
+    assertThat(codeReader.getLinePosition(), is(1));
+    assertThat(codeReader.getColumnPosition(), is(3));
   }
 
   @Test
   public void shouldNormalize() {
     TokenChannel channel = new TokenChannel("ABC", "normalized");
     TokenQueue output = mock(TokenQueue.class);
-    assertThat(channel.consume(new CodeReader("ABCD"), output), is(true));
+    CodeReader codeReader = new CodeReader("ABCD");
 
+    assertThat(channel.consume(codeReader, output), is(true));
     ArgumentCaptor<Token> token = ArgumentCaptor.forClass(Token.class);
     verify(output).add(token.capture());
     assertThat(token.getValue(), is(new Token("normalized", 1, 0)));
     verifyNoMoreInteractions(output);
+    assertThat(codeReader.getLinePosition(), is(1));
+    assertThat(codeReader.getColumnPosition(), is(3));
   }
 
   @Test
   public void shouldNotConsume() {
     TokenChannel channel = new TokenChannel("ABC");
     TokenQueue output = mock(TokenQueue.class);
+    CodeReader codeReader = new CodeReader("123");
 
     assertThat(channel.consume(new CodeReader("123"), output), is(false));
     verifyZeroInteractions(output);
+    assertThat(codeReader.getLinePosition(), is(1));
+    assertThat(codeReader.getColumnPosition(), is(0));
+  }
+
+  /**
+   * FIXME Godin: possibly bug - line and column numbers computed incorrectly in case when token spans multiple lines. However seems that this situation is unlikely.
+   */
+  @Ignore
+  @Test
+  public void test() {
+    TokenChannel channel = new TokenChannel("AB\nC");
+    TokenQueue output = mock(TokenQueue.class);
+    CodeReader codeReader = new CodeReader("AB\nCD");
+
+    assertThat(channel.consume(codeReader, output), is(true));
+    ArgumentCaptor<Token> token = ArgumentCaptor.forClass(Token.class);
+    verify(output).add(token.capture());
+    assertThat(token.getValue(), is(new Token("AB\nC", 1, 0)));
+    verifyNoMoreInteractions(output);
+    assertThat(codeReader.getLinePosition(), is(2));
+    assertThat(codeReader.getColumnPosition(), is(1));
   }
 
 }
