@@ -24,13 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-/**
- * class that maintains a queue of tokens, supports methods pop: returns head token and remove it from queue peek: returns head token
- * without remove it from queue lookahead: returns a token from the queue with specified index starting from the head without removing any
- * token
- *
- * @author sharif
- */
 public class TokenQueue implements Iterable<Token> {
 
   private final LinkedList<Token> tokenQueue;

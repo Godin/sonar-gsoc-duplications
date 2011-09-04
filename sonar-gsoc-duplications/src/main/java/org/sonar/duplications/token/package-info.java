@@ -17,27 +17,11 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.csharp;
 
-import org.sonar.duplications.token.TokenChunker;
+/**
+ * Provides a basic framework to sequentially read any kind of character stream and create list of tokens.
+ * 
+ * The entry point of this framework is the {@link org.sonar.duplications.token.TokenChunker} class.
+ */
+package org.sonar.duplications.token;
 
-public final class CSharpTokenProducer {
-
-  private CSharpTokenProducer() {
-  }
-
-  public static TokenChunker build() {
-    return TokenChunker.builder()
-        .ignore("\\s")
-        .ignore("//[^\\n\\r]*+")
-        .ignore("/\\*[\\s\\S]*?\\*/")
-        .token("\".*?\"", "LITERAL")
-        .token("\'.*?\'", "LITERAL")
-        .token("[a-zA-Z_]++[0-9]*+[a-zA-Z_]*+")
-        .token("[0-9]*\\.[0-9]+([eE][-+]?[0-9]+)?", "DECIMAL")
-        .token("[0-9]++", "INTEGER")
-        .token(".")
-        .build();
-  }
-
-}

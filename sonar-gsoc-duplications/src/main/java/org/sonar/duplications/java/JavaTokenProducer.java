@@ -27,16 +27,17 @@ public final class JavaTokenProducer {
   }
 
   public static TokenChunker build() {
-    TokenChunker.Builder builder = TokenChunker.builder()
-        .addBlackHoleChannel("\\s")
-        .addBlackHoleChannel("//[^\\n\\r]*+")
-        .addBlackHoleChannel("/\\*[\\s\\S]*?\\*/")
-        .addChannel("\".*?\"", "LITERAL")
-        .addChannel("\'.*?\'", "LITERAL")
-        .addChannel("[a-zA-Z_]++[0-9]*+[a-zA-Z_]*+")
-        .addChannel("[0-9]*\\.[0-9]+([eE][-+]?[0-9]+)?", "DECIMAL")
-        .addChannel("[0-9]++", "INTEGER")
-        .addChannel(".");
-    return builder.build();
+    return TokenChunker.builder()
+        .ignore("\\s")
+        .ignore("//[^\\n\\r]*+")
+        .ignore("/\\*[\\s\\S]*?\\*/")
+        .token("\".*?\"", "LITERAL")
+        .token("\'.*?\'", "LITERAL")
+        .token("[a-zA-Z_]++[0-9]*+[a-zA-Z_]*+")
+        .token("[0-9]*\\.[0-9]+([eE][-+]?[0-9]+)?", "DECIMAL")
+        .token("[0-9]++", "INTEGER")
+        .token(".")
+        .build();
   }
+
 }

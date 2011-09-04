@@ -39,7 +39,7 @@ public class TokenChunkerTest {
       sb.append('*');
     }
     sb.append("/");
-    TokenChunker chunker = TokenChunker.builder().addChannel("/.*/", "LITERAL").build();
+    TokenChunker chunker = TokenChunker.builder().token("/.*/", "LITERAL").build();
     chunker.chunk(sb.toString());
   }
 

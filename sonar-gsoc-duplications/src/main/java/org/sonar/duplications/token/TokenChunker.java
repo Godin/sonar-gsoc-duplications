@@ -86,6 +86,11 @@ public final class TokenChunker {
     }
   }
 
+  /**
+   * Note that order is important, e.g.
+   * <code>token("A").ignore("A")</code> for the input string "A" will produce token, whereas
+   * <code>ignore("A").token("A")</code> will not.
+   */
   public static final class Builder {
 
     private List<Channel> channels = new ArrayList<Channel>();
@@ -98,17 +103,26 @@ public final class TokenChunker {
       return new TokenChunker(this);
     }
 
-    public Builder addBlackHoleChannel(String regularExpression) {
+    /**
+     * Defines that sequence of characters must be ignored, if it matches specified regular expression.
+     */
+    public Builder ignore(String regularExpression) {
       channels.add(new BlackHoleTokenChannel(regularExpression));
       return this;
     }
 
-    public Builder addChannel(String regularExpression) {
+    /**
+     * Defines that sequence of characters, which is matched specified regular expression, is a token.
+     */
+    public Builder token(String regularExpression) {
       channels.add(new TokenChannel(regularExpression));
       return this;
     }
 
-    public Builder addChannel(String regularExpression, String normalizationValue) {
+    /**
+     * Defines that sequence of characters, which is matched specified regular expression, is a token with specified value.
+     */
+    public Builder token(String regularExpression, String normalizationValue) {
       channels.add(new TokenChannel(regularExpression, normalizationValue));
       return this;
     }
