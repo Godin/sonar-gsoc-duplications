@@ -370,23 +370,23 @@ public class OriginalCloneDetectionAlgorithmTest {
   /**
    * Given:
    * <pre>
-   * a: 0
-   * b: 1 2 3
-   * a: 1 2 4
+   * a: 1 2 3
+   * b: 1 2 4
+   * a: 1 2 5
    * </pre>
    * Expected:
    * <pre>
-   * a-b (1 2)
+   * a-b (1 2) - instead of "a-a-b", which will be the case if file from index not ignored
    * </pre>
    */
   @Test
   public void fileAlreadyInIndex() {
     CloneIndex cloneIndex = createIndex(
-        blocksForResource("a").withHashes("0"),
-        blocksForResource("b").withHashes("1", "2", "3"));
-    // Note about blocks with hashes "3" and "4": those blocks here in order to not face another problem - with EOF (see separate test)
+        blocksForResource("a").withHashes("1", "2", "3"),
+        blocksForResource("b").withHashes("1", "2", "4"));
+    // Note about blocks with hashes "3", "4" and "5": those blocks here in order to not face another problem - with EOF (see separate test)
     List<Block> fileBlocks =
-        blocksForResource("a").withHashes("1", "2", "4");
+        blocksForResource("a").withHashes("1", "2", "5");
     List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(cloneIndex, fileBlocks);
     print(clones);
 
