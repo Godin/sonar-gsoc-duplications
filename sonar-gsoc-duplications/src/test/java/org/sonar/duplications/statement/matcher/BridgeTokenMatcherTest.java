@@ -60,10 +60,9 @@ public class BridgeTokenMatcherTest {
     BridgeTokenMatcher matcher = new BridgeTokenMatcher("(", ")");
 
     assertThat(matcher.matchToken(tokenQueue, output), is(true));
-    verify(tokenQueue, times(7)).isNextTokenValue("(");
-    verify(tokenQueue, times(6)).isNextTokenValue(")");
+    verify(tokenQueue, times(1)).isNextTokenValue("(");
     verify(tokenQueue, times(7)).poll();
-    verify(tokenQueue, times(5)).peek();
+    verify(tokenQueue, times(7)).peek();
     verifyNoMoreInteractions(tokenQueue);
     verify(output).add(t1);
     verify(output).add(t2);
@@ -96,13 +95,11 @@ public class BridgeTokenMatcherTest {
     BridgeTokenMatcher matcher = new BridgeTokenMatcher("(", ")");
 
     assertThat(matcher.matchToken(tokenQueue, output), is(false));
-    verify(tokenQueue, times(2)).isNextTokenValue("(");
-    verify(tokenQueue, times(1)).isNextTokenValue(")");
-    verify(tokenQueue, times(2)).poll();
-    verify(tokenQueue).peek();
+    verify(tokenQueue, times(1)).isNextTokenValue("(");
+    verify(tokenQueue, times(1)).poll();
+    verify(tokenQueue, times(2)).peek();
     verifyNoMoreInteractions(tokenQueue);
     verify(output).add(t1);
-    verify(output).add(null); // TODO Godin: bug?
     verifyNoMoreInteractions(output);
   }
 

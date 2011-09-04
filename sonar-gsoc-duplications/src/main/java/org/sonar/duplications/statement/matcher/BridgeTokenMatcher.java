@@ -31,7 +31,6 @@ public class BridgeTokenMatcher extends TokenMatcher {
 
   private final String lToken;
   private final String rToken;
-  private int stack = 0; // TODO Godin: why not local?
 
   public BridgeTokenMatcher(String lToken, String rToken) {
     if (lToken == null || rToken == null) {
@@ -46,20 +45,19 @@ public class BridgeTokenMatcher extends TokenMatcher {
     if (!tokenQueue.isNextTokenValue(lToken)) {
       return false;
     }
-    matchedTokenList.add(tokenQueue.poll());
-    stack++;
-    do {
-      if (tokenQueue.isNextTokenValue(lToken)) {
+    int stack = 0;
+    while (tokenQueue.peek() != null) {
+      Token token = tokenQueue.poll();
+      if (lToken.equals(token.getValue())) {
         stack++;
-      }
-      if (tokenQueue.isNextTokenValue(rToken)) {
+      } else if (rToken.equals(token.getValue())) {
         stack--;
       }
-      matchedTokenList.add(tokenQueue.poll());
+      matchedTokenList.add(token);
       if (stack == 0) {
         return true;
       }
-    } while (tokenQueue.peek() != null);
+    }
     return false;
   }
 
