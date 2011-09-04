@@ -33,14 +33,14 @@ import org.junit.Test;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
-public class ForgiveLastTokenMatcherTest {
+public class ForgetLastTokenMatcherTest {
 
   @Test
   public void shouldMatch() {
     TokenQueue tokenQueue = spy(new TokenQueue());
     List<Token> output = mock(List.class);
     when(output.size()).thenReturn(4);
-    ForgiveLastTokenMatcher matcher = new ForgiveLastTokenMatcher();
+    ForgetLastTokenMatcher matcher = new ForgetLastTokenMatcher();
 
     assertThat(matcher.matchToken(tokenQueue, output), is(true));
     verifyNoMoreInteractions(tokenQueue);

@@ -29,23 +29,22 @@ public final class JavaStatementBuilder {
   }
 
   public static StatementChunker build() {
-    StatementChunker.Builder builder = StatementChunker
-        .builder()
-        .addBlackHoleChannel(from("import"), to(";"))
-        .addBlackHoleChannel(from("package"), to(";"))
-        .addBlackHoleChannel(token("}"))
-        .addBlackHoleChannel(token("{"))
-        .addChannel(from("@"), anyToken(), opt(bridge("(", ")")))
-        .addChannel(from("do"))
-        .addChannel(from("if"), bridge("(", ")"))
-        .addChannel(from("else"), token("if"), bridge("(", ")"))
-        .addChannel(from("else"))
-        .addChannel(from("for"), bridge("(", ")"))
-        .addChannel(from("while"), bridge("(", ")"), opt(token(";")))
-        .addChannel(from("case"), to(":"))
-        .addChannel(from("default"), to(":"))
-        .addChannel(to(";", "{", "}"), forgiveLastToken());
-
-    return builder.build();
+    return StatementChunker.builder()
+        .ignore(from("import"), to(";"))
+        .ignore(from("package"), to(";"))
+        .ignore(token("}"))
+        .ignore(token("{"))
+        .statement(from("@"), anyToken(), opt(bridge("(", ")")))
+        .statement(from("do"))
+        .statement(from("if"), bridge("(", ")"))
+        .statement(from("else"), token("if"), bridge("(", ")"))
+        .statement(from("else"))
+        .statement(from("for"), bridge("(", ")"))
+        .statement(from("while"), bridge("(", ")"), opt(token(";")))
+        .statement(from("case"), to(":"))
+        .statement(from("default"), to(":"))
+        .statement(to(";", "{", "}"), forgetLastToken())
+        .build();
   }
+
 }

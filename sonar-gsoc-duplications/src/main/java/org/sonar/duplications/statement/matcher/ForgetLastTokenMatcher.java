@@ -27,7 +27,7 @@ import org.sonar.duplications.token.TokenQueue;
 /**
  * Forgets token, which was consumed last.
  */
-public class ForgiveLastTokenMatcher extends TokenMatcher {
+public class ForgetLastTokenMatcher extends TokenMatcher {
 
   /**
    * @return always true

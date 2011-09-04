@@ -29,32 +29,31 @@ public final class CSharpStatementBuilder {
   }
 
   public static StatementChunker build() {
-    StatementChunker.Builder builder = StatementChunker
-        .builder()
-        .addChannel(from("using"), bridge("(", ")"))
-        .addChannel(from("enum"), to(";"))
-        .addBlackHoleChannel(from("using"), to(";"))
-        .addBlackHoleChannel(from("namespace"), to("{"))
-        .addBlackHoleChannel(from("#"), anyToken(), bridge("(", ")"))
-        .addBlackHoleChannel(from("#"), token("else"))
-        .addBlackHoleChannel(from("#"), token("endif"))
-        .addBlackHoleChannel(from("#"), anyToken(), anyToken())
-        .addBlackHoleChannel(token("}"))
-        .addBlackHoleChannel(token("{"))
-        .addChannel(bridge("[", "]"))
-        .addChannel(from("do"))
-        .addChannel(from("if"), bridge("(", ")"))
-        .addChannel(from("else"), token("if"), bridge("(", ")"))
-        .addChannel(from("else"))
-        .addChannel(from("for"), bridge("(", ")"))
-        .addChannel(from("foreach"), bridge("(", ")"))
-        .addChannel(from("while"), bridge("(", ")"), opt(token(";")))
-        .addChannel(from("case"), to(":"))
-        .addChannel(from("get"), opt(bridge("{", "}")), opt(token(";")))
-        .addChannel(from("set"), opt(bridge("{", "}")), opt(token(";")))
-        .addChannel(from("default"), to(":"))
-        .addChannel(to(";", "{", "}"), forgiveLastToken());
-
-    return builder.build();
+    return StatementChunker.builder()
+        .statement(from("using"), bridge("(", ")"))
+        .statement(from("enum"), to(";"))
+        .ignore(from("using"), to(";"))
+        .ignore(from("namespace"), to("{"))
+        .ignore(from("#"), anyToken(), bridge("(", ")"))
+        .ignore(from("#"), token("else"))
+        .ignore(from("#"), token("endif"))
+        .ignore(from("#"), anyToken(), anyToken())
+        .ignore(token("}"))
+        .ignore(token("{"))
+        .statement(bridge("[", "]"))
+        .statement(from("do"))
+        .statement(from("if"), bridge("(", ")"))
+        .statement(from("else"), token("if"), bridge("(", ")"))
+        .statement(from("else"))
+        .statement(from("for"), bridge("(", ")"))
+        .statement(from("foreach"), bridge("(", ")"))
+        .statement(from("while"), bridge("(", ")"), opt(token(";")))
+        .statement(from("case"), to(":"))
+        .statement(from("get"), opt(bridge("{", "}")), opt(token(";")))
+        .statement(from("set"), opt(bridge("{", "}")), opt(token(";")))
+        .statement(from("default"), to(":"))
+        .statement(to(";", "{", "}"), forgetLastToken())
+        .build();
   }
+
 }

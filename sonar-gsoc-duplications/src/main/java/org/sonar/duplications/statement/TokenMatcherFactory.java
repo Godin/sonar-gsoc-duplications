@@ -22,7 +22,7 @@ package org.sonar.duplications.statement;
 import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
 import org.sonar.duplications.statement.matcher.BridgeTokenMatcher;
 import org.sonar.duplications.statement.matcher.ExactTokenMatcher;
-import org.sonar.duplications.statement.matcher.ForgiveLastTokenMatcher;
+import org.sonar.duplications.statement.matcher.ForgetLastTokenMatcher;
 import org.sonar.duplications.statement.matcher.OptTokenMatcher;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.statement.matcher.UptoTokenMatcher;
@@ -53,9 +53,9 @@ public final class TokenMatcherFactory {
     return new OptTokenMatcher(optMatcher);
   }
 
-  public static TokenMatcher forgiveLastToken() {
+  public static TokenMatcher forgetLastToken() {
     // TODO Godin: we can return singleton instance
-    return new ForgiveLastTokenMatcher();
+    return new ForgetLastTokenMatcher();
   }
 
   public static TokenMatcher token(String token) {

@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
 import org.sonar.duplications.statement.matcher.BridgeTokenMatcher;
 import org.sonar.duplications.statement.matcher.ExactTokenMatcher;
-import org.sonar.duplications.statement.matcher.ForgiveLastTokenMatcher;
+import org.sonar.duplications.statement.matcher.ForgetLastTokenMatcher;
 import org.sonar.duplications.statement.matcher.OptTokenMatcher;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.statement.matcher.UptoTokenMatcher;
@@ -38,7 +38,7 @@ public class TokenMatcherFactoryTest {
   public void shouldCreateMatchers() {
     assertThat(TokenMatcherFactory.anyToken(), instanceOf(AnyTokenMatcher.class));
     assertThat(TokenMatcherFactory.bridge("(", ")"), instanceOf(BridgeTokenMatcher.class));
-    assertThat(TokenMatcherFactory.forgiveLastToken(), instanceOf(ForgiveLastTokenMatcher.class));
+    assertThat(TokenMatcherFactory.forgetLastToken(), instanceOf(ForgetLastTokenMatcher.class));
     assertThat(TokenMatcherFactory.from("if"), instanceOf(ExactTokenMatcher.class));
     assertThat(TokenMatcherFactory.opt(mock(TokenMatcher.class)), instanceOf(OptTokenMatcher.class));
     assertThat(TokenMatcherFactory.to(";"), instanceOf(UptoTokenMatcher.class));

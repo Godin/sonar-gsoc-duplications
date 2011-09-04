@@ -51,6 +51,11 @@ public final class StatementChunker {
     }
   }
 
+  /**
+   * Note that order is important, e.g.
+   * <code>statement(token(A)).ignore(token(A))</code> for the input sequence "A" will produce statement, whereas
+   * <code>ignore(token(A)).statement(token(A))</code> will not.
+   */
   public static final class Builder {
 
     private List<StatementChannel> channels = new ArrayList<StatementChannel>();
@@ -62,13 +67,23 @@ public final class StatementChunker {
       return new StatementChunker(this);
     }
 
-    public Builder addChannel(TokenMatcher... matchers) {
-      channels.add(StatementChannel.create(matchers));
+    /**
+     * Defines that sequence of tokens must be ignored, if it matches specified list of matchers.
+     * 
+     * @see TokenMatcherFactory
+     */
+    public Builder ignore(TokenMatcher... matchers) {
+      channels.add(StatementChannel.createBlackHole(matchers));
       return this;
     }
 
-    public Builder addBlackHoleChannel(TokenMatcher... matchers) {
-      channels.add(StatementChannel.createBlackHole(matchers));
+    /**
+     * Defines that sequence of tokens, which is matched specified list of matchers, is a statement.
+     * 
+     * @see TokenMatcherFactory
+     */
+    public Builder statement(TokenMatcher... matchers) {
+      channels.add(StatementChannel.create(matchers));
       return this;
     }
 
