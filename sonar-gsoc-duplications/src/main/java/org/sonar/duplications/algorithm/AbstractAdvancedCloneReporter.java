@@ -20,8 +20,15 @@
 package org.sonar.duplications.algorithm;
 
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
@@ -29,7 +36,8 @@ import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePair;
 import org.sonar.duplications.index.ClonePart;
 
-import java.util.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgorithm {
 
@@ -39,19 +47,7 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
     }
   };
 
-  public static final String ALGORITHM_KEY = "algorithm";
-  public static final String INIT_KEY = "init";
-
   protected CloneIndex cloneIndex;
-  protected StatsCollector statsCollector;
-
-  public void printStatistics() {
-    statsCollector.printAllStatistics();
-  }
-
-  public void resetStatistics() {
-    statsCollector.reset();
-  }
 
   /**
    * TODO Godin: performs several queries using same hash, which is inefficient in terms of performance
@@ -62,7 +58,6 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
     for (Block block : fileBlockGroup.getBlockList()) {
       List<Block> sameHashBlockGroup = Lists.newArrayList();
       Collection<Block> foundBlocks = cloneIndex.getBySequenceHash(block.getBlockHash());
-      statsCollector.addNumber("total found blocks", foundBlocks.size());
       for (Block shBlock : foundBlocks) {
         if (!shBlock.getResourceId().equals(block.getResourceId()) ||
             shBlock.getIndexInFile() > block.getIndexInFile()) {
@@ -77,16 +72,13 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
   }
 
   protected List<ClonePair> reportClonePairs(FileBlockGroup fileBlockGroup) {
-    statsCollector.startTime(INIT_KEY);
     SortedSet<Block> resourceBlocks = fileBlockGroup.getBlockList();
     List<List<Block>> sameHashBlockGroups = getIndexedBlockGroups(fileBlockGroup);
     //an empty list is needed a the end to report clone at the end of file
     sameHashBlockGroups.add(new ArrayList<Block>());
     Map<String, Map<CloneKey, ClonePair>> prevActiveChains = Maps.newLinkedHashMap();
     List<ClonePair> reportedPairs = Lists.newArrayList();
-    statsCollector.stopTime(INIT_KEY);
 
-    statsCollector.startTime(ALGORITHM_KEY);
     Iterator<Block> blockIterator = resourceBlocks.iterator();
     for (List<Block> blockGroup : sameHashBlockGroups) {
       Map<String, Map<CloneKey, ClonePair>> nextActiveChains = Maps.newLinkedHashMap();
@@ -115,7 +107,6 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
       }
       prevActiveChains = nextActiveChains;
     }
-    statsCollector.stopTime(ALGORITHM_KEY);
 
     return reportedPairs;
   }

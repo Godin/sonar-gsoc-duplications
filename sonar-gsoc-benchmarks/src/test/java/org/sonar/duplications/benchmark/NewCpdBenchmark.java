@@ -53,7 +53,6 @@ public class NewCpdBenchmark extends Benchmark {
   }
 
   protected static void singleRun(List<File> files, int blockSize, CloneIndex index, CloneReporterAlgorithm reporter) {
-    reporter.resetStatistics();
     CloneFinder cf = JavaCloneFinder.build(index, blockSize);
     for (File file : files) {
       cf.register(file);
@@ -64,7 +63,6 @@ public class NewCpdBenchmark extends Benchmark {
       FileBlockGroup fileBlockGroup = FileBlockGroup.create(resourceId, candidateBlockList);
       reporter.reportClones(fileBlockGroup);
     }
-    reporter.printStatistics();
   }
 
 }

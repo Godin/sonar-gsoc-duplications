@@ -19,6 +19,8 @@
  */
 package org.sonar.duplications.algorithm;
 
+import java.util.List;
+
 import org.sonar.duplications.algorithm.filter.CloneFilter;
 import org.sonar.duplications.algorithm.filter.IntervalTreeCloneFilter;
 import org.sonar.duplications.block.FileBlockGroup;
@@ -26,41 +28,18 @@ import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePair;
 
-import java.util.List;
-
 public class AdvancedGroupCloneReporter extends AbstractAdvancedCloneReporter {
 
-  public static final CloneFilter INTERVAL_FILTER = new IntervalTreeCloneFilter();
-
-  public static final String FILTER_KEY = "filter covered";
-  public static final String GROUPS_KEY = "report clones";
+  private static final CloneFilter INTERVAL_FILTER = new IntervalTreeCloneFilter();
 
   public AdvancedGroupCloneReporter(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;
-    this.statsCollector = new StatsCollector("AdvancedGrouped");
   }
 
   public List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup) {
-
     List<ClonePair> reportedPairs = reportClonePairs(fileBlockGroup);
-
-    statsCollector.addNumber("reported pairs", reportedPairs.size());
-
-    statsCollector.startTime(GROUPS_KEY);
     List<CloneGroup> clones = groupClonePairs(reportedPairs);
-    statsCollector.stopTime(GROUPS_KEY);
-
-    statsCollector.addNumber("reported clone groups", clones.size());
-
-    int sizeBefore = clones.size();
-    statsCollector.startTime(FILTER_KEY);
     clones = INTERVAL_FILTER.filter(clones);
-    statsCollector.stopTime(FILTER_KEY);
-
-    statsCollector.addNumber("removed covered", sizeBefore - clones.size());
-
-    statsCollector.addNumber("total clone groups", clones.size());
-
     return clones;
   }
 

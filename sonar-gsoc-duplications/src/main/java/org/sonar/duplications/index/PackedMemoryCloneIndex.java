@@ -103,8 +103,8 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
     List<Block> result = Lists.newArrayList();
     // TODO can be used if strings interned: while (index < size && resourceIds[byResourceIndices[index]] == resourceId) {
-    int realIndex;
-    while (index < size && FastStringComparator.INSTANCE.compare(resourceIds[realIndex = resourceIdsIndex[index]], resourceId) == 0) {
+    int realIndex = resourceIdsIndex[index];
+    while (index < size && FastStringComparator.INSTANCE.compare(resourceIds[realIndex], resourceId) == 0) {
       // extract block (note that there is no need to extract resourceId)
       int offset = realIndex * blockInts;
       int[] hash = new int[hashInts];
@@ -116,7 +116,9 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       int lastLineNumber = blockData[offset];
 
       result.add(new Block(resourceId, new ByteArray(DataUtils.intToByteArray(hash)), indexInFile, firstLineNumber, lastLineNumber));
+
       index++;
+      realIndex = resourceIdsIndex[index];
     }
     return result;
   }

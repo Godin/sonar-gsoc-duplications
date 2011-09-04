@@ -19,15 +19,13 @@
  */
 package org.sonar.duplications.algorithm;
 
+import java.util.List;
+
 import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 
-import java.util.List;
-
 public interface CloneReporterAlgorithm {
+
   List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup);
 
-  void printStatistics();
-
-  void resetStatistics();
 }

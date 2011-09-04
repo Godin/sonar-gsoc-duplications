@@ -19,6 +19,9 @@
  */
 package org.sonar.duplications;
 
+import java.io.File;
+import java.util.List;
+
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
@@ -29,9 +32,6 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * TODO Godin: For better flexibility we must allow detection of clones for file, which is not in index (index maintenance and detection of clones are two different tasks).
@@ -120,10 +120,6 @@ public final class CloneFinder {
       throw new DuplicationsException("Exception during registering file: " + absolutePath, e);
     }
     return FileBlockGroup.create(absolutePath, blocks);
-  }
-
-  public void printCloneReporterStatistics() {
-    cloneReporter.printStatistics();
   }
 
   public List<CloneGroup> findClones(FileBlockGroup fileBlockGroup) {
