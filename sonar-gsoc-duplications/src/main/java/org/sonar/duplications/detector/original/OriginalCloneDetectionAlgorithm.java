@@ -228,7 +228,8 @@ public class OriginalCloneDetectionAlgorithm {
 
   /**
    * Performs incremental and brute force algorithm in order to filter clones, which are fully covered by other clones.
-   * Running time - O(N*2*C), where N - number of clones, which was found earlier and C - time of {@link CloneGroup#containsIn(org.sonar.duplications.index.ClonePartContainerBase)}.
+   * Running time - O(N*2*C), where N - number of clones, which was found earlier
+   * and C - time of {@link CloneGroup#containsIn(org.sonar.duplications.index.ClonePartContainerBase)}.
    * 
    * TODO Godin: we can try to optimize containsIn by using fact that all parts already sorted because of {@link BlocksGroup}.
    *

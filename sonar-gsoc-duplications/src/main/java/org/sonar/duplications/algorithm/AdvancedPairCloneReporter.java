@@ -39,8 +39,7 @@ public class AdvancedPairCloneReporter extends AbstractAdvancedCloneReporter {
   public List<CloneGroup> reportClones(FileBlockGroup fileBlockGroup) {
     List<ClonePair> reportedPairs = reportClonePairs(fileBlockGroup);
     List<ClonePair> filtered = INTERVAL_PAIR_FILTER.filter(reportedPairs);
-    List<CloneGroup> groups = groupClonePairs(filtered);
-    return groups;
+    return groupClonePairs(filtered);
   }
 
 }

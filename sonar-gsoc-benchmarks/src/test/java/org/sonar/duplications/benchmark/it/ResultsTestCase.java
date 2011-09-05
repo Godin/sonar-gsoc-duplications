@@ -68,6 +68,8 @@ public abstract class ResultsTestCase {
 
   private CloneIndex index;
 
+  protected IndexResult indexResult;
+
   protected Result result;
 
   @Before
@@ -80,11 +82,10 @@ public abstract class ResultsTestCase {
   public void activemq() {
     List<File> files = Utils.getProjectFiles("activemq-core-5.5.0");
     // note that amount of files is 1354
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(275));
-    assertThat("resources in index", resourcesInIndex, is(1079));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(275));
+    assertThat("resources in index", indexResult.resources, is(1079));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(490);
     assertDuplicatedLines(47605);
@@ -94,11 +95,10 @@ public abstract class ResultsTestCase {
   public void struts() {
     List<File> files = Utils.getProjectFiles("struts-1.3.9");
     // note that amount of files is 525
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(113));
-    assertThat("resources in index", resourcesInIndex, is(412));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(113));
+    assertThat("resources in index", indexResult.resources, is(412));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(137);
     assertDuplicatedLines(25039);
@@ -108,11 +108,10 @@ public abstract class ResultsTestCase {
   public void strutsel() {
     List<File> files = Utils.getProjectFiles("struts-el-1.2.9");
     // note that amount of files is 106
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(5));
-    assertThat("resources in index", resourcesInIndex, is(101));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(5));
+    assertThat("resources in index", indexResult.resources, is(101));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(66);
     assertDuplicatedLines(13489);
@@ -122,11 +121,10 @@ public abstract class ResultsTestCase {
   public void openejb() {
     List<File> files = Utils.getProjectFiles("openejb-jee-3.1.4");
     // note that amount of files is 900
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(291));
-    assertThat("resources in index", resourcesInIndex, is(609));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(291));
+    assertThat("resources in index", indexResult.resources, is(609));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(182);
     assertDuplicatedLines(23081);
@@ -136,11 +134,10 @@ public abstract class ResultsTestCase {
   public void easybeans() {
     List<File> files = Utils.getProjectFiles("easybeans-core-1.2.1");
     // note that amount of files is 188
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(57));
-    assertThat("resources in index", resourcesInIndex, is(131));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(57));
+    assertThat("resources in index", indexResult.resources, is(131));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(17);
     assertDuplicatedLines(960);
@@ -150,11 +147,10 @@ public abstract class ResultsTestCase {
   public void commonsCollections() {
     List<File> files = Utils.getProjectFiles("commons-collections-3.2");
     // note that amount of files is 273
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(70));
-    assertThat("resources in index", resourcesInIndex, is(203));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(70));
+    assertThat("resources in index", indexResult.resources, is(203));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(43);
     assertDuplicatedLines(4272);
@@ -164,11 +160,10 @@ public abstract class ResultsTestCase {
   public void jboss() {
     List<File> files = Utils.getProjectFiles("jboss-as-server-6.0.0.Final");
     // note that amount of files is 722
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(253));
-    assertThat("resources in index", resourcesInIndex, is(469));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(253));
+    assertThat("resources in index", indexResult.resources, is(469));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(80);
     assertDuplicatedLines(23656);
@@ -178,11 +173,10 @@ public abstract class ResultsTestCase {
   public void neo4j() {
     List<File> files = Utils.getProjectFiles("neo4j-kernel-1.4");
     // note that amount of files is 317
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(125));
-    assertThat("resources in index", resourcesInIndex, is(192));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(125));
+    assertThat("resources in index", indexResult.resources, is(192));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(15);
     assertDuplicatedLines(2143);
@@ -192,11 +186,10 @@ public abstract class ResultsTestCase {
   public void jackrabbit() {
     List<File> files = Utils.getProjectFiles("jackrabbit-jcr-tests-2.2.7");
     // note that amount of files is 312
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(29));
-    assertThat("resources in index", resourcesInIndex, is(283));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(29));
+    assertThat("resources in index", indexResult.resources, is(283));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(56);
     assertDuplicatedLines(8373);
@@ -206,11 +199,10 @@ public abstract class ResultsTestCase {
   public void struts2() {
     List<File> files = Utils.getProjectFiles("struts2-embeddedjsp-plugin-2.2.3");
     // note that amount of files is 177
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(43));
-    assertThat("resources in index", resourcesInIndex, is(134));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(43));
+    assertThat("resources in index", indexResult.resources, is(134));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(25);
     assertDuplicatedLines(3098);
@@ -220,11 +212,10 @@ public abstract class ResultsTestCase {
   public void empire() {
     List<File> files = Utils.getProjectFiles("empire-db-2.1.0-incubating");
     // note that amount of files is 82
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(12));
-    assertThat("resources in index", resourcesInIndex, is(70));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(12));
+    assertThat("resources in index", indexResult.resources, is(70));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(9);
     assertDuplicatedLines(4194);
@@ -234,11 +225,10 @@ public abstract class ResultsTestCase {
   public void tomcat() {
     List<File> files = Utils.getProjectFiles("tomcat-jasper-7.0.19");
     // note that amount of files is 118
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(19));
-    assertThat("resources in index", resourcesInIndex, is(99));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(19));
+    assertThat("resources in index", indexResult.resources, is(99));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(19);
     assertDuplicatedLines(1929);
@@ -250,11 +240,10 @@ public abstract class ResultsTestCase {
     List<File> files = Utils.filesFromJdk16();
     Assume.assumeThat(files.size(), greaterThan(0));
     // note that amount of files is 7213
-    int filesWithoutBlocks = populateIndex(files);
-    int resourcesInIndex = index.getAllUniqueResourceId().size();
-    assertThat("files without blocks", filesWithoutBlocks, is(2921));
-    assertThat("resources in index", resourcesInIndex, is(4292));
-    assertThat(filesWithoutBlocks + resourcesInIndex, is(files.size()));
+    populateIndex(files);
+    assertThat("files without blocks", indexResult.resourcesWithoutBlocks, is(2921));
+    assertThat("resources in index", indexResult.resources, is(4292));
+    assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(1097);
     assertDuplicatedLines(180600);
@@ -275,8 +264,8 @@ public abstract class ResultsTestCase {
   /**
    * @return number of files without blocks
    */
-  protected int populateIndex(List<File> files) {
-    int result = 0;
+  protected void populateIndex(List<File> files) {
+    indexResult = new IndexResult();
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();
     BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
@@ -285,13 +274,15 @@ public abstract class ResultsTestCase {
       List<Statement> statements = statementChunker.chunk(tokenQueue);
       List<Block> blocks = blockChunker.chunk(file.getAbsolutePath(), statements);
       if (blocks.isEmpty()) {
-        result++;
-      }
-      for (Block block : blocks) {
-        index.insert(block);
+        indexResult.resourcesWithoutBlocks++;
+      } else {
+        indexResult.resources++;
+        for (Block block : blocks) {
+          index.insert(block);
+          indexResult.blocks++;
+        }
       }
     }
-    return result;
   }
 
   protected void analyse(CloneIndex index, List<File> files) {
@@ -303,6 +294,30 @@ public abstract class ResultsTestCase {
     assertThat(result.duplicatedFiles, is(result.duplicatedLines.keySet().size()));
     assertThat(result.duplicatedLinesFromOrigins.keySet().size(), is(result.duplicatedLines.keySet().size()));
     assertThat(result.duplicatedLinesFromOrigins.size(), is(result.duplicatedLines.size()));
+  }
+
+  static class IndexResult {
+    /**
+     * Number of blocks, which were added to index.
+     */
+    int blocks;
+
+    /**
+     * Number of resources, which were added to index.
+     */
+    int resources;
+
+    /**
+     * Number of resources without blocks, i.e. which were not added to index.
+     */
+    int resourcesWithoutBlocks;
+
+    /**
+     * @return number of processed resources.
+     */
+    public int getTotalResources() {
+      return resources + resourcesWithoutBlocks;
+    }
   }
 
   static class Result {

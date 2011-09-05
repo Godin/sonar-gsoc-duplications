@@ -21,19 +21,19 @@ package org.sonar.duplications.index;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.utils.FastStringComparator;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Each object in Java has an overhead - see
  * <a href="http://devblog.streamy.com/2009/07/24/determine-size-of-java-object-class/">"HOWTO: Determine the size of a Java Object or Class"</a>.
  * So to optimize memory consumption, we use flat arrays, however this increases time of query.
+ * 
+ * TODO Godin: currently this implementation does not support deletion, however it's possible to implement.
  */
 public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
@@ -76,15 +76,6 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     this.resourceIds = new String[initialCapacity];
     this.blockData = new int[initialCapacity * blockInts];
     this.resourceIdsIndex = new int[initialCapacity];
-  }
-
-  @Override
-  public Collection<String> getAllUniqueResourceId() {
-    Set<String> result = Sets.newHashSet();
-    for (int i = 0; i < size; i++) {
-      result.add(resourceIds[i]);
-    }
-    return result;
   }
 
   /**
@@ -176,14 +167,6 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     blockData[offset] = block.getLastLineNumber();
 
     size++;
-  }
-
-  /**
-   * TODO Currently this implementation does not support deletion, however it's possible to implement.
-   */
-  @Override
-  public void remove(String resourceId) {
-    throw new UnsupportedOperationException();
   }
 
   /**

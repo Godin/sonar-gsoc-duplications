@@ -27,12 +27,6 @@ import org.sonar.duplications.block.ByteArray;
 public interface CloneIndex {
 
   /**
-   * @deprecated Godin: I don't think that we need such method, moreover currently it used only from tests
-   */
-  @Deprecated
-  Collection<String> getAllUniqueResourceId();
-
-  /**
    * @deprecated Godin: I don't think that we need such method
    */
   @Deprecated
@@ -67,23 +61,8 @@ public interface CloneIndex {
   void remove(String resourceId);
 
   /**
-   * Remove all elements from index that are equals to <tt>block</tt>
-   *
-   * @param block block to be removed from index
-   * @deprecated Godin: I don't think that we need such method, moreover currently it unused
-   */
-  @Deprecated
-  void remove(Block block);
-
-  /**
    * Empty hash index - remove all tuples
    */
   void removeAll();
 
-  /**
-   * Total number of blocks in index
-   *
-   * @return size of index
-   */
-  int size();
 }

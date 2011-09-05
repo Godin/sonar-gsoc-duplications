@@ -89,17 +89,9 @@ public class MemoryCloneIndex implements CloneIndex {
     }
   }
 
-  public void remove(Block tuple) {
-    filenameIndex.remove(tuple.getResourceId(), tuple);
-    sequenceHashIndex.remove(tuple.getBlockHash(), tuple);
-  }
-
   public void removeAll() {
     filenameIndex.clear();
     sequenceHashIndex.clear();
   }
 
-  public int size() {
-    return filenameIndex.size();
-  }
 }

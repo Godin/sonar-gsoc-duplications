@@ -40,14 +40,6 @@ public class MemoryCloneIndexTest {
   }
 
   @Test
-  public void testUniqueResources() {
-    cloneIndex.insert(new Block("a", new ByteArray(0), 0, 0, 10));
-    cloneIndex.insert(new Block("b", new ByteArray(1), 0, 0, 10));
-    cloneIndex.insert(new Block("c", new ByteArray(2), 0, 0, 10));
-    assertThat(cloneIndex.getAllUniqueResourceId().size(), is(3));
-  }
-
-  @Test
   public void testContainsResource() {
     cloneIndex.insert(new Block("a", new ByteArray(0), 0, 0, 10));
     cloneIndex.insert(new Block("b", new ByteArray(1), 0, 0, 10));
@@ -56,18 +48,6 @@ public class MemoryCloneIndexTest {
     assertThat(cloneIndex.containsResourceId("b"), is(true));
     assertThat(cloneIndex.containsResourceId("c"), is(true));
     assertThat(cloneIndex.containsResourceId("d"), is(false));
-  }
-
-  @Test
-  public void testClearAll() {
-    assertThat(cloneIndex.size(), is(0));
-    for (int i = 0; i < 10; i++) {
-      cloneIndex.insert(new Block("a", new ByteArray(0), i, 0, 10));
-    }
-    assertThat(cloneIndex.size(), is(10));
-
-    cloneIndex.removeAll();
-    assertThat(cloneIndex.size(), is(0));
   }
 
   @Test
