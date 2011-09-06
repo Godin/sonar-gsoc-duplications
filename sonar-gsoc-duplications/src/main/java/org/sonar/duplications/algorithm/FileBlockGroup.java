@@ -17,10 +17,11 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.block;
+package org.sonar.duplications.algorithm;
 
 import com.google.common.collect.Sets;
 import org.sonar.duplications.DuplicationsException;
+import org.sonar.duplications.block.Block;
 
 import java.util.Collection;
 import java.util.Collections;

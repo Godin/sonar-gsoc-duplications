@@ -21,16 +21,13 @@ package org.sonar.duplications.algorithm;
 
 import java.util.List;
 
-import org.sonar.duplications.algorithm.filter.CloneFilter;
 import org.sonar.duplications.algorithm.filter.IntervalTreeClonePairFilter;
-import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.ClonePair;
 
 public class AdvancedPairCloneReporter extends AbstractAdvancedCloneReporter {
 
-  private static final CloneFilter INTERVAL_PAIR_FILTER = new IntervalTreeClonePairFilter();
+  private static final IntervalTreeClonePairFilter INTERVAL_PAIR_FILTER = new IntervalTreeClonePairFilter();
 
   public AdvancedPairCloneReporter(CloneIndex cloneIndex) {
     this.cloneIndex = cloneIndex;

@@ -17,15 +17,16 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications;
+package org.sonar.duplications.benchmark;
 
 import java.io.File;
 import java.util.List;
 
+import org.sonar.duplications.DuplicationsException;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
+import org.sonar.duplications.algorithm.FileBlockGroup;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
-import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.statement.Statement;
@@ -37,7 +38,10 @@ import org.sonar.duplications.token.TokenQueue;
  * TODO Godin: For better flexibility we must allow detection of clones for file, which is not in index (index maintenance and detection of clones are two different tasks).
  * For example we can imagine to use local (e.g. in memory) index to store files for analysis and remote index to compare with.
  * And this is not the case for the moment, because of implementation of method {@link #findClones(FileBlockGroup)}, which explicitly invokes {@link #register(FileBlockGroup)}.
+ * 
+ * @deprecated not very flexible and used only in benchmarks
  */
+@Deprecated
 public final class CloneFinder {
 
   private TokenChunker tokenChunker;

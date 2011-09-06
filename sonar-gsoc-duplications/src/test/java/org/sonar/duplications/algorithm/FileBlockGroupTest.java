@@ -17,32 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.index;
+package org.sonar.duplications.algorithm;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
 
-import java.util.Collections;
-import java.util.List;
+import org.junit.Test;
+import org.sonar.duplications.DuplicationsException;
+import org.sonar.duplications.algorithm.FileBlockGroup;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 
-public class ClonePair extends ClonePartContainerBase<ClonePair> {
+public class FileBlockGroupTest {
 
-  private ClonePart anotherPart;
-
-  public ClonePair(ClonePart originPart, ClonePart anotherPart, int cloneLength) {
-    this.originPart = originPart;
-    this.anotherPart = anotherPart;
-    this.cloneLength = cloneLength;
+  @Test
+  public void shouldAddBlockWithSameResourceId() {
+    FileBlockGroup.create("a",
+        Arrays.asList(new Block("a", new ByteArray(new byte[] { 1, 2, 3, 4, 5 }), 1, 1, 7)));
   }
 
-  public ClonePart getAnotherPart() {
-    return anotherPart;
-  }
-
-  public List<ClonePart> getCloneParts() {
-    if (parts == null) {
-      parts = Lists.newArrayList(originPart, anotherPart);
-    }
-    return Collections.unmodifiableList(parts);
+  @Test(expected = DuplicationsException.class)
+  public void shouldNotAddBlockWithDifferentResourceId() {
+    FileBlockGroup.create("a",
+        Arrays.asList(new Block("b", new ByteArray(new byte[] { 1, 2, 3, 4, 5 }), 1, 1, 7)));
   }
 
 }

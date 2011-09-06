@@ -19,26 +19,14 @@
  */
 package org.sonar.duplications.index;
 
-import org.sonar.duplications.block.Block;
-
 public class ClonePart implements Comparable<ClonePart> {
 
-  private String resourceId;
-  private int unitStart;
-  private int lineStart;
-  private int lineEnd;
+  private final String resourceId;
+  private final int unitStart;
+  private final int lineStart;
+  private final int lineEnd;
 
-  /**
-   * FIXME Godin: cache for hash code seems very strange for mutable object
-   */
   private int hash;
-
-  public ClonePart(Block block) {
-    this.resourceId = block.getResourceId();
-    this.unitStart = block.getIndexInFile();
-    this.lineStart = block.getFirstLineNumber();
-    this.lineEnd = block.getLastLineNumber();
-  }
 
   public ClonePart(String resourceId, int unitStart, int lineStart, int lineEnd) {
     this.resourceId = resourceId;
@@ -51,36 +39,16 @@ public class ClonePart implements Comparable<ClonePart> {
     return resourceId;
   }
 
-  public ClonePart setResourceId(String resourceId) {
-    this.resourceId = resourceId;
-    return this;
-  }
-
   public int getUnitStart() {
     return unitStart;
-  }
-
-  public ClonePart setUnitStart(int unitStart) {
-    this.unitStart = unitStart;
-    return this;
   }
 
   public int getLineStart() {
     return lineStart;
   }
 
-  public ClonePart setLineStart(int lineStart) {
-    this.lineStart = lineStart;
-    return this;
-  }
-
   public int getLineEnd() {
     return lineEnd;
-  }
-
-  public ClonePart setLineEnd(int lineEnd) {
-    this.lineEnd = lineEnd;
-    return this;
   }
 
   public int getLines() {
@@ -123,4 +91,5 @@ public class ClonePart implements Comparable<ClonePart> {
     }
     return resourceId.compareTo(o.resourceId);
   }
+
 }

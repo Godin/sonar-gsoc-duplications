@@ -19,15 +19,22 @@
  */
 package org.sonar.duplications.block;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.Arrays;
 
+/**
+ * Represents hash for {@link Block}. Immutable.
+ * 
+ * TODO Godin: would be better to rename to BlockHash,
+ * also maybe we can incorporate it into Block to reduce memory footprint during detection of duplicates
+ */
 public class ByteArray {
 
   private final byte[] bytes;
 
   /**
    * Cache for hash code.
-   * FIXME Godin: this class not really immutable, because of method {@link #array()}, and cache for hash code seems very strange for mutable object.
    */
   private int hash;
 
@@ -35,17 +42,17 @@ public class ByteArray {
     int len = hexString.length();
     this.bytes = new byte[len / 2];
     for (int i = 0; i < len; i += 2) {
-      bytes[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
-          + Character.digit(hexString.charAt(i + 1), 16));
+      bytes[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4) + Character.digit(hexString.charAt(i + 1), 16));
     }
   }
 
   public ByteArray(byte[] bytes) {
-    this.bytes = bytes;
+    this.bytes = new byte[bytes.length];
+    System.arraycopy(bytes, 0, this.bytes, 0, bytes.length);
   }
 
   public ByteArray(long value) {
-    this.bytes = new byte[]{
+    this.bytes = new byte[] {
         (byte) (value >>> 56),
         (byte) (value >>> 48),
         (byte) (value >>> 40),
@@ -53,38 +60,49 @@ public class ByteArray {
         (byte) (value >>> 24),
         (byte) (value >>> 16),
         (byte) (value >>> 8),
-        (byte) value};
+        (byte) value };
   }
 
   public ByteArray(int value) {
-    this.bytes = new byte[]{
+    this.bytes = new byte[] {
         (byte) (value >>> 24),
         (byte) (value >>> 16),
         (byte) (value >>> 8),
-        (byte) value};
+        (byte) value };
   }
 
-  public byte[] array() {
-    return bytes;
+  public ByteArray(int[] intArray) {
+    ByteBuffer bb = ByteBuffer.allocate(intArray.length * 4);
+    for (int i : intArray) {
+      bb.putInt(i);
+    }
+    this.bytes = bb.array();
+  }
+
+  public int[] toIntArray() {
+    int size = (bytes.length / 4) + (bytes.length % 4 == 0 ? 0 : 1); // Pad the size to multiple of 4
+    ByteBuffer bb = ByteBuffer.allocate(size * 4);
+    bb.put(bytes);
+    bb.rewind();
+    IntBuffer ib = bb.asIntBuffer();
+    int[] result = new int[size];
+    ib.get(result);
+    return result;
   }
 
   private static final String HEXES = "0123456789abcdef";
 
-  private String getHex(byte[] raw) {
-    if (raw == null) {
-      return null;
-    }
-    StringBuilder hex = new StringBuilder(2 * raw.length);
-    for (byte b : raw) {
-      hex.append(HEXES.charAt((b & 0xF0) >> 4))
-          .append(HEXES.charAt((b & 0x0F)));
+  public String toHexString() {
+    StringBuilder hex = new StringBuilder(2 * bytes.length);
+    for (byte b : bytes) {
+      hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
     }
     return hex.toString();
   }
 
   @Override
   public String toString() {
-    return getHex(bytes);
+    return toHexString();
   }
 
   @Override
@@ -95,11 +113,8 @@ public class ByteArray {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ByteArray byteArray = (ByteArray) o;
-    if (!Arrays.equals(bytes, byteArray.bytes)) {
-      return false;
-    }
-    return true;
+    ByteArray other = (ByteArray) o;
+    return Arrays.equals(bytes, other.bytes);
   }
 
   @Override
@@ -112,4 +127,5 @@ public class ByteArray {
     }
     return h;
   }
+
 }

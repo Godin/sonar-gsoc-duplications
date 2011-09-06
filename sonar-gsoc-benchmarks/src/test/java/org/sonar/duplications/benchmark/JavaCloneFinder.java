@@ -17,17 +17,19 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.java;
+package org.sonar.duplications.benchmark;
 
-import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.index.CloneIndex;
+import org.sonar.duplications.java.JavaStatementBuilder;
+import org.sonar.duplications.java.JavaTokenProducer;
 
 /**
- * @author sharif
+ * @deprecated not very flexible and used only in benchmarks
  */
+@Deprecated
 public final class JavaCloneFinder {
 
   private JavaCloneFinder() {

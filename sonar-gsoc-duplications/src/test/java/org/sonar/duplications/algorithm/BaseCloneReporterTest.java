@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications;
+package org.sonar.duplications.algorithm;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -25,7 +25,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.AdvancedPairCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
-import org.sonar.duplications.algorithm.CloneReporterAlgorithmBuilder;
 import org.sonar.duplications.index.CloneIndex;
 
 import java.util.Arrays;

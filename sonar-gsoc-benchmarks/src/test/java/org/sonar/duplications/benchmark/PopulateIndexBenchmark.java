@@ -22,9 +22,7 @@ package org.sonar.duplications.benchmark;
 import java.io.File;
 import java.util.List;
 
-import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.index.MemoryCloneIndex;
-import org.sonar.duplications.java.JavaCloneFinder;
 
 public class PopulateIndexBenchmark extends Benchmark {
   private final List<File> files;

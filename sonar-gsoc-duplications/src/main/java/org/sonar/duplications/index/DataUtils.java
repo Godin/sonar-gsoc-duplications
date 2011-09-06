@@ -19,8 +19,6 @@
  */
 package org.sonar.duplications.index;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 public final class DataUtils {
 
@@ -41,31 +39,6 @@ public final class DataUtils {
      */
     boolean isLess(int i, int j);
 
-  }
-
-  /**
-   * Converts byte array to int array.
-   */
-  public static int[] byteToIntArray(byte[] byteArray) {
-    int size = (byteArray.length / 4) + (byteArray.length % 4 == 0 ? 0 : 1); // Pad the size to multiple of 4
-    ByteBuffer bb = ByteBuffer.allocate(size * 4);
-    bb.put(byteArray);
-    bb.rewind();
-    IntBuffer ib = bb.asIntBuffer();
-    int[] result = new int[size];
-    ib.get(result);
-    return result;
-  }
-
-  /**
-   * Converts int array to byte array.
-   */
-  public static byte[] intToByteArray(int[] intArray) {
-    ByteBuffer bb = ByteBuffer.allocate(intArray.length * 4);
-    for (int i : intArray) {
-      bb.putInt(i);
-    }
-    return bb.array();
   }
 
   /**

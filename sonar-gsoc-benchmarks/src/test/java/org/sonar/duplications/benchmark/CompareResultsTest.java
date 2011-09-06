@@ -25,16 +25,14 @@ import com.google.common.collect.SetMultimap;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
-import org.sonar.duplications.CloneFinder;
 import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.CloneReporterAlgorithm;
+import org.sonar.duplications.algorithm.FileBlockGroup;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.cpd.Match;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
-import org.sonar.duplications.java.JavaCloneFinder;
 
 import java.io.File;
 import java.util.Iterator;

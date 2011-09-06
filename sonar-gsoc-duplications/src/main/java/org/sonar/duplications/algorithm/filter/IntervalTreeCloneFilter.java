@@ -19,19 +19,20 @@
  */
 package org.sonar.duplications.algorithm.filter;
 
-import com.google.common.collect.Lists;
-import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.index.ClonePartContainerBase;
-
 import java.util.List;
+
+import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.index.ClonePart;
+
+import com.google.common.collect.Lists;
 
 public class IntervalTreeCloneFilter extends AbstractIntervalTreeCloneFilter {
 
-  private static <T extends ClonePartContainerBase> IntervalTree buildTrees(List<T> clones) {
+  private static IntervalTree buildTrees(List<CloneGroup> clones) {
     IntervalTree originTree = new IntervalTree();
 
     //populate interval tree structure
-    for (T clone : clones) {
+    for (CloneGroup clone : clones) {
       String originResourceId = clone.getOriginPart().getResourceId();
       List<ClonePart> parts = clone.getCloneParts();
       for (ClonePart part : parts) {
@@ -47,16 +48,38 @@ public class IntervalTreeCloneFilter extends AbstractIntervalTreeCloneFilter {
     return originTree;
   }
 
-  public <T extends ClonePartContainerBase> List<T> filter(List<T> clones) {
-    List<T> filtered = Lists.newArrayList();
+  public List<CloneGroup> filter(List<CloneGroup> clones) {
+    List<CloneGroup> filtered = Lists.newArrayList();
     IntervalTree tree = buildTrees(clones);
-
-    for (T clone : clones) {
+    for (CloneGroup clone : clones) {
       if (!isCovered(tree, clone)) {
         filtered.add(clone);
       }
     }
     return filtered;
+  }
+
+  protected boolean isCovered(IntervalTree tree, CloneGroup clone) {
+    ClonePart originPart = clone.getOriginPart();
+
+    int unitStart = originPart.getUnitStart();
+    int unitEnd = originPart.getUnitStart() + clone.getCloneUnitLength() - 1;
+
+    List<Interval> intervals = tree.getCoveringIntervals(unitStart, unitEnd);
+
+    boolean covered = false;
+    for (Interval<PartWrapper> interval : intervals) {
+      CloneGroup foundClone = (CloneGroup) interval.getData().getClone();
+      if (foundClone.equals(clone)) {
+        continue;
+      }
+      if (clone.containsIn(foundClone)) {
+        covered = true;
+        break;
+      }
+    }
+
+    return covered;
   }
 
 }

@@ -75,7 +75,7 @@ public class OriginalCloneDetectionAlgorithm {
     int size = fileBlocks.size();
 
     // Godin: create one group per unique hash
-    Map<ByteArray, BlocksGroup> groupsByHash = Maps.newHashMap(); // TODO Godin: we can create map with expected size
+    Map<ByteArray, BlocksGroup> groupsByHash = Maps.newHashMap(); // TODO Godin: can we create map with expected size?
     for (Block fileBlock : fileBlocks) {
       ByteArray hash = fileBlock.getBlockHash();
       BlocksGroup sameHash = groupsByHash.get(hash);
@@ -206,23 +206,27 @@ public class OriginalCloneDetectionAlgorithm {
 
   private void reportClones(BlocksGroup beginGroup, BlocksGroup endGroup, int cloneLength) {
     List<Block[]> pairs = beginGroup.pairs(endGroup, cloneLength);
-    CloneGroup clone = new CloneGroup();
-    clone.setCloneUnitLength(cloneLength);
+
+    ClonePart origin = null;
+    List<ClonePart> parts = Lists.newArrayList();
+
     for (int i = 0; i < pairs.size(); i++) {
       Block[] pair = pairs.get(i);
       ClonePart part = new ClonePart(pair[0].getResourceId(), pair[0].getIndexInFile(), pair[0].getFirstLineNumber(), pair[1].getLastLineNumber());
-      clone.addPart(part);
+      parts.add(part);
 
       if (originResourceId.equals(part.getResourceId())) {
-        if (clone.getOriginPart() == null) {
-          clone.setOriginPart(part);
+        if (origin == null) {
+          origin = part;
         } else {
-          if (part.getUnitStart() < clone.getOriginPart().getUnitStart()) {
-            clone.setOriginPart(part);
+          if (part.getUnitStart() < origin.getUnitStart()) {
+            origin = part;
           }
         }
       }
     }
+
+    CloneGroup clone = new CloneGroup(cloneLength, origin, parts);
     filterAndSave(clone);
   }
 

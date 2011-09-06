@@ -20,13 +20,10 @@
 package org.sonar.duplications.algorithm.filter;
 
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.index.ClonePartContainerBase;
 
-import java.util.List;
+public abstract class AbstractIntervalTreeCloneFilter {
 
-public abstract class AbstractIntervalTreeCloneFilter implements CloneFilter {
-
-  protected final static class PartWrapper<T extends ClonePartContainerBase> {
+  protected final static class PartWrapper<T> {
     public T clone;
     public ClonePart part;
 
@@ -41,26 +38,4 @@ public abstract class AbstractIntervalTreeCloneFilter implements CloneFilter {
 
   }
 
-  protected <T extends ClonePartContainerBase> boolean isCovered(IntervalTree tree, T clone) {
-    ClonePart originPart = clone.getOriginPart();
-
-    int unitStart = originPart.getUnitStart();
-    int unitEnd = originPart.getUnitStart() + clone.getCloneUnitLength() - 1;
-
-    List<Interval> intervals = tree.getCoveringIntervals(unitStart, unitEnd);
-
-    boolean covered = false;
-    for (Interval<PartWrapper<T>> interval : intervals) {
-      T foundClone = interval.getData().getClone();
-      if (foundClone.equals(clone)) {
-        continue;
-      }
-      if (clone.containsIn(foundClone)) {
-        covered = true;
-        break;
-      }
-    }
-
-    return covered;
-  }
 }

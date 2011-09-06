@@ -25,54 +25,94 @@ import java.util.List;
 
 import org.sonar.duplications.utils.SortedListsUtils;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 /**
  * Groups a set of related {@link ClonePart}s.
  */
-public class CloneGroup extends ClonePartContainerBase<CloneGroup> {
+public class CloneGroup {
 
-  private boolean sorted = true;
+  private final ClonePart originPart;
+  private final int cloneLength;
+  private final List<ClonePart> parts;
 
-  public CloneGroup() {
-    this.parts = Lists.newArrayList();
+  private int hash;
+
+  /**
+   * FIXME Godin: this constructor performs sorting of parts, whereas in fact algorithm should do this
+   */
+  public CloneGroup(int cloneLength, ClonePart origin, List<ClonePart> parts) {
+    this.cloneLength = cloneLength;
+    this.originPart = origin;
+    List<ClonePart> sortedParts = Lists.newArrayList(parts);
+    Collections.sort(sortedParts, null);
+    this.parts = ImmutableList.copyOf(sortedParts);
   }
 
-  public CloneGroup(int cloneUnitLength) {
-    this.parts = Lists.newArrayList();
-    this.cloneLength = cloneUnitLength;
-  }
-
-  public CloneGroup addPart(ClonePart part) {
-    parts.add(part);
-    sorted = false;
-    return this;
-  }
-
-  void sortParts() {
-    Collections.sort(parts, null);
-  }
-
-  boolean isSorted() {
-    return sorted;
+  public ClonePart getOriginPart() {
+    return originPart;
   }
 
   /**
-   * IMPORTANT: this method might perform sorting of parts
+   * @return clone length in units (not in lines)
    */
-  @Override
+  public int getCloneUnitLength() {
+    return cloneLength;
+  }
+
   public List<ClonePart> getCloneParts() {
-    if (!sorted) {
-      sortParts();
-      sorted = true;
-    }
-    return Collections.unmodifiableList(parts);
+    return parts;
+  }
+
+  public boolean containsIn(CloneGroup other) {
+    return containsIn(this, other);
   }
 
   @Override
-  public boolean containsIn(ClonePartContainerBase<CloneGroup> other) {
-    // TODO Godin: method from superclass overridden in order to fix bug
-    return containsIn(this, (CloneGroup) other);
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    for (ClonePart part : getCloneParts()) {
+      builder.append(part).append(" - ");
+    }
+    builder.append(cloneLength);
+    return builder.toString();
+  }
+
+  /**
+   * Two groups are equal, if they have same length, same origins and contain same parts in same order.
+   */
+  @Override
+  public boolean equals(Object object) {
+    if (!(object instanceof CloneGroup)) {
+      return false;
+    }
+    CloneGroup another = (CloneGroup) object;
+    if (another.cloneLength != cloneLength || parts.size() != another.parts.size()) {
+      return false;
+    }
+    if (!originPart.equals(another.originPart)) {
+      return false;
+    }
+    boolean result = true;
+    for (int i = 0; i < getCloneParts().size(); i++) {
+      result &= another.getCloneParts().get(i).equals(getCloneParts().get(i));
+    }
+    return result;
+  }
+
+  @Override
+  public int hashCode() {
+    int h = hash;
+    if (h == 0 && cloneLength != 0) {
+      for (ClonePart part : parts) {
+        h = 31 * h + part.hashCode();
+      }
+      h = 31 * h + originPart.hashCode();
+      h = 31 * h + cloneLength;
+      hash = h;
+    }
+    return h;
   }
 
   /**

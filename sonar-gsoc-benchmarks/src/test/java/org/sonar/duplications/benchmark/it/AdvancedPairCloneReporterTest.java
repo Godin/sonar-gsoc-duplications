@@ -26,8 +26,8 @@ import java.util.List;
 
 import org.sonar.duplications.algorithm.AdvancedGroupCloneReporter;
 import org.sonar.duplications.algorithm.AdvancedPairCloneReporter;
+import org.sonar.duplications.algorithm.FileBlockGroup;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;

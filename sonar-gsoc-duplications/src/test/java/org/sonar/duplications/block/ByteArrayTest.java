@@ -19,31 +19,48 @@
  */
 package org.sonar.duplications.block;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
 
 public class ByteArrayTest {
 
   @Test
-  public void createIntTest() {
+  public void shouldCreateFromInt() {
     int value = 0x12FF8413;
     ByteArray byteArray = new ByteArray(value);
     assertThat(byteArray.toString(), is(Integer.toHexString(value)));
   }
 
   @Test
-  public void createLongTest() {
+  public void shouldCreateFromLong() {
     long value = 0x12FF841344567899L;
     ByteArray byteArray = new ByteArray(value);
     assertThat(byteArray.toString(), is(Long.toHexString(value)));
   }
 
   @Test
-  public void createHexStringTest() {
+  public void shouldCreateFromHexString() {
     String value = "12FF841344567899";
     ByteArray byteArray = new ByteArray(value);
     assertThat(byteArray.toString(), is(value.toLowerCase()));
   }
+
+  @Test
+  public void shouldCreateFromIntArray() {
+    ByteArray byteArray = new ByteArray(new int[] { 0x04121986 });
+    assertThat(byteArray.toString(), is("04121986"));
+  }
+
+  @Test
+  public void shouldConvertToIntArray() {
+    // number of bytes is enough to create exactly one int (4 bytes)
+    ByteArray byteArray = new ByteArray(new byte[] { 0x04, 0x12, 0x19, (byte) 0x86 });
+    assertThat(byteArray.toIntArray(), is(new int[] { 0x04121986 }));
+    // number of bytes is more than 4, but less than 8, so anyway 2 ints
+    byteArray = new ByteArray(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x31 });
+    assertThat(byteArray.toIntArray(), is(new int[] { 0x00000000, 0x31000000 }));
+  }
+
 }

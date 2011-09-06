@@ -19,24 +19,25 @@
  */
 package org.sonar.duplications.algorithm.filter;
 
-import com.google.common.collect.Lists;
-import org.sonar.duplications.index.ClonePartContainerBase;
-
 import java.util.List;
 
-public class BruteForceCloneFilter implements CloneFilter {
+import org.sonar.duplications.index.CloneGroup;
 
-  public <T extends ClonePartContainerBase> List<T> filter(List<T> clones) {
-    List<T> filtered = Lists.newArrayList();
+import com.google.common.collect.Lists;
+
+public class BruteForceCloneFilter {
+
+  public List<CloneGroup> filter(List<CloneGroup> clones) {
+    List<CloneGroup> filtered = Lists.newArrayList();
     for (int i = 0; i < clones.size(); i++) {
-      T first = clones.get(i);
+      CloneGroup first = clones.get(i);
       boolean covered = false;
       for (int j = 0; j < clones.size(); j++) {
         if (i == j) {
           continue;
         }
 
-        T second = clones.get(j);
+        CloneGroup second = clones.get(j);
         covered |= first.containsIn(second);
         if (covered) {
           break;
@@ -48,4 +49,5 @@ public class BruteForceCloneFilter implements CloneFilter {
     }
     return filtered;
   }
+
 }

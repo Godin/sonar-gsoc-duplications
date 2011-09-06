@@ -22,41 +22,14 @@ package org.sonar.duplications.index;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 
 public class CloneGroupTest {
-
-  @Test
-  public void testSorted() {
-    CloneGroup group1 = spy(new CloneGroup(2));
-
-    // should be sorted when parts list is empty
-    assertThat(group1.isSorted(), is(true));
-
-    ClonePart part11 = new ClonePart("a", 1, 1, 5);
-    ClonePart part12 = new ClonePart("b", 1, 1, 5);
-    group1.setOriginPart(part11)
-        .addPart(part11);
-    assertThat(group1.isSorted(), is(false));
-
-    group1.getCloneParts();
-    group1.getCloneParts();
-    assertThat(group1.isSorted(), is(true));
-    verify(group1, times(1)).sortParts();
-
-    group1.addPart(part12);
-    assertThat(group1.isSorted(), is(false));
-
-    group1.getCloneParts();
-    group1.getCloneParts();
-    assertThat(group1.isSorted(), is(true));
-
-    verify(group1, times(2)).sortParts();
-  }
 
   /**
    * Given:
@@ -84,7 +57,7 @@ public class CloneGroupTest {
 
   /**
    * TODO Godin: I suppose that this test is correct
-   * and demonstrates bug in {@link ClonePartContainerBase#containsIn(ClonePartContainerBase)},
+   * and demonstrates bug in {@link org.sonar.duplications.algorithm.ClonePair#containsIn(ClonePartContainerBase)},
    * which was fixed in {@link CloneGroup#containsIn(ClonePartContainerBase)}.
    * 
    * Given:
@@ -233,11 +206,6 @@ public class CloneGroupTest {
    * Creates new group from list of parts, origin - is a first part from list.
    */
   private CloneGroup newCloneGroup(int len, ClonePart... parts) {
-    CloneGroup group = new CloneGroup().setCloneUnitLength(len);
-    group.setOriginPart(parts[0]);
-    for (ClonePart part : parts) {
-      group.addPart(part);
-    }
-    return group;
+    return new CloneGroup(len, parts[0], Arrays.asList(parts));
   }
 }

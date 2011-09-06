@@ -30,10 +30,8 @@ import java.util.Map;
 import java.util.SortedSet;
 
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.FileBlockGroup;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.ClonePair;
 import org.sonar.duplications.index.ClonePart;
 
 import com.google.common.collect.Lists;
@@ -134,12 +132,10 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
 
     ClonePair prevPair = prevActiveMap.remove(curKey);
     if (prevPair == null) {
-      clonePair = new ClonePair(new ClonePart(originBlock), new ClonePart(otherBlock), 1);
+      clonePair = new ClonePair(originBlock, otherBlock);
     } else {
       clonePair = prevPair;
-      clonePair.getOriginPart().setLineEnd(originBlock.getLastLineNumber());
-      clonePair.getAnotherPart().setLineEnd(otherBlock.getLastLineNumber());
-      clonePair.setCloneUnitLength(clonePair.getCloneUnitLength() + 1);
+      clonePair.increase(originBlock, otherBlock);
     }
 
     nextActiveMap.put(nextKey, clonePair);
@@ -154,7 +150,7 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
     //sort elements of prevActiveMap by getOriginPart.getUnitStart()
     Collections.sort(clones, CLONEPAIR_COMPARATOR);
 
-    CloneGroup curClone = null;
+    CloneGroupBuilder curCloneBuilder = null;
     int prevUnitStart = -1;
     int prevLength = -1;
     for (ClonePair clonePair : clones) {
@@ -164,19 +160,35 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
       if (curUnitStart != prevUnitStart || prevLength != curLength) {
         prevLength = curLength;
 
-        curClone = new CloneGroup()
-            .setCloneUnitLength(clonePair.getCloneUnitLength())
-            .setOriginPart(clonePair.getOriginPart())
-            .addPart(clonePair.getOriginPart())
-            .addPart(clonePair.getAnotherPart());
-
-        res.add(curClone);
+        if (curCloneBuilder != null) {
+          res.add(curCloneBuilder.create());
+        }
+        curCloneBuilder = new CloneGroupBuilder();
+        curCloneBuilder.cloneLength = clonePair.getCloneUnitLength();
+        curCloneBuilder.originPart = clonePair.getOriginPart();
+        curCloneBuilder.parts.add(clonePair.getOriginPart());
+        curCloneBuilder.parts.add(clonePair.getAnotherPart());
       } else {
-        curClone.addPart(clonePair.getAnotherPart());
+        curCloneBuilder.parts.add(clonePair.getAnotherPart());
       }
       prevUnitStart = curUnitStart;
     }
+
+    if (curCloneBuilder != null) {
+      res.add(curCloneBuilder.create());
+    }
+
     return res;
+  }
+
+  private static class CloneGroupBuilder {
+    List<ClonePart> parts = Lists.newArrayList();
+    ClonePart originPart;
+    int cloneLength;
+
+    public CloneGroup create() {
+      return new CloneGroup(cloneLength, originPart, parts);
+    }
   }
 
 }

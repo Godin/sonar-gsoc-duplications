@@ -106,7 +106,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       int firstLineNumber = blockData[offset++];
       int lastLineNumber = blockData[offset];
 
-      result.add(new Block(resourceId, new ByteArray(DataUtils.intToByteArray(hash)), indexInFile, firstLineNumber, lastLineNumber));
+      result.add(new Block(resourceId, new ByteArray(hash), indexInFile, firstLineNumber, lastLineNumber));
 
       index++;
       realIndex = resourceIdsIndex[index];
@@ -118,7 +118,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     ensureSorted();
 
     // prepare hash for binary search
-    int[] hash = DataUtils.byteToIntArray(sequenceHash.array());
+    int[] hash = sequenceHash.toIntArray();
     if (hash.length != hashInts) {
       throw new IllegalArgumentException("Expected " + hashInts + " ints in hash, but got " + hash.length);
     }
@@ -154,7 +154,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     // TODO can be interned: resourceIds[size] = block.getResourceId().intern();
     resourceIds[size] = block.getResourceId();
 
-    int[] hash = DataUtils.byteToIntArray(block.getBlockHash().array());
+    int[] hash = block.getBlockHash().toIntArray();
     if (hash.length != hashInts) {
       throw new IllegalArgumentException("Expected " + hashInts + " ints in hash, but got " + hash.length);
     }

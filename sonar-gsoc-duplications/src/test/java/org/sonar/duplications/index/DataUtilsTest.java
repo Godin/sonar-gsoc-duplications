@@ -30,22 +30,6 @@ import org.junit.Test;
 public class DataUtilsTest {
 
   @Test
-  public void testByteToIntArray() {
-    // number of bytes is enough to create exactly one int (4 bytes)
-    int[] result = DataUtils.byteToIntArray(new byte[] { 0x04, 0x12, 0x19, (byte) 0x86 });
-    assertThat(result, is(new int[] { 0x04121986 }));
-    // number of bytes is more than 4, but less than 8, so anyway 2 ints
-    result = DataUtils.byteToIntArray(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x31 });
-    assertThat(result, is(new int[] { 0x00000000, 0x31000000 }));
-  }
-
-  @Test
-  public void testIntToByteArray() {
-    byte[] result = DataUtils.intToByteArray(new int[] { 0x04121986 });
-    assertThat(result, is(new byte[] { 0x04, 0x12, 0x19, (byte) 0x86 }));
-  }
-
-  @Test
   public void testSort() {
     int[] expected = new int[200];
     int[] actual = new int[expected.length];
