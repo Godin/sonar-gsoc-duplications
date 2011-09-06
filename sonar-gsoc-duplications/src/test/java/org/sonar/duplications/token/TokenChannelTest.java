@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.channel.CodeReader;
@@ -75,12 +74,8 @@ public class TokenChannelTest {
     assertThat(codeReader.getColumnPosition(), is(0));
   }
 
-  /**
-   * FIXME Godin: possibly bug - line and column numbers computed incorrectly in case when token spans multiple lines. However seems that this situation is unlikely.
-   */
-  @Ignore
   @Test
-  public void test() {
+  public void shouldCorrectlyDeterminePositionWhenTokenSpansMultipleLines() {
     TokenChannel channel = new TokenChannel("AB\nC");
     TokenQueue output = mock(TokenQueue.class);
     CodeReader codeReader = new CodeReader("AB\nCD");

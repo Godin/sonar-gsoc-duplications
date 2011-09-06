@@ -36,15 +36,6 @@ public class Token {
     this.line = line;
   }
 
-  @Override
-  public boolean equals(Object object) {
-    if (object instanceof Token) {
-      Token anotherToken = (Token) object;
-      return anotherToken.line == line && anotherToken.column == column && anotherToken.value.equals(value);
-    }
-    return false;
-  }
-
   public int getLine() {
     return line;
   }
@@ -55,6 +46,15 @@ public class Token {
 
   public String getValue() {
     return value;
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (object instanceof Token) {
+      Token anotherToken = (Token) object;
+      return anotherToken.line == line && anotherToken.column == column && anotherToken.value.equals(value);
+    }
+    return false;
   }
 
   @Override
@@ -73,4 +73,5 @@ public class Token {
   public String toString() {
     return "'" + value + "'[" + line + "," + column + "]";
   }
+
 }

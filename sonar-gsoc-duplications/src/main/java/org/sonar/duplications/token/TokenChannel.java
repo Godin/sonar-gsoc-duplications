@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sonar.channel.Channel;
+import org.sonar.channel.CodeBuffer.Cursor;
 import org.sonar.channel.CodeReader;
 
 class TokenChannel extends Channel<TokenQueue> {
@@ -43,14 +44,13 @@ class TokenChannel extends Channel<TokenQueue> {
   @Override
   public boolean consume(CodeReader code, TokenQueue output) {
     if (code.popTo(matcher, tmpBuilder) > 0) {
-      String tokenValue = tmpBuilder.toString();
-      int column = code.getColumnPosition() - tokenValue.length();
+      Cursor previousCursor = code.getPreviousCursor(); // see SONAR-2499
       if (normalizationValue != null) {
-        output.add(new Token(normalizationValue, code.getLinePosition(), column));
+        output.add(new Token(normalizationValue, previousCursor.getLine(), previousCursor.getColumn()));
       } else {
-        output.add(new Token(tokenValue, code.getLinePosition(), column));
+        output.add(new Token(tmpBuilder.toString(), previousCursor.getLine(), previousCursor.getColumn()));
       }
-      tmpBuilder.delete(0, tmpBuilder.length());
+      tmpBuilder.setLength(0); // Godin: note that other channels use method delete in order to do the same thing
       return true;
     }
     return false;
