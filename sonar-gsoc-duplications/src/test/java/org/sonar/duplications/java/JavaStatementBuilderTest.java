@@ -133,10 +133,10 @@ public class JavaStatementBuilderTest {
     assertThat(statementList.get(0).getValue(), is("do"));
     assertThat(statementList.get(1).getValue(), is("System.out.print(args[i])"));
     assertThat(statementList.get(2).getValue(), is("i=i+$NUMBER"));
-    assertThat(statementList.get(3).getValue(), is("while(i<args.length);"));
+    assertThat(statementList.get(3).getValue(), is("while(i<args.length)"));
     assertThat(statementList.get(4).getValue(), is("do"));
     assertThat(statementList.get(5).getValue(), is("System.out.print(i++)"));
-    assertThat(statementList.get(6).getValue(), is("while(i<$NUMBER);"));
+    assertThat(statementList.get(6).getValue(), is("while(i<$NUMBER)"));
   }
 
   @Test
