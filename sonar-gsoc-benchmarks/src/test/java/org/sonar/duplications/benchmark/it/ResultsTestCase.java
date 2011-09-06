@@ -87,8 +87,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", indexResult.resources, is(1079));
     assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
-    assertDuplicatedFiles(490);
-    assertDuplicatedLines(47605);
+    assertDuplicatedFiles(489);
+    assertDuplicatedLines(47290);
   }
 
   @Test
@@ -100,8 +100,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", indexResult.resources, is(412));
     assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
-    assertDuplicatedFiles(137);
-    assertDuplicatedLines(25039);
+    assertDuplicatedFiles(139);
+    assertDuplicatedLines(25161);
   }
 
   @Test
@@ -153,7 +153,7 @@ public abstract class ResultsTestCase {
     assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(43);
-    assertDuplicatedLines(4272);
+    assertDuplicatedLines(4277);
   }
 
   @Test
@@ -166,7 +166,7 @@ public abstract class ResultsTestCase {
     assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(80);
-    assertDuplicatedLines(23656);
+    assertDuplicatedLines(21333);
   }
 
   @Test
@@ -178,8 +178,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", indexResult.resources, is(192));
     assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
-    assertDuplicatedFiles(15);
-    assertDuplicatedLines(2143);
+    assertDuplicatedFiles(16);
+    assertDuplicatedLines(2195);
   }
 
   @Test
@@ -192,7 +192,7 @@ public abstract class ResultsTestCase {
     assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(56);
-    assertDuplicatedLines(8373);
+    assertDuplicatedLines(8317);
   }
 
   @Test
@@ -205,7 +205,7 @@ public abstract class ResultsTestCase {
     assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(25);
-    assertDuplicatedLines(3098);
+    assertDuplicatedLines(2930);
   }
 
   @Test
@@ -231,7 +231,7 @@ public abstract class ResultsTestCase {
     assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
     assertDuplicatedFiles(19);
-    assertDuplicatedLines(1929);
+    assertDuplicatedLines(1953);
   }
 
   @Ignore
@@ -245,8 +245,8 @@ public abstract class ResultsTestCase {
     assertThat("resources in index", indexResult.resources, is(4292));
     assertThat(indexResult.getTotalResources(), is(files.size()));
     analyse(index, files);
-    assertDuplicatedFiles(1097);
-    assertDuplicatedLines(180600);
+    assertDuplicatedFiles(1103);
+    assertDuplicatedLines(181403);
   }
 
   protected void assertDuplicatedBlocks(int expected) {

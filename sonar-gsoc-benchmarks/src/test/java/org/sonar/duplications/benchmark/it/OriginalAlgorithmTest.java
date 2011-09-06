@@ -40,17 +40,17 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void activemq() {
     super.activemq();
-    assertDuplicatedBlocks(883);
-    assertThat("clones", result.clonesCount, is(810));
-    assertThat("parts", result.partsCount, is(4651));
+    assertDuplicatedBlocks(827);
+    assertThat("clones", result.clonesCount, is(788));
+    assertThat("parts", result.partsCount, is(4595));
   }
 
   @Override
   public void struts() {
     super.struts();
-    assertDuplicatedBlocks(1162);
-    assertThat("clones", result.clonesCount, is(1098));
-    assertThat("parts", result.partsCount, is(8682));
+    assertDuplicatedBlocks(1168);
+    assertThat("clones", result.clonesCount, is(1101));
+    assertThat("parts", result.partsCount, is(8688));
   }
 
   @Override
@@ -80,49 +80,49 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void commonsCollections() {
     super.commonsCollections();
-    assertDuplicatedBlocks(80);
-    assertThat("clones", result.clonesCount, is(77));
-    assertThat("parts", result.partsCount, is(226));
+    assertDuplicatedBlocks(78);
+    assertThat("clones", result.clonesCount, is(75));
+    assertThat("parts", result.partsCount, is(222));
   }
 
   @Override
   public void jboss() {
     super.jboss();
-    assertDuplicatedBlocks(1332);
-    assertThat("clones", result.clonesCount, is(639));
-    assertThat("parts", result.partsCount, is(2599));
+    assertDuplicatedBlocks(567);
+    assertThat("clones", result.clonesCount, is(323));
+    assertThat("parts", result.partsCount, is(1134));
   }
 
   @Override
   public void neo4j() {
     super.neo4j();
-    assertDuplicatedBlocks(57);
-    assertThat("clones", result.clonesCount, is(41));
-    assertThat("parts", result.partsCount, is(87));
+    assertDuplicatedBlocks(59);
+    assertThat("clones", result.clonesCount, is(42));
+    assertThat("parts", result.partsCount, is(89));
   }
 
   @Override
   public void jackrabbit() {
     super.jackrabbit();
-    assertDuplicatedBlocks(156);
-    assertThat("clones", result.clonesCount, is(116));
-    assertThat("parts", result.partsCount, is(313));
+    assertDuplicatedBlocks(154);
+    assertThat("clones", result.clonesCount, is(115));
+    assertThat("parts", result.partsCount, is(311));
   }
 
   @Override
   public void struts2() {
     super.struts2();
-    assertDuplicatedBlocks(227);
-    assertThat("clones", result.clonesCount, is(92));
-    assertThat("parts", result.partsCount, is(237));
+    assertDuplicatedBlocks(202);
+    assertThat("clones", result.clonesCount, is(83));
+    assertThat("parts", result.partsCount, is(212));
   }
 
   @Override
   public void empire() {
     super.empire();
-    assertDuplicatedBlocks(378);
-    assertThat("clones", result.clonesCount, is(377));
-    assertThat("parts", result.partsCount, is(1804));
+    assertDuplicatedBlocks(364);
+    assertThat("clones", result.clonesCount, is(363));
+    assertThat("parts", result.partsCount, is(1750));
   }
 
   @Override
@@ -136,9 +136,9 @@ public class OriginalAlgorithmTest extends ResultsTestCase {
   @Override
   public void jdk() {
     super.jdk();
-    assertDuplicatedBlocks(55175);
-    assertThat("clones", result.clonesCount, is(6976));
-    assertThat("parts", result.partsCount, is(2679473));
+    assertDuplicatedBlocks(68945);
+    assertThat("clones", result.clonesCount, is(6704));
+    assertThat("parts", result.partsCount, is(3487094));
   }
 
   @Override
