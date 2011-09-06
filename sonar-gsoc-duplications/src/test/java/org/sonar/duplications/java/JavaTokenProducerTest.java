@@ -19,70 +19,267 @@
  */
 package org.sonar.duplications.java;
 
-import java.io.File;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.hamcrest.Matcher;
 import org.junit.Test;
-import org.sonar.duplications.DuplicationsException;
-import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenChunker;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import com.google.common.collect.Lists;
 
+/**
+ * See <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html">The Java Language Specification, Third Edition: Lexical Structure</a>
+ * 
+ * TODO Java 7 features: Binary Integer Literals, Using Underscore Characters in Numeric Literals
+ * TODO add more complex example
+ */
 public class JavaTokenProducerTest {
 
-  TokenChunker lexer = JavaTokenProducer.build();
-  String newline = System.getProperty("line.separator");
+  private TokenChunker lexer = JavaTokenProducer.build();
 
-  @Test (expected = DuplicationsException.class)
-  public void shouldThroughDuplicationException() {
-    lexer.chunk(new File(""));
-  }
-  
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.6">White Space</a>
+   */
   @Test
-  public void shouldIgnoreInlineComment() {
-    assertThat(lexer.chunk("// This is a comment").size(), is(0));
+  public void shouldIgnoreWhitespaces() {
+    assertThat(chunk(" \t\f\n\r"), isTokens());
   }
 
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.7">Comments</a>
+   */
   @Test
-  public void shouldIgnoreMultilinesComment() {
-    assertThat(lexer.chunk("/* This is a comment \n and the second line */").size(), is(0));
-    assertThat(lexer.chunk("g.trim() /* radix */").size(), is(5));
-  }
-
-  @Test
-  public void shouldIgnoreMultilinesDocumentationComment() {
-    assertThat(lexer.chunk("/** This is a comment \n and the second line */").size(), is(0));
-  }
-  
-  @Test
-  public void shouldLexIdentifier() {
-    assertThat(lexer.chunk("my identifier"), hasItem(new Token("identifier", 1, 3)));
-    assertThat(lexer.chunk("my "+newline+" identifier"), hasItem(new Token("identifier", 2, 1)));
-    assertThat(lexer.chunk("int id1 = 0"), hasItem(new Token("id1", 1, 4)));
-    assertThat(lexer.chunk("int id1qw = 0"), hasItem(new Token("id1qw", 1, 4)));
+  public void shouldIgnoreEndOfLineComment() {
+    assertThat(chunk("// This is a comment"), isTokens());
+    assertThat(chunk("// This is a comment \n and_this_is_not"), isTokens(new Token("and_this_is_not", 2, 1)));
   }
 
   @Test
-  public void shouldLexPonctuators() {
-    assertThat(lexer.chunk("./:"), hasItems(new Token(".", 1, 0), new Token("/", 1, 1), new Token(":", 1, 2)));
+  public void shouldIgnoreTraditionalComment() {
+    assertThat(chunk("/* This is a comment \n and the second line */"), isTokens());
+    assertThat(chunk("/** This is a javadoc \n and the second line */"), isTokens());
+    assertThat(chunk("/* this \n comment /* \n // /** ends \n here: */"), isTokens());
+  }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.8">Identifiers</a>
+   */
+  @Test
+  public void shouldPreserveIdentifiers() {
+    assertThat(chunk("String"), isTokens(new Token("String", 1, 0)));
+    assertThat(chunk("i3"), isTokens(new Token("i3", 1, 0)));
+    assertThat(chunk("MAX_VALUE"), isTokens(new Token("MAX_VALUE", 1, 0)));
+    assertThat(chunk("isLetterOrDigit"), isTokens(new Token("isLetterOrDigit", 1, 0)));
+
+    assertThat(chunk("_"), isTokens(new Token("_", 1, 0)));
+    assertThat(chunk("_123_"), isTokens(new Token("_123_", 1, 0)));
+    assertThat(chunk("_Field"), isTokens(new Token("_Field", 1, 0)));
+    assertThat(chunk("_Field5"), isTokens(new Token("_Field5", 1, 0)));
+
+    assertThat(chunk("$"), isTokens(new Token("$", 1, 0)));
+    assertThat(chunk("$field"), isTokens(new Token("$field", 1, 0)));
+
+    assertThat(chunk("i2j"), isTokens(new Token("i2j", 1, 0)));
+    assertThat(chunk("from1to4"), isTokens(new Token("from1to4", 1, 0)));
+
+    assertThat("identifier with unicode", chunk("αβγ"), isTokens(new Token("αβγ", 1, 0)));
+  }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.9">Keywords</a>
+   */
+  @Test
+  public void shouldPreserverKeywords() {
+    assertThat(chunk("private static final"), isTokens(new Token("private", 1, 0), new Token("static", 1, 8), new Token("final", 1, 15)));
+  }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.10.1">Integer Literals</a>
+   */
+  @Test
+  public void shouldNormalizeDecimalIntegerLiteral() {
+    assertThat(chunk("543"), isInteger());
+    assertThat(chunk("543l"), isInteger());
+    assertThat(chunk("543L"), isInteger());
   }
 
   @Test
-  public void shouldLexAndNormalizeInteger() {
-    assertThat(lexer.chunk("452"), hasItems(new Token("INTEGER", 1, 0)));
+  public void shouldNormalizeOctalIntegerLiteral() {
+    assertThat(chunk("077"), isInteger());
+    assertThat(chunk("077l"), isInteger());
+    assertThat(chunk("077L"), isInteger());
   }
-  
+
   @Test
-  public void shouldLexAndNormalizeDecimal() {
-    assertThat(lexer.chunk("45.2"), hasItems(new Token("DECIMAL", 1, 0)));
-    assertThat(lexer.chunk(".1"), hasItems(new Token("DECIMAL", 1, 0)));
-    assertThat(lexer.chunk("0.2"), hasItems(new Token("DECIMAL", 1, 0)));
-    assertThat(lexer.chunk("45.2e-4").size(), is(1));
-    assertThat(lexer.chunk("45.2e-4"), hasItems(new Token("DECIMAL", 1, 0)));
-    assertThat(lexer.chunk("45.2-4").size(), is(3));
-    assertThat(lexer.chunk("45.2-4"), hasItems(new Token("DECIMAL", 1, 0), new Token("-", 1, 4), new Token("INTEGER", 1, 5)));
-    
+  public void shouldNormalizeHexIntegerLiteral() {
+    assertThat(chunk("0xFF"), isInteger());
+    assertThat(chunk("0xFFl"), isInteger());
+    assertThat(chunk("0xFFL"), isInteger());
   }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.10.2">Floating-Point Literals</a>
+   */
+  @Test
+  public void shouldNormalizeDecimalFloatingPointLiteral() {
+    // with dot at the end
+    assertThat(chunk("1234."), isFloatingPoint());
+    assertThat(chunk("1234.E1"), isFloatingPoint());
+    assertThat(chunk("1234.e+1"), isFloatingPoint());
+    assertThat(chunk("1234.E-1"), isFloatingPoint());
+    assertThat(chunk("1234.f"), isFloatingPoint());
+
+    // with dot between
+    assertThat(chunk("12.34"), isFloatingPoint());
+    assertThat(chunk("12.34E1"), isFloatingPoint());
+    assertThat(chunk("12.34e+1"), isFloatingPoint());
+    assertThat(chunk("12.34E-1"), isFloatingPoint());
+
+    assertThat(chunk("12.34f"), isFloatingPoint());
+    assertThat(chunk("12.34E1F"), isFloatingPoint());
+    assertThat(chunk("12.34E+1d"), isFloatingPoint());
+    assertThat(chunk("12.34e-1D"), isFloatingPoint());
+
+    // with dot at the beginning
+    assertThat(chunk(".1234"), isFloatingPoint());
+    assertThat(chunk(".1234e1"), isFloatingPoint());
+    assertThat(chunk(".1234E+1"), isFloatingPoint());
+    assertThat(chunk(".1234E-1"), isFloatingPoint());
+
+    assertThat(chunk(".1234f"), isFloatingPoint());
+    assertThat(chunk(".1234E1F"), isFloatingPoint());
+    assertThat(chunk(".1234e+1d"), isFloatingPoint());
+    assertThat(chunk(".1234E-1D"), isFloatingPoint());
+
+    // without dot
+    assertThat(chunk("1234e1"), isFloatingPoint());
+    assertThat(chunk("1234E+1"), isFloatingPoint());
+    assertThat(chunk("1234E-1"), isFloatingPoint());
+
+    assertThat(chunk("1234E1f"), isFloatingPoint());
+    assertThat(chunk("1234e+1d"), isFloatingPoint());
+    assertThat(chunk("1234E-1D"), isFloatingPoint());
+  }
+
+  @Test
+  public void shouldNormalizeHexadecimalFloatingPointLiteral() {
+    // with dot at the end
+    assertThat(chunk("0xAF."), isFloatingPoint());
+    assertThat(chunk("0XAF.P1"), isFloatingPoint());
+    assertThat(chunk("0xAF.p+1"), isFloatingPoint());
+    assertThat(chunk("0XAF.p-1"), isFloatingPoint());
+    assertThat(chunk("0xAF.f"), isFloatingPoint());
+
+    // with dot between
+    assertThat(chunk("0XAF.BC"), isFloatingPoint());
+    assertThat(chunk("0xAF.BCP1"), isFloatingPoint());
+    assertThat(chunk("0XAF.BCp+1"), isFloatingPoint());
+    assertThat(chunk("0xAF.BCP-1"), isFloatingPoint());
+
+    assertThat(chunk("0xAF.BCf"), isFloatingPoint());
+    assertThat(chunk("0xAF.BCp1F"), isFloatingPoint());
+    assertThat(chunk("0XAF.BCP+1d"), isFloatingPoint());
+    assertThat(chunk("0XAF.BCp-1D"), isFloatingPoint());
+
+    // without dot
+    assertThat(chunk("0xAFp1"), isFloatingPoint());
+    assertThat(chunk("0XAFp+1"), isFloatingPoint());
+    assertThat(chunk("0xAFp-1"), isFloatingPoint());
+
+    assertThat(chunk("0XAFp1f"), isFloatingPoint());
+    assertThat(chunk("0xAFp+1d"), isFloatingPoint());
+    assertThat(chunk("0XAFp-1D"), isFloatingPoint());
+  }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.10.3">Boolean Literals</a>
+   */
+  @Test
+  public void shouldPreserveBooleanLiterals() {
+    assertThat(chunk("true false"), isTokens(new Token("true", 1, 0), new Token("false", 1, 5)));
+  }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.10.4">Character Literals</a>
+   */
+  @Test
+  public void shouldNormalizeCharacterLiterals() {
+    assertThat("single character", chunk("'a'"), isLiteral());
+    assertThat("escaped LF", chunk("'\\n'"), isLiteral());
+    assertThat("escaped quote", chunk("'\\''"), isLiteral());
+    assertThat("octal escape", chunk("'\\177'"), isLiteral());
+    assertThat("unicode escape", chunk("'\\u03a9'"), isLiteral());
+  }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.10.5">String Literals</a>
+   */
+  @Test
+  public void shouldNormalizeStringLiterals() {
+    assertThat("regular string", chunk("\"string\""), isLiteral());
+    assertThat("empty string", chunk("\"\""), isLiteral());
+    assertThat("escaped LF", chunk("\"\\n\""), isLiteral());
+    assertThat("escaped double quotes", chunk("\"string, which contains \\\"escaped double quotes\\\"\""), isLiteral());
+    assertThat("octal escape", chunk("\"string \\177\""), isLiteral());
+    assertThat("unicode escape", chunk("\"string \\u03a9\""), isLiteral());
+  }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.10.7">The Null Literal</a>
+   */
+  @Test
+  public void shouldPreserverNullLiteral() {
+    assertThat(chunk("null"), isTokens(new Token("null", 1, 0)));
+  }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.11">Separators</a>
+   */
+  @Test
+  public void shouldPreserveSeparators() {
+    assertThat(chunk("(){}[];,."), isTokens(
+        new Token("(", 1, 0), new Token(")", 1, 1),
+        new Token("{", 1, 2), new Token("}", 1, 3),
+        new Token("[", 1, 4), new Token("]", 1, 5),
+        new Token(";", 1, 6), new Token(",", 1, 7),
+        new Token(".", 1, 8)));
+  }
+
+  /**
+   * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.12">Operators</a>
+   */
+  @Test
+  public void shouldPreserveOperators() {
+    assertThat(chunk("+="), isTokens(new Token("+", 1, 0), new Token("=", 1, 1)));
+    assertThat(chunk("--"), isTokens(new Token("-", 1, 0), new Token("-", 1, 1)));
+  }
+
+  private static Matcher<List<Token>> isInteger() {
+    return isTokens(new Token("INTEGER", 1, 0)); // TODO should be NUMBER instead of INTEGER
+  }
+
+  private static Matcher<List<Token>> isFloatingPoint() {
+    return isTokens(new Token("DECIMAL", 1, 0)); // TODO should be NUMBER instead of DECIMAL
+  }
+
+  private static Matcher<List<Token>> isLiteral() {
+    return isTokens(new Token("LITERAL", 1, 0));
+  }
+
+  /**
+   * @return matcher for list of tokens
+   */
+  private static Matcher<List<Token>> isTokens(Token... tokens) {
+    return is(Arrays.asList(tokens));
+  }
+
+  private List<Token> chunk(String sourceCode) {
+    return Lists.newArrayList(lexer.chunk(sourceCode));
+  }
+
 }

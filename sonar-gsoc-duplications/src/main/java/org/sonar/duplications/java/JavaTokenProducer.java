@@ -21,21 +21,43 @@ package org.sonar.duplications.java;
 
 import org.sonar.duplications.token.TokenChunker;
 
+/**
+ * See <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html">The Java Language Specification, Third Edition: Lexical Structure</a>
+ */
 public final class JavaTokenProducer {
 
   private JavaTokenProducer() {
   }
 
+  private static final String EXP = "([Ee][+-]?+[0-9]++)";
+  private static final String BINARY_EXP = "([Pp][+-]?+[0-9]++)";
+
+  private static final String FLOAT_SUFFIX = "[fFdD]";
+  private static final String INT_SUFFIX = "[lL]";
+
   public static TokenChunker build() {
     return TokenChunker.builder()
+        // White Space
         .ignore("\\s")
+        // Comments
         .ignore("//[^\\n\\r]*+")
         .ignore("/\\*[\\s\\S]*?\\*/")
-        .token("\".*?\"", "LITERAL")
-        .token("\'.*?\'", "LITERAL")
-        .token("[a-zA-Z_]++[0-9]*+[a-zA-Z_]*+")
-        .token("[0-9]*\\.[0-9]+([eE][-+]?[0-9]+)?", "DECIMAL")
-        .token("[0-9]++", "INTEGER")
+        // String Literals
+        .token("\"([^\"\\\\]*+(\\\\[\\s\\S])?+)*+\"", "LITERAL")
+        // Character Literals
+        .token("'([^'\\n\\\\]*+(\\\\.)?+)*+'", "LITERAL")
+        // Identifiers, Keywords, Boolean Literals, The Null Literal
+        .token("\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+")
+        // Floating-Point Literals
+        .token("[0-9]++\\.([0-9]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+", "DECIMAL")
+        .token("\\.[0-9]++" + EXP + "?+" + FLOAT_SUFFIX + "?+", "DECIMAL")
+        .token("[0-9]++" + EXP + FLOAT_SUFFIX + "?+", "DECIMAL")
+        .token("0[xX][0-9a-fA-F]++\\.[0-9a-fA-F]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+", "DECIMAL")
+        .token("0[xX][0-9a-fA-F]++" + BINARY_EXP + FLOAT_SUFFIX + "?+", "DECIMAL")
+        // Integer Literals
+        .token("0[xX][0-9a-fA-F]++" + INT_SUFFIX + "?+", "INTEGER")
+        .token("[0-9]++" + INT_SUFFIX + "?+", "INTEGER")
+        // Any other character
         .token(".")
         .build();
   }
