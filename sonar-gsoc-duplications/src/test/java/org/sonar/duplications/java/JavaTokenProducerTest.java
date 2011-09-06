@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
  */
 public class JavaTokenProducerTest {
 
-  private TokenChunker lexer = JavaTokenProducer.build();
+  private TokenChunker chunker = JavaTokenProducer.build();
 
   /**
    * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.6">White Space</a>
@@ -103,23 +103,23 @@ public class JavaTokenProducerTest {
    */
   @Test
   public void shouldNormalizeDecimalIntegerLiteral() {
-    assertThat(chunk("543"), isInteger());
-    assertThat(chunk("543l"), isInteger());
-    assertThat(chunk("543L"), isInteger());
+    assertThat(chunk("543"), isNumericLiteral());
+    assertThat(chunk("543l"), isNumericLiteral());
+    assertThat(chunk("543L"), isNumericLiteral());
   }
 
   @Test
   public void shouldNormalizeOctalIntegerLiteral() {
-    assertThat(chunk("077"), isInteger());
-    assertThat(chunk("077l"), isInteger());
-    assertThat(chunk("077L"), isInteger());
+    assertThat(chunk("077"), isNumericLiteral());
+    assertThat(chunk("077l"), isNumericLiteral());
+    assertThat(chunk("077L"), isNumericLiteral());
   }
 
   @Test
   public void shouldNormalizeHexIntegerLiteral() {
-    assertThat(chunk("0xFF"), isInteger());
-    assertThat(chunk("0xFFl"), isInteger());
-    assertThat(chunk("0xFFL"), isInteger());
+    assertThat(chunk("0xFF"), isNumericLiteral());
+    assertThat(chunk("0xFFl"), isNumericLiteral());
+    assertThat(chunk("0xFFL"), isNumericLiteral());
   }
 
   /**
@@ -128,72 +128,72 @@ public class JavaTokenProducerTest {
   @Test
   public void shouldNormalizeDecimalFloatingPointLiteral() {
     // with dot at the end
-    assertThat(chunk("1234."), isFloatingPoint());
-    assertThat(chunk("1234.E1"), isFloatingPoint());
-    assertThat(chunk("1234.e+1"), isFloatingPoint());
-    assertThat(chunk("1234.E-1"), isFloatingPoint());
-    assertThat(chunk("1234.f"), isFloatingPoint());
+    assertThat(chunk("1234."), isNumericLiteral());
+    assertThat(chunk("1234.E1"), isNumericLiteral());
+    assertThat(chunk("1234.e+1"), isNumericLiteral());
+    assertThat(chunk("1234.E-1"), isNumericLiteral());
+    assertThat(chunk("1234.f"), isNumericLiteral());
 
     // with dot between
-    assertThat(chunk("12.34"), isFloatingPoint());
-    assertThat(chunk("12.34E1"), isFloatingPoint());
-    assertThat(chunk("12.34e+1"), isFloatingPoint());
-    assertThat(chunk("12.34E-1"), isFloatingPoint());
+    assertThat(chunk("12.34"), isNumericLiteral());
+    assertThat(chunk("12.34E1"), isNumericLiteral());
+    assertThat(chunk("12.34e+1"), isNumericLiteral());
+    assertThat(chunk("12.34E-1"), isNumericLiteral());
 
-    assertThat(chunk("12.34f"), isFloatingPoint());
-    assertThat(chunk("12.34E1F"), isFloatingPoint());
-    assertThat(chunk("12.34E+1d"), isFloatingPoint());
-    assertThat(chunk("12.34e-1D"), isFloatingPoint());
+    assertThat(chunk("12.34f"), isNumericLiteral());
+    assertThat(chunk("12.34E1F"), isNumericLiteral());
+    assertThat(chunk("12.34E+1d"), isNumericLiteral());
+    assertThat(chunk("12.34e-1D"), isNumericLiteral());
 
     // with dot at the beginning
-    assertThat(chunk(".1234"), isFloatingPoint());
-    assertThat(chunk(".1234e1"), isFloatingPoint());
-    assertThat(chunk(".1234E+1"), isFloatingPoint());
-    assertThat(chunk(".1234E-1"), isFloatingPoint());
+    assertThat(chunk(".1234"), isNumericLiteral());
+    assertThat(chunk(".1234e1"), isNumericLiteral());
+    assertThat(chunk(".1234E+1"), isNumericLiteral());
+    assertThat(chunk(".1234E-1"), isNumericLiteral());
 
-    assertThat(chunk(".1234f"), isFloatingPoint());
-    assertThat(chunk(".1234E1F"), isFloatingPoint());
-    assertThat(chunk(".1234e+1d"), isFloatingPoint());
-    assertThat(chunk(".1234E-1D"), isFloatingPoint());
+    assertThat(chunk(".1234f"), isNumericLiteral());
+    assertThat(chunk(".1234E1F"), isNumericLiteral());
+    assertThat(chunk(".1234e+1d"), isNumericLiteral());
+    assertThat(chunk(".1234E-1D"), isNumericLiteral());
 
     // without dot
-    assertThat(chunk("1234e1"), isFloatingPoint());
-    assertThat(chunk("1234E+1"), isFloatingPoint());
-    assertThat(chunk("1234E-1"), isFloatingPoint());
+    assertThat(chunk("1234e1"), isNumericLiteral());
+    assertThat(chunk("1234E+1"), isNumericLiteral());
+    assertThat(chunk("1234E-1"), isNumericLiteral());
 
-    assertThat(chunk("1234E1f"), isFloatingPoint());
-    assertThat(chunk("1234e+1d"), isFloatingPoint());
-    assertThat(chunk("1234E-1D"), isFloatingPoint());
+    assertThat(chunk("1234E1f"), isNumericLiteral());
+    assertThat(chunk("1234e+1d"), isNumericLiteral());
+    assertThat(chunk("1234E-1D"), isNumericLiteral());
   }
 
   @Test
   public void shouldNormalizeHexadecimalFloatingPointLiteral() {
     // with dot at the end
-    assertThat(chunk("0xAF."), isFloatingPoint());
-    assertThat(chunk("0XAF.P1"), isFloatingPoint());
-    assertThat(chunk("0xAF.p+1"), isFloatingPoint());
-    assertThat(chunk("0XAF.p-1"), isFloatingPoint());
-    assertThat(chunk("0xAF.f"), isFloatingPoint());
+    assertThat(chunk("0xAF."), isNumericLiteral());
+    assertThat(chunk("0XAF.P1"), isNumericLiteral());
+    assertThat(chunk("0xAF.p+1"), isNumericLiteral());
+    assertThat(chunk("0XAF.p-1"), isNumericLiteral());
+    assertThat(chunk("0xAF.f"), isNumericLiteral());
 
     // with dot between
-    assertThat(chunk("0XAF.BC"), isFloatingPoint());
-    assertThat(chunk("0xAF.BCP1"), isFloatingPoint());
-    assertThat(chunk("0XAF.BCp+1"), isFloatingPoint());
-    assertThat(chunk("0xAF.BCP-1"), isFloatingPoint());
+    assertThat(chunk("0XAF.BC"), isNumericLiteral());
+    assertThat(chunk("0xAF.BCP1"), isNumericLiteral());
+    assertThat(chunk("0XAF.BCp+1"), isNumericLiteral());
+    assertThat(chunk("0xAF.BCP-1"), isNumericLiteral());
 
-    assertThat(chunk("0xAF.BCf"), isFloatingPoint());
-    assertThat(chunk("0xAF.BCp1F"), isFloatingPoint());
-    assertThat(chunk("0XAF.BCP+1d"), isFloatingPoint());
-    assertThat(chunk("0XAF.BCp-1D"), isFloatingPoint());
+    assertThat(chunk("0xAF.BCf"), isNumericLiteral());
+    assertThat(chunk("0xAF.BCp1F"), isNumericLiteral());
+    assertThat(chunk("0XAF.BCP+1d"), isNumericLiteral());
+    assertThat(chunk("0XAF.BCp-1D"), isNumericLiteral());
 
     // without dot
-    assertThat(chunk("0xAFp1"), isFloatingPoint());
-    assertThat(chunk("0XAFp+1"), isFloatingPoint());
-    assertThat(chunk("0xAFp-1"), isFloatingPoint());
+    assertThat(chunk("0xAFp1"), isNumericLiteral());
+    assertThat(chunk("0XAFp+1"), isNumericLiteral());
+    assertThat(chunk("0xAFp-1"), isNumericLiteral());
 
-    assertThat(chunk("0XAFp1f"), isFloatingPoint());
-    assertThat(chunk("0xAFp+1d"), isFloatingPoint());
-    assertThat(chunk("0XAFp-1D"), isFloatingPoint());
+    assertThat(chunk("0XAFp1f"), isNumericLiteral());
+    assertThat(chunk("0xAFp+1d"), isNumericLiteral());
+    assertThat(chunk("0XAFp-1D"), isNumericLiteral());
   }
 
   /**
@@ -209,11 +209,11 @@ public class JavaTokenProducerTest {
    */
   @Test
   public void shouldNormalizeCharacterLiterals() {
-    assertThat("single character", chunk("'a'"), isLiteral());
-    assertThat("escaped LF", chunk("'\\n'"), isLiteral());
-    assertThat("escaped quote", chunk("'\\''"), isLiteral());
-    assertThat("octal escape", chunk("'\\177'"), isLiteral());
-    assertThat("unicode escape", chunk("'\\u03a9'"), isLiteral());
+    assertThat("single character", chunk("'a'"), isStringLiteral());
+    assertThat("escaped LF", chunk("'\\n'"), isStringLiteral());
+    assertThat("escaped quote", chunk("'\\''"), isStringLiteral());
+    assertThat("octal escape", chunk("'\\177'"), isStringLiteral());
+    assertThat("unicode escape", chunk("'\\u03a9'"), isStringLiteral());
   }
 
   /**
@@ -221,12 +221,12 @@ public class JavaTokenProducerTest {
    */
   @Test
   public void shouldNormalizeStringLiterals() {
-    assertThat("regular string", chunk("\"string\""), isLiteral());
-    assertThat("empty string", chunk("\"\""), isLiteral());
-    assertThat("escaped LF", chunk("\"\\n\""), isLiteral());
-    assertThat("escaped double quotes", chunk("\"string, which contains \\\"escaped double quotes\\\"\""), isLiteral());
-    assertThat("octal escape", chunk("\"string \\177\""), isLiteral());
-    assertThat("unicode escape", chunk("\"string \\u03a9\""), isLiteral());
+    assertThat("regular string", chunk("\"string\""), isStringLiteral());
+    assertThat("empty string", chunk("\"\""), isStringLiteral());
+    assertThat("escaped LF", chunk("\"\\n\""), isStringLiteral());
+    assertThat("escaped double quotes", chunk("\"string, which contains \\\"escaped double quotes\\\"\""), isStringLiteral());
+    assertThat("octal escape", chunk("\"string \\177\""), isStringLiteral());
+    assertThat("unicode escape", chunk("\"string \\u03a9\""), isStringLiteral());
   }
 
   /**
@@ -259,16 +259,12 @@ public class JavaTokenProducerTest {
     assertThat(chunk("--"), isTokens(new Token("-", 1, 0), new Token("-", 1, 1)));
   }
 
-  private static Matcher<List<Token>> isInteger() {
-    return isTokens(new Token("INTEGER", 1, 0)); // TODO should be NUMBER instead of INTEGER
+  private static Matcher<List<Token>> isNumericLiteral() {
+    return isTokens(new Token("$NUMBER", 1, 0));
   }
 
-  private static Matcher<List<Token>> isFloatingPoint() {
-    return isTokens(new Token("DECIMAL", 1, 0)); // TODO should be NUMBER instead of DECIMAL
-  }
-
-  private static Matcher<List<Token>> isLiteral() {
-    return isTokens(new Token("LITERAL", 1, 0));
+  private static Matcher<List<Token>> isStringLiteral() {
+    return isTokens(new Token("$CHARS", 1, 0));
   }
 
   /**
@@ -279,7 +275,7 @@ public class JavaTokenProducerTest {
   }
 
   private List<Token> chunk(String sourceCode) {
-    return Lists.newArrayList(lexer.chunk(sourceCode));
+    return Lists.newArrayList(chunker.chunk(sourceCode));
   }
 
 }

@@ -23,11 +23,20 @@ import org.sonar.duplications.token.TokenChunker;
 
 /**
  * See <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html">The Java Language Specification, Third Edition: Lexical Structure</a>
+ * 
+ * <p>
+ * We decided to use dollar sign as a prefix for normalization, even if it can be a part of an identifier,
+ * because according to Java Language Specification it supposed to be used only in mechanically generated source code.
+ * Thus probability to find it within a normal code should be low.
+ * </p>
  */
 public final class JavaTokenProducer {
 
   private JavaTokenProducer() {
   }
+
+  private static final String NORMALIZED_CHARACTER_LITERAL = "$CHARS";
+  private static final String NORMALIZED_NUMERIC_LITERAL = "$NUMBER";
 
   private static final String EXP = "([Ee][+-]?+[0-9]++)";
   private static final String BINARY_EXP = "([Pp][+-]?+[0-9]++)";
@@ -43,20 +52,20 @@ public final class JavaTokenProducer {
         .ignore("//[^\\n\\r]*+")
         .ignore("/\\*[\\s\\S]*?\\*/")
         // String Literals
-        .token("\"([^\"\\\\]*+(\\\\[\\s\\S])?+)*+\"", "LITERAL")
+        .token("\"([^\"\\\\]*+(\\\\[\\s\\S])?+)*+\"", NORMALIZED_CHARACTER_LITERAL)
         // Character Literals
-        .token("'([^'\\n\\\\]*+(\\\\.)?+)*+'", "LITERAL")
+        .token("'([^'\\n\\\\]*+(\\\\.)?+)*+'", NORMALIZED_CHARACTER_LITERAL)
         // Identifiers, Keywords, Boolean Literals, The Null Literal
         .token("\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+")
         // Floating-Point Literals
-        .token("[0-9]++\\.([0-9]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+", "DECIMAL")
-        .token("\\.[0-9]++" + EXP + "?+" + FLOAT_SUFFIX + "?+", "DECIMAL")
-        .token("[0-9]++" + EXP + FLOAT_SUFFIX + "?+", "DECIMAL")
-        .token("0[xX][0-9a-fA-F]++\\.[0-9a-fA-F]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+", "DECIMAL")
-        .token("0[xX][0-9a-fA-F]++" + BINARY_EXP + FLOAT_SUFFIX + "?+", "DECIMAL")
+        .token("[0-9]++\\.([0-9]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        .token("\\.[0-9]++" + EXP + "?+" + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        .token("[0-9]++" + EXP + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        .token("0[xX][0-9a-fA-F]++\\.[0-9a-fA-F]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        .token("0[xX][0-9a-fA-F]++" + BINARY_EXP + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
         // Integer Literals
-        .token("0[xX][0-9a-fA-F]++" + INT_SUFFIX + "?+", "INTEGER")
-        .token("[0-9]++" + INT_SUFFIX + "?+", "INTEGER")
+        .token("0[xX][0-9a-fA-F]++" + INT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        .token("[0-9]++" + INT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
         // Any other character
         .token(".")
         .build();
