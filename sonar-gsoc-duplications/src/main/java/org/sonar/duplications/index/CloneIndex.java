@@ -27,42 +27,22 @@ import org.sonar.duplications.block.ByteArray;
 public interface CloneIndex {
 
   /**
-   * @deprecated Godin: I don't think that we need such method
-   */
-  @Deprecated
-  boolean containsResourceId(String resourceId);
-
-  /**
-   * Method performs search in index db. Parameter is full filename inside
-   * project exactly the same as it was saved in db.
-   * If file is moved inside project it should be removed and then added again.
-   * blocks in SortedSet are sorted by position in file
-   *
-   * @param resourceId - unique resourceId like file name
-   * @return list of <tt>Block</tt> from index and empty list if nothing found
+   * Performs search of blocks for specified resource.
+   * 
+   * @return collection of blocks from index for specified resource and empty collection if nothing found
    */
   Collection<Block> getByResourceId(String resourceId);
 
   /**
-   * Search by sequence hash.
-   *
-   * @param sequenceHash - hash of statement sequence
-   * @return set of <tt>Block</tt> from index and empty list if nothing found
+   * Performs search of blocks for specified hash value.
+   * 
+   * @return collection of blocks from index with specified hash and empty collection if nothing found
    */
-  Collection<Block> getBySequenceHash(ByteArray sequenceHash);
+  Collection<Block> getBySequenceHash(ByteArray hash);
 
+  /**
+   * Adds specified block into index.
+   */
   void insert(Block block);
-
-  /**
-   * Remove all <tt>Block</tt> from index with <tt>resourceId</tt>
-   *
-   * @param resourceId full path of file in project with filename
-   */
-  void remove(String resourceId);
-
-  /**
-   * Empty hash index - remove all tuples
-   */
-  void removeAll();
 
 }

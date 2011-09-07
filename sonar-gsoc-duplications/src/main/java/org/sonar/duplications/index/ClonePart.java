@@ -19,13 +19,16 @@
  */
 package org.sonar.duplications.index;
 
-public class ClonePart implements Comparable<ClonePart> {
+public class ClonePart {
 
   private final String resourceId;
   private final int unitStart;
   private final int lineStart;
   private final int lineEnd;
 
+  /**
+   * Cache for hash code.
+   */
   private int hash;
 
   public ClonePart(String resourceId, int unitStart, int lineStart, int lineEnd) {
@@ -83,13 +86,6 @@ public class ClonePart implements Comparable<ClonePart> {
   @Override
   public String toString() {
     return "'" + resourceId + "':[" + unitStart + "|" + lineStart + "-" + lineEnd + "]";
-  }
-
-  public int compareTo(ClonePart o) {
-    if (resourceId.equals(o.resourceId)) {
-      return unitStart - o.unitStart;
-    }
-    return resourceId.compareTo(o.resourceId);
   }
 
 }

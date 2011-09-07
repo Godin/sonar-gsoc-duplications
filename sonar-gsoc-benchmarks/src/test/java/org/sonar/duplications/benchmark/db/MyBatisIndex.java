@@ -63,7 +63,6 @@ public class MyBatisIndex extends AbstractCloneIndex implements BatchIndex {
     }
   }
 
-  @Override
   public void removeAll() {
     SqlSession session = sqlSessionFactory.openSession();
     try {

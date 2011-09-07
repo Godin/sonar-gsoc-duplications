@@ -19,15 +19,15 @@
  */
 package org.sonar.duplications.index;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.TreeMultimap;
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.ByteArray;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Set;
+
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.TreeMultimap;
 
 public class MemoryCloneIndex implements CloneIndex {
 
@@ -79,19 +79,6 @@ public class MemoryCloneIndex implements CloneIndex {
   public void insert(Block tuple) {
     filenameIndex.put(tuple.getResourceId(), tuple);
     sequenceHashIndex.put(tuple.getBlockHash(), tuple);
-  }
-
-  public void remove(String fileName) {
-    Set<Block> set = filenameIndex.get(fileName);
-    filenameIndex.removeAll(fileName);
-    for (Block tuple : set) {
-      sequenceHashIndex.remove(tuple.getBlockHash(), tuple);
-    }
-  }
-
-  public void removeAll() {
-    filenameIndex.clear();
-    sequenceHashIndex.clear();
   }
 
 }

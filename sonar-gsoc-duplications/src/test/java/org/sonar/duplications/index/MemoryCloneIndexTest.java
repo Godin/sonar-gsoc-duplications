@@ -19,16 +19,16 @@
  */
 package org.sonar.duplications.index;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Collection;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
-
-import java.util.Collection;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class MemoryCloneIndexTest {
 
@@ -37,17 +37,6 @@ public class MemoryCloneIndexTest {
   @Before
   public void initialize() {
     cloneIndex = new MemoryCloneIndex();
-  }
-
-  @Test
-  public void testContainsResource() {
-    cloneIndex.insert(new Block("a", new ByteArray(0), 0, 0, 10));
-    cloneIndex.insert(new Block("b", new ByteArray(1), 0, 0, 10));
-    cloneIndex.insert(new Block("c", new ByteArray(2), 0, 0, 10));
-    assertThat(cloneIndex.containsResourceId("a"), is(true));
-    assertThat(cloneIndex.containsResourceId("b"), is(true));
-    assertThat(cloneIndex.containsResourceId("c"), is(true));
-    assertThat(cloneIndex.containsResourceId("d"), is(false));
   }
 
   @Test

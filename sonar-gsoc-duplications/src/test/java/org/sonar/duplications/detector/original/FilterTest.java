@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.index;
+package org.sonar.duplications.detector.original;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -28,38 +28,52 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.index.ClonePart;
 
-public class CloneGroupTest {
+public class FilterTest {
 
   /**
    * Given:
    * <pre>
-   * c1: a[1-2], b[1-2]
-   * c2: a[2-2], b[2-2]
+   * c1: a[1-1]
+   * c2: a[1-1]
    * </pre>
-   * Expected: c1 in c1, c2 in c2, c1 not in c2, c2 in c1
+   * Expected:
+   * reflexive - c1 in c1,
+   * antisymmetric - c1 in c2, c2 in c1, because c1 = c2
    */
   @Test
-  public void testContainsInExample1() {
-    CloneGroup c1 = newCloneGroup(2,
-        newClonePart("a", 1),
-        newClonePart("b", 1));
+  public void reflexive_and_antisymmetric() {
+    CloneGroup c1 = newCloneGroup(1,
+        newClonePart("a", 1));
     CloneGroup c2 = newCloneGroup(1,
-        newClonePart("a", 2),
-        newClonePart("b", 2));
+        newClonePart("a", 1));
 
-    assertThat(c1.containsIn(c1), is(true));
-    assertThat(c2.containsIn(c2), is(true));
-
-    assertThat(c1.containsIn(c2), is(false));
-    assertThat(c2.containsIn(c1), is(true));
+    assertThat(Filter.containsIn(c1, c1), is(true));
+    assertThat(Filter.containsIn(c1, c2), is(true));
+    assertThat(Filter.containsIn(c2, c1), is(true));
   }
 
   /**
-   * TODO Godin: I suppose that this test is correct
-   * and demonstrates bug in {@link org.sonar.duplications.algorithm.ClonePair#containsIn(ClonePartContainerBase)},
-   * which was fixed in {@link CloneGroup#containsIn(ClonePartContainerBase)}.
-   * 
+   * Given:
+   * <pre>
+   * c1: a[1-1]
+   * c2: a[2-2]
+   * </pre>
+   * Expected: c1 not in c2, c2 not in c1
+   */
+  @Test
+  public void start_index_in_C1_less_than_in_C2() {
+    CloneGroup c1 = newCloneGroup(1,
+        newClonePart("a", 1));
+    CloneGroup c2 = newCloneGroup(1,
+        newClonePart("a", 2));
+
+    assertThat(Filter.containsIn(c1, c2), is(false));
+  }
+
+  /**
    * Given:
    * <pre>
    * c1: a[0-0], a[2-2], b[0-0], b[2-2]
@@ -83,8 +97,8 @@ public class CloneGroupTest {
         newClonePart("a", 0),
         newClonePart("b", 0));
 
-    assertThat(c1.containsIn(c2), is(true));
-    assertThat(c2.containsIn(c1), is(false));
+    assertThat(Filter.containsIn(c1, c2), is(true));
+    assertThat(Filter.containsIn(c2, c1), is(false));
   }
 
   /**
@@ -108,8 +122,8 @@ public class CloneGroupTest {
         newClonePart("a", 0),
         newClonePart("b", 0));
 
-    assertThat(c1.containsIn(c2), is(false));
-    assertThat(c2.containsIn(c1), is(false));
+    assertThat(Filter.containsIn(c1, c2), is(false));
+    assertThat(Filter.containsIn(c2, c1), is(false));
   }
 
   /**
@@ -132,38 +146,8 @@ public class CloneGroupTest {
         newClonePart("a", 0),
         newClonePart("a", 2));
 
-    assertThat(c1.containsIn(c2), is(true));
-    assertThat(c2.containsIn(c1), is(false));
-  }
-
-  /**
-   * Given:
-   * <pre>
-   * c1: a[0-0], b[0-0]
-   * c2: b[0-0], a[0-0]
-   * </pre>
-   * Expected:
-   * <pre>
-   * c1 not in c2
-   * </pre>
-   * because of different origins
-   */
-  @Test
-  public void different_origins() {
-    CloneGroup c1 = spy(newCloneGroup(1,
-        newClonePart("a", 0),
-        newClonePart("b", 0)));
-    CloneGroup c2 = spy(newCloneGroup(1,
-        newClonePart("b", 0),
-        newClonePart("a", 0)));
-
-    assertThat(c1.containsIn(c2), is(false));
-    verify(c1).containsIn(c2);
-    // containsIn method should check only resourceId of origins - no need to compare all parts
-    verify(c1).getOriginPart();
-    verify(c2).getOriginPart();
-    verifyNoMoreInteractions(c1);
-    verifyNoMoreInteractions(c2);
+    assertThat(Filter.containsIn(c1, c2), is(true));
+    assertThat(Filter.containsIn(c2, c1), is(false));
   }
 
   /**
@@ -184,11 +168,8 @@ public class CloneGroupTest {
     CloneGroup c2 = spy(newCloneGroup(1,
         newClonePart("a", 0)));
 
-    assertThat(c1.containsIn(c2), is(false));
-    verify(c1).containsIn(c2);
+    assertThat(Filter.containsIn(c1, c2), is(false));
     // containsIn method should check only origin and length - no need to compare all parts
-    verify(c1).getOriginPart();
-    verify(c2).getOriginPart();
     verify(c1).getCloneUnitLength();
     verify(c2).getCloneUnitLength();
     verifyNoMoreInteractions(c1);
@@ -208,4 +189,5 @@ public class CloneGroupTest {
   private CloneGroup newCloneGroup(int len, ClonePart... parts) {
     return new CloneGroup(len, parts[0], Arrays.asList(parts));
   }
+
 }

@@ -23,7 +23,7 @@ package org.sonar.duplications.block;
  * Represents part of source code between two lines.
  * If two blocks have the same {@link #getBlockHash() hash}, then we assume that there is a duplication in a code, which they represent.
  */
-public class Block {
+public final class Block {
 
   private final String resourceId;
   private final ByteArray blockHash;

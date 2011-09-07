@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
 /**
  * Set of {@link Block}s, which internally stored as a sorted list.
  */
-class BlocksGroup {
+final class BlocksGroup {
 
   /**
    * Factory method.
@@ -43,7 +43,7 @@ class BlocksGroup {
 
   protected final List<Block> blocks;
 
-  protected BlocksGroup() {
+  private BlocksGroup() {
     this.blocks = Lists.newArrayList();
   }
 
@@ -92,7 +92,7 @@ class BlocksGroup {
    * Intersection of two groups is a group, which contains blocks from second group that have corresponding block from first group
    * with same resource id and with corrected index.
    */
-  protected BlocksGroup intersect(BlocksGroup group1, BlocksGroup group2) {
+  private static BlocksGroup intersect(BlocksGroup group1, BlocksGroup group2) {
     BlocksGroup intersection = new BlocksGroup();
     List<Block> list1 = group1.blocks;
     List<Block> list2 = group2.blocks;
@@ -132,7 +132,7 @@ class BlocksGroup {
    * One group is subsumed by another group, when each block from first group has corresponding block from second group
    * with same resource id and with corrected index.
    */
-  protected boolean subsumedBy(BlocksGroup group1, BlocksGroup group2, int indexCorrection) {
+  private static boolean subsumedBy(BlocksGroup group1, BlocksGroup group2, int indexCorrection) {
     List<Block> list1 = group1.blocks;
     List<Block> list2 = group2.blocks;
     int i = 0;
@@ -162,7 +162,7 @@ class BlocksGroup {
     return i == list1.size();
   }
 
-  protected List<Block[]> pairs(BlocksGroup beginGroup, BlocksGroup endGroup, int len) {
+  private static List<Block[]> pairs(BlocksGroup beginGroup, BlocksGroup endGroup, int len) {
     List<Block[]> result = Lists.newArrayList();
     List<Block> beginBlocks = beginGroup.blocks;
     List<Block> endBlocks = endGroup.blocks;

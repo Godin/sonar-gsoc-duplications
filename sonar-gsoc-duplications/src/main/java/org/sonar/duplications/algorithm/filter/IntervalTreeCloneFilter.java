@@ -21,6 +21,7 @@ package org.sonar.duplications.algorithm.filter;
 
 import java.util.List;
 
+import org.sonar.duplications.algorithm.FilterUtils;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 
@@ -73,7 +74,7 @@ public class IntervalTreeCloneFilter extends AbstractIntervalTreeCloneFilter {
       if (foundClone.equals(clone)) {
         continue;
       }
-      if (clone.containsIn(foundClone)) {
+      if (FilterUtils.containsIn(clone, foundClone)) {
         covered = true;
         break;
       }

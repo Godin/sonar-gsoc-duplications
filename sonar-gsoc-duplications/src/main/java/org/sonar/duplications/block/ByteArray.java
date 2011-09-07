@@ -29,7 +29,7 @@ import java.util.Arrays;
  * TODO Godin: would be better to rename to BlockHash,
  * also maybe we can incorporate it into Block to reduce memory footprint during detection of duplicates
  */
-public class ByteArray {
+public final class ByteArray {
 
   private final byte[] bytes;
 
@@ -53,22 +53,22 @@ public class ByteArray {
 
   public ByteArray(long value) {
     this.bytes = new byte[] {
-        (byte) (value >>> 56),
-        (byte) (value >>> 48),
-        (byte) (value >>> 40),
-        (byte) (value >>> 32),
-        (byte) (value >>> 24),
-        (byte) (value >>> 16),
-        (byte) (value >>> 8),
-        (byte) value };
+      (byte) (value >>> 56),
+      (byte) (value >>> 48),
+      (byte) (value >>> 40),
+      (byte) (value >>> 32),
+      (byte) (value >>> 24),
+      (byte) (value >>> 16),
+      (byte) (value >>> 8),
+      (byte) value };
   }
 
   public ByteArray(int value) {
     this.bytes = new byte[] {
-        (byte) (value >>> 24),
-        (byte) (value >>> 16),
-        (byte) (value >>> 8),
-        (byte) value };
+      (byte) (value >>> 24),
+      (byte) (value >>> 16),
+      (byte) (value >>> 8),
+      (byte) value };
   }
 
   public ByteArray(int[] intArray) {

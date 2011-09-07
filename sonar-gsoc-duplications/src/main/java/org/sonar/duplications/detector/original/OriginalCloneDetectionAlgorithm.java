@@ -21,7 +21,6 @@ package org.sonar.duplications.detector.original;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ import com.google.common.collect.Maps;
  * <a href="http://www4.in.tum.de/~juergens/publications/icsm2010_crc.pdf">Index-Based Code Clone Detection: Incremental, Distributed, Scalable</a>
  * by Benjamin Hummel, Elmar Juergens, Michael Conradt and Lars Heinemann.
  */
-public class OriginalCloneDetectionAlgorithm {
+public final class OriginalCloneDetectionAlgorithm {
 
   /**
    * Performs detection and returns list of clone groups between file (which represented as a collection of blocks) and index.
@@ -51,17 +50,12 @@ public class OriginalCloneDetectionAlgorithm {
     }
     OriginalCloneDetectionAlgorithm reporter = new OriginalCloneDetectionAlgorithm(cloneIndex);
     reporter.findClones(fileBlocks);
-    return reporter.clones;
+    return reporter.filter.getResult();
   }
 
   private final CloneIndex cloneIndex;
 
-  /**
-   * Note that LinkedList should provide better performance here, because of use of operation remove.
-   * 
-   * @see #filterAndSave(CloneGroup)
-   */
-  private final List<CloneGroup> clones = Lists.newLinkedList();
+  private final Filter filter = new Filter();
 
   private String originResourceId;
 
@@ -226,44 +220,7 @@ public class OriginalCloneDetectionAlgorithm {
       }
     }
 
-    CloneGroup clone = new CloneGroup(cloneLength, origin, parts);
-    filterAndSave(clone);
-  }
-
-  /**
-   * Performs incremental and brute force algorithm in order to filter clones, which are fully covered by other clones.
-   * Running time - O(N*2*C), where N - number of clones, which was found earlier
-   * and C - time of {@link CloneGroup#containsIn(org.sonar.duplications.index.ClonePartContainerBase)}.
-   * 
-   * TODO Godin: we can try to optimize containsIn by using fact that all parts already sorted because of {@link BlocksGroup}.
-   *
-   * TODO Godin: This implementation was chosen because it simple and I wasn't able to find big difference in performance with other ways:
-   * <ul>
-   * <li>{@link org.sonar.duplications.algorithm.filter.IntervalTreeCloneFilter} - 47 seconds on JDK and 4 seconds on different projects</li>
-   * <li>{@link org.sonar.duplications.algorithm.filter.BruteForceCloneFilter} - 48 seconds on JDK and 4 seconds on different projects</li>
-   * <li>this implementation - 48 seconds on JDK and 4 seconds on different projects</li>
-   * </ul>
-   * Whereas in fact I expected that interval tree would be better for this task.
-   * Moreover with interval tree we also can use incremental approach, but current implementation of it doesn't support remove operation.
-   */
-  private void filterAndSave(CloneGroup current) {
-    Iterator<CloneGroup> i = clones.iterator();
-    while (i.hasNext()) {
-      CloneGroup earlier = i.next();
-      // Note that following two conditions cannot be true together - proof by contradiction:
-      // let C be the current clone and A and B were found earlier
-      // then since relation is transitive - (A in C) and (C in B) => (A in B)
-      // so A should be filtered earlier
-      if (current.containsIn(earlier)) {
-        // current clone fully covered by clone, which was found earlier
-        return;
-      }
-      if (earlier.containsIn(current)) {
-        // current clone fully covers clone, which was found earlier
-        i.remove();
-      }
-    }
-    clones.add(current);
+    filter.add(new CloneGroup(cloneLength, origin, parts));
   }
 
 }

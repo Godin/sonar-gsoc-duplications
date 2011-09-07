@@ -20,13 +20,16 @@
 package org.sonar.duplications.java;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 import org.hamcrest.Matcher;
 import org.junit.Test;
+import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenChunker;
 
@@ -257,6 +260,15 @@ public class JavaTokenProducerTest {
   public void shouldPreserveOperators() {
     assertThat(chunk("+="), isTokens(new Token("+", 1, 0), new Token("=", 1, 1)));
     assertThat(chunk("--"), isTokens(new Token("-", 1, 0), new Token("-", 1, 1)));
+  }
+
+  @Test
+  public void realExamples() {
+    File testFile = DuplicationsTestUtil.findFile("/java/MessageResources.java");
+    assertThat(chunker.chunk(testFile).size(), greaterThan(0));
+
+    testFile = DuplicationsTestUtil.findFile("/java/RequestUtils.java");
+    assertThat(chunker.chunk(testFile).size(), greaterThan(0));
   }
 
   private static Matcher<List<Token>> isNumericLiteral() {

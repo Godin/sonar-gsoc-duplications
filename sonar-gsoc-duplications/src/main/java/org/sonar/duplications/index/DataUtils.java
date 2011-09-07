@@ -19,7 +19,6 @@
  */
 package org.sonar.duplications.index;
 
-
 public final class DataUtils {
 
   public interface Sortable {
@@ -73,37 +72,42 @@ public final class DataUtils {
     }
   }
 
-  private static int partition(Sortable data, int low, int high) {
-    int pivot = low;
-    int i = low - 1;
-    int j = high + 1;
-    while (i < j) {
-      i++;
+  private static int partition(Sortable data, int i, int j) {
+    // can be selected randomly
+    int pivot = i + (j - i) / 2;
+    while (i <= j) {
       while (data.isLess(i, pivot)) {
         i++;
       }
-      j--;
       while (data.isLess(pivot, j)) {
         j--;
       }
-      if (i < j) {
+      if (i <= j) {
         data.swap(i, j);
+        if (i == pivot) {
+          pivot = j;
+        } else if (j == pivot) {
+          pivot = i;
+        }
+        i++;
+        j--;
       }
     }
-    return j;
+    return i;
   }
 
   private static void quickSort(Sortable data, int low, int high) {
-    if (low >= high) {
-      return;
-    }
-    if (high - low == 5) {
+    if (high - low < 5) {
       bubbleSort(data, low, high);
       return;
     }
-    int p = partition(data, low, high);
-    quickSort(data, low, p);
-    quickSort(data, p + 1, high);
+    int i = partition(data, low, high);
+    if (low < i - 1) {
+      quickSort(data, low, i - 1);
+    }
+    if (i < high) {
+      quickSort(data, i, high);
+    }
   }
 
   private DataUtils() {

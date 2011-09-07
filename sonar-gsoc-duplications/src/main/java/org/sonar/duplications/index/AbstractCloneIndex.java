@@ -21,16 +21,4 @@ package org.sonar.duplications.index;
 
 public abstract class AbstractCloneIndex implements CloneIndex {
 
-  public boolean containsResourceId(String resourceId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void remove(String resourceId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void removeAll() {
-    throw new UnsupportedOperationException();
-  }
-
 }

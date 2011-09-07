@@ -29,11 +29,18 @@ import org.sonar.duplications.utils.FastStringComparator;
 import com.google.common.collect.Lists;
 
 /**
+ * Provides an index optimized by memory.
+ * <p>
  * Each object in Java has an overhead - see
  * <a href="http://devblog.streamy.com/2009/07/24/determine-size-of-java-object-class/">"HOWTO: Determine the size of a Java Object or Class"</a>.
- * So to optimize memory consumption, we use flat arrays, however this increases time of query.
- * 
- * TODO Godin: currently this implementation does not support deletion, however it's possible to implement.
+ * So to optimize memory consumption, we use flat arrays, however this increases time of queries.
+ * During  usual detection of duplicates most time consuming method is a {@link #getByResourceId(String)}:
+ * around 50% of time spent in this class and number of invocations of this method is 1% of total invocations,
+ * however total time spent in this class less than 1 second for small projects and around 2 seconds for projects like JDK.
+ * </p>
+ * <p>
+ * Note that this implementation currently does not support deletion, however it's possible to implement.
+ * </p>
  */
 public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
@@ -79,12 +86,13 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   }
 
   /**
-   * Note that this implementation does not guarantee that blocks would be sorted by index.
+   * {@inheritDoc}
+   * <p>
+   * <strong>Note that this implementation does not guarantee that blocks would be sorted by index.</strong>
+   * </p>
    */
   public Collection<Block> getByResourceId(String resourceId) {
     ensureSorted();
-
-    // TODO can be interned: resourceId = resourceId.intern();
 
     // prepare resourceId for binary search
     resourceIds[size] = resourceId;
@@ -93,7 +101,6 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     int index = DataUtils.binarySearch(byResourceId);
 
     List<Block> result = Lists.newArrayList();
-    // TODO can be used if strings interned: while (index < size && resourceIds[byResourceIndices[index]] == resourceId) {
     int realIndex = resourceIdsIndex[index];
     while (index < size && FastStringComparator.INSTANCE.compare(resourceIds[realIndex], resourceId) == 0) {
       // extract block (note that there is no need to extract resourceId)
@@ -114,6 +121,9 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Collection<Block> getBySequenceHash(ByteArray sequenceHash) {
     ensureSorted();
 
@@ -145,13 +155,15 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   }
 
   /**
-   * Note that this implementation allows insertion of two blocks with same index.
+   * {@inheritDoc}
+   * <p>
+   * <strong>Note that this implementation allows insertion of two blocks with same index for one resource.</strong>
+   * </p>
    */
   public void insert(Block block) {
     sorted = false;
     ensureCapacity();
 
-    // TODO can be interned: resourceIds[size] = block.getResourceId().intern();
     resourceIds[size] = block.getResourceId();
 
     int[] hash = block.getBlockHash().toIntArray();
@@ -258,7 +270,6 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       String s1 = resourceIds[resourceIdsIndex[i]];
       String s2 = resourceIds[resourceIdsIndex[j]];
       return FastStringComparator.INSTANCE.compare(s1, s2) < 0;
-      // TODO can be used if strings interned: return System.identityHashCode(s1) < System.identityHashCode(s2);
     }
 
     public int size() {

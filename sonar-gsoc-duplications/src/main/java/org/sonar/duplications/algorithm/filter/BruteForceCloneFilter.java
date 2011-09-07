@@ -21,6 +21,7 @@ package org.sonar.duplications.algorithm.filter;
 
 import java.util.List;
 
+import org.sonar.duplications.algorithm.FilterUtils;
 import org.sonar.duplications.index.CloneGroup;
 
 import com.google.common.collect.Lists;
@@ -38,7 +39,7 @@ public class BruteForceCloneFilter {
         }
 
         CloneGroup second = clones.get(j);
-        covered |= first.containsIn(second);
+        covered |= FilterUtils.containsIn(first, second);
         if (covered) {
           break;
         }

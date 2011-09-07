@@ -187,6 +187,7 @@ public abstract class AbstractAdvancedCloneReporter implements CloneReporterAlgo
     int cloneLength;
 
     public CloneGroup create() {
+      Collections.sort(parts, FilterUtils.CLONEPART_COMPARATOR);
       return new CloneGroup(cloneLength, originPart, parts);
     }
   }
